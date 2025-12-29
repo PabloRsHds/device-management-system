@@ -1,0 +1,43 @@
+package br.com.device_management.dtos;
+
+import br.com.device_management.enums.Type;
+import br.com.device_management.enums.Unit;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+public record DeviceDto(
+
+        @NotBlank(message = "The name field cannot be blank")
+        @Size(min = 2, max = 50, message = "The name field must have between 2 and 50 characters")
+        String name,
+
+        @NotNull(message = "The type field cannot be null")
+        Type type,
+
+        @NotBlank(message = "The description field cannot be blank")
+        @Size(max = 200, message = "The description field must have a maximum of 200 characters")
+        String description,
+
+        @NotBlank(message = "The device model field cannot be blank")
+        @Size(min = 1, max = 50, message = "The device model field must have between 1 and 50 characters")
+        String deviceModel,
+
+        @NotBlank(message = "The manufacturer field cannot be blank")
+        @Size(min = 1, max = 50, message = "The manufacturer field must have between 1 and 50 characters")
+        String manufacturer,
+
+        @NotBlank(message = "The location field cannot be blank")
+        @Size(max = 100, message = "The location field must have a maximum of 100 characters")
+        String location,
+
+        @NotNull(message = "The unit field cannot be null")
+        Unit unit,
+
+        @NotNull(message = "The min Limit field is required")
+        Float minLimit,
+
+        @NotNull(message = "The max limit field is required")
+        Float maxLimit
+) {
+}
