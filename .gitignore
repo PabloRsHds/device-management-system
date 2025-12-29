@@ -1,0 +1,31 @@
+# Arquivos sensíveis
+.env
+*.env
+email-secret.env
+public-key
+private-key
+keys/*
+*.pem
+*.key
+
+# IntelliJ / Eclipse / VSCode
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+mvnw
+mvnw.cmd
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
