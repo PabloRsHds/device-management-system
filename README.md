@@ -1,45 +1,38 @@
-# Device Management System - Frontend
+# Device Management System - Backend
 
-Frontend do sistema de gerenciamento de dispositivos IoT, desenvolvido em Angular/TypeScript.
+Sistema de gerenciamento de dispositivos IoT com arquitetura de microserviços.
 
-## Funcionalidades Implementadas
+## Arquitetura
 
-- **Registro de dispositivos** - Formulário completo de cadastro
-- **Listagem de dispositivos** - Tabela com paginação e filtros
-- **Atualização de dispositivos** - Edição de informações
-- **Exclusão de dispositivos** - Remoção com confirmação
-- **Teste de sensores** - Interface para acionar testes
-- **Visualização de sensores** - Dashboard com dados em tempo real
-
-## Funcionalidades Futuras
-
-- **Página de login** - Autenticação de usuários
-- **Controle de acesso** - Permissões por perfil
-- **Dashboard analítico** - Gráficos e métricas
-- **Notificações** - Alertas em tempo real
+- **Device Service**: CRUD de dispositivos, comunicação via Feign
+- **Sensor Test Service**: Testes agendados de sensores, envio para Kafka
+- **IoT Gateway**: Validações brutas dos dados
+- **Sensor Analysis**: Análises detalhadas dos dados
+- **Apache Kafka**: Comunicação assíncrona entre serviços
 
 ## Tecnologias
 
-- Angular 19+
-- TypeScript
-- RxJS para gerenciamento de estado
-- Angular Material para UI components
-- Chart.js (para futuros gráficos)
-- Angular HttpClient para APIs
+- Java
+- Spring Boot
+- Spring Kafka
+- Feign Client
+- Spring Scheduling
+- PostgreSQL
+- Docker
 
-## Instalação
+## A adicionar
+
+- Microserviço para login
+- Implementar segurança
+- Implementar validações
+
+## Como Executar
 
 ```bash
 # Clone o repositório
-git clone https://github.com/PabloRsHds/device-management-frontend
+git clone https://github.com/PabloRsHds/device-management-system.git
+cd device-management-system
 
-# Entre na pasta
-cd device-management-frontend
-
-# Instale dependências
-npm install
-
-# Execute em desenvolvimento
-npm start
-# ou
-ng serve
+# Execute com Docker Compose
+docker-compose up -d
+```
