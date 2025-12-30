@@ -20,6 +20,12 @@ Sistema de gerenciamento de dispositivos IoT com arquitetura de microserviços.
 - PostgreSQL
 - Docker
 
+## A adicionar
+
+- Microserviço para login
+- Implementar segurança
+- Implementar validações
+
 ## Como Executar
 
 ```bash
