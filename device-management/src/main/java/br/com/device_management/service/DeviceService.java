@@ -14,8 +14,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -61,6 +63,26 @@ public class DeviceService {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("Message","Your device has been registered successfully!")
+        );
+    }
+
+
+    public ResponseEntity<List<DeviceDto>> allDevices() {
+
+        return ResponseEntity.ok(
+                deviceRepository.findAll().stream()
+                        .map(device -> new DeviceDto(
+                                device.getName(),
+                                device.getType(),
+                                device.getDescription(),
+                                device.getDeviceModel(),
+                                device.getManufacturer(),
+                                device.getLocation(),
+                                device.getUnit(),
+                                device.getMinLimit(),
+                                device.getMaxLimit()
+                        ))
+                        .toList()
         );
     }
 }

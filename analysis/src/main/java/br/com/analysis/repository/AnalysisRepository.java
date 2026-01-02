@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface AnalysisRepository extends JpaRepository<Analysis, String> {
     Optional<Analysis> findByDeviceId(String deviceId);
+
+    Optional<Analysis> findByDeviceModel(String deviceModel);
 }

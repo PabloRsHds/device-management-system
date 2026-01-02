@@ -62,10 +62,9 @@ public class KafkaConsumer {
             var listMax = entity.get().getHistoryMaxLimit();
             var listUpdate = entity.get().getHistoryUpdate();
 
-
             listMin.add(consumer.minLimit());
             listMax.add(consumer.maxLimit());
-            listUpdate.add(LocalDateTime.now().atZone(ZoneId.of("America/Sao_Paulo"))
+            entity.get().setUpdatedAt(LocalDateTime.now().atZone(ZoneId.of("America/Sao_Paulo"))
                     .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
 
             entity.get().setMinLimit(consumer.minLimit());
@@ -80,7 +79,7 @@ public class KafkaConsumer {
 
                 entity.get().setLastReadingMinLimit(penultimateMinLimit);
                 entity.get().setLastReadingMaxLimit(penultimateMaxLimit);
-                entity.get().setUpdatedAt(penultimateUpdate);
+                entity.get().setLastReadingUpdateAt(penultimateUpdate);
             }
 
             this.analysisRepository.save(entity.get());

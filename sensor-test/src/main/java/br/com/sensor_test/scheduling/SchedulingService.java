@@ -32,13 +32,13 @@ public class SchedulingService {
         var maxLimit = random.nextFloat(30, 70);
 
         this.kafkaTemplate.send("sensor-test-topic", new DeviceDto(
-                "a63cebbf-4e2d-4f99-ae8c-88fcc8bb8e76",
+                "60424ad3-e95b-4985-8d16-162daf19d3eb",
                 "Sensor de Temperatura",
                 Type.TEMPERATURE_SENSOR,
                 "Sensor de temperatura mODD532",
                 "mODD532",
                 "Imbra",
-                "Quarto de visitas",
+                "Na igreja",
                 Unit.CELSIUS,
                 minLimit,
                 maxLimit

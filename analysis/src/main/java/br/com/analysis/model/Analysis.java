@@ -37,6 +37,7 @@ public class Analysis {
 
     private Float lastReadingMinLimit;
     private Float lastReadingMaxLimit;
+    private String lastReadingUpdateAt;
 
     private String updatedAt;
     private String createdAt;

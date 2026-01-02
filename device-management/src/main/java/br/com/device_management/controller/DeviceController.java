@@ -4,11 +4,9 @@ import br.com.device_management.dtos.DeviceDto;
 import br.com.device_management.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,5 +23,10 @@ public class DeviceController {
     @PostMapping("/register-device")
     private ResponseEntity<Map<String, String>> registerDevice(@RequestBody DeviceDto request) {
         return this.deviceService.registerDevice(request);
+    }
+
+    @GetMapping("/all-devices")
+    public ResponseEntity<List<DeviceDto>> allDevices(){
+        return this.deviceService.allDevices();
     }
 }
