@@ -1,6 +1,8 @@
 package br.com.device_management.service;
 
+import br.com.device_management.dtos.DeleteDevice;
 import br.com.device_management.dtos.DeviceDto;
+import br.com.device_management.dtos.UpdateDevice;
 import br.com.device_management.enums.Status;
 import br.com.device_management.model.Device;
 import br.com.device_management.repository.DeviceRepository;
@@ -16,8 +18,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -64,6 +66,54 @@ public class DeviceService {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("Message","Your device has been registered successfully!")
         );
+    }
+
+    public ResponseEntity<Map<String, String>> updateDevice(String deviceModel,UpdateDevice request) {
+
+        Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
+
+        if (entity.isEmpty()) {
+            System.out.println("Não foi");
+            return ResponseEntity.notFound().build();
+        }
+
+        if (request.newName() != null ) {
+            entity.get().setName(request.newName());
+        }
+
+        if (request.newDeviceModel() != null ) {
+            entity.get().setDeviceModel(request.newDeviceModel());
+        }
+
+        if (request.newManufacturer() != null) {
+            entity.get().setManufacturer(request.newManufacturer());
+        }
+
+        if (request.newLocation() != null) {
+            entity.get().setLocation(request.newLocation());
+        }
+
+        if (request.newDescription() != null) {
+            entity.get().setDescription(request.newDescription());
+        }
+        this.deviceRepository.save(entity.get());
+
+        return ResponseEntity.ok().body(
+                Map.of("Update", "Device updated successfully")
+        );
+    }
+
+    public ResponseEntity<Void> deleteDevice(String deviceModel) {
+
+        Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
+
+        if (entity.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        this.deviceRepository.delete(entity.get());
+
+        return ResponseEntity.ok().build();
     }
 
 
