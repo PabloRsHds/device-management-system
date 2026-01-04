@@ -63,6 +63,12 @@ public class DeviceService {
         log.info("Salvando o dispositivo e enviando uma mensagem ao usuário");
         this.deviceRepository.save(newDevice);
 
+        //Adicionar um kafka aqui, onde eu vou enviar os arquivos para o simulador de dispositivos e lá tbm adicionar um banco de dados,
+        //para que eu possa ter um histórico de todos os dispositivos que foram cadastrados.
+        //e assim utilizar o status lá, se o dispostivo for active ele rodará no sheduling, e tbm no microserviço de teste de dispositvos
+        //Vou adcionar uma função onde eu possa alterar o status, ai no front eu clico no botao e muda o status do dispositivo e assim começa o teste,
+        //E tbm adicionarei um retorno de todos os dispositivos que estão ativos e que estão sendo testados, os que estiverem inativos serão ignorados
+
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("Message","Your device has been registered successfully!")
         );
