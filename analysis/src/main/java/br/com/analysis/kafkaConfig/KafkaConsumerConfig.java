@@ -1,5 +1,6 @@
 package br.com.analysis.kafkaConfig;
 
+import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.dtos.DeviceDto;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -24,12 +25,12 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, DeviceDto> consumerIotGatewayEvent() {
+    public ConsumerFactory<String, ConsumerSensorTest> consumerSensorTestEvent() {
 
         Map<String, Object> props = this.kafkaProperties.buildConsumerProperties();
 
-        JsonDeserializer<DeviceDto> valueDeserializer =
-                new JsonDeserializer<>(DeviceDto.class, false);
+        JsonDeserializer<ConsumerSensorTest> valueDeserializer =
+                new JsonDeserializer<>(ConsumerSensorTest.class, false);
 
         valueDeserializer.addTrustedPackages("br.com.analysis.dtos");
         valueDeserializer.setRemoveTypeHeaders(false);
@@ -43,11 +44,11 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, DeviceDto> kafkaListenerIotGatewayFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, DeviceDto> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, ConsumerSensorTest> kafkaListenerSensorTestFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, ConsumerSensorTest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(consumerIotGatewayEvent());
+        factory.setConsumerFactory(consumerSensorTestEvent());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }

@@ -1,48 +1,55 @@
 package br.com.sensor_test.scheduling;
 
-import br.com.sensor_test.dtos.DeviceDto;
-import br.com.sensor_test.enums.Type;
-import br.com.sensor_test.enums.Unit;
+import br.com.sensor_test.dtos.SensorForAnalysisEvent;
+import br.com.sensor_test.enums.Status;
+import br.com.sensor_test.repository.SensorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Random;
-
 @Service
 public class SchedulingService {
 
+    private final SensorRepository sensorRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Autowired
-    public SchedulingService(KafkaTemplate<String, Object> kafkaTemplate) {
+    public SchedulingService(SensorRepository sensorRepository,KafkaTemplate<String, Object> kafkaTemplate) {
+        this.sensorRepository = sensorRepository;
         this.kafkaTemplate = kafkaTemplate;
     }
 
 
     @Transactional
     @Scheduled(cron = "* */5 * * * *")
-    private void SensorTestService() {
+    public void sensorTestService() {
 
-        var random = new Random();
+        sensorRepository.findAll()
+                .stream()
+                .filter(device -> device.getStatus() == Status.ACTIVATED)
+                .forEach(device -> {
 
-        var minLimit = random.nextFloat(-20f, 30);
-        var maxLimit = random.nextFloat(30, 70);
+                    var minLimit = device.getType()
+                                    .randomMinLimit(device.getType().getMin(), device.getType().getMax());
 
-        this.kafkaTemplate.send("sensor-test-topic", new DeviceDto(
-                "60424ad3-e95b-4985-8d16-162daf19d3eb",
-                "Sensor de Temperatura",
-                Type.TEMPERATURE_SENSOR,
-                "Sensor de temperatura mODD532",
-                "mODD532",
-                "Imbra",
-                "Na igreja",
-                Unit.CELSIUS,
-                minLimit,
-                maxLimit
-        ));
+                    var maxLimit = device.getType()
+                                    .randomMaxLimit(device.getType().getMin(), device.getType().getMax());
 
+                    kafkaTemplate.send(
+                            "sensor-test-for-analysis-topic",
+                            new SensorForAnalysisEvent(
+                                    device.getName(),
+                                    device.getType(),
+                                    device.getDescription(),
+                                    device.getDeviceModel(),
+                                    device.getManufacturer(),
+                                    device.getUnit(),
+                                    minLimit,
+                                    maxLimit
+                            )
+                    );
+                });
     }
 }

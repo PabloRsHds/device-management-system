@@ -1,9 +1,7 @@
 package br.com.device_management.service;
 
-import br.com.device_management.dtos.DeleteDevice;
-import br.com.device_management.dtos.DeviceDto;
-import br.com.device_management.dtos.UpdateDevice;
-import br.com.device_management.enums.Status;
+import br.com.device_management.dtos.*;
+import br.com.device_management.enums.Type;
 import br.com.device_management.model.Device;
 import br.com.device_management.repository.DeviceRepository;
 import jakarta.transaction.Transactional;
@@ -11,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,7 +17,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -26,10 +24,14 @@ import java.util.Optional;
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
+    private final KafkaTemplate<String, DeviceManagementEventForSensor> kafkaTemplate;
 
     @Autowired
-    public DeviceService(DeviceRepository deviceRepository) {
+    public DeviceService(
+            DeviceRepository deviceRepository,
+            KafkaTemplate<String, DeviceManagementEventForSensor> kafkaTemplate) {
         this.deviceRepository = deviceRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Transactional
@@ -52,22 +54,28 @@ public class DeviceService {
         newDevice.setDescription(request.description());
         newDevice.setDeviceModel(request.deviceModel());
         newDevice.setManufacturer(request.manufacturer());
-        newDevice.setStatus(Status.ACTIVATED);
         newDevice.setLocation(request.location());
-        newDevice.setUnit(request.unit());
-        newDevice.setMinLimit(request.minLimit());
-        newDevice.setMaxLimit(request.maxLimit());
+        newDevice.setUnit(request.type().getUnit());
+        newDevice.setMinLimit(request.type().getMin());
+        newDevice.setMaxLimit(request.type().getMax());
         newDevice.setCreatedAt(LocalDateTime.now().atZone(ZoneId.of("America/Sao_Paulo"))
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
 
         log.info("Salvando o dispositivo e enviando uma mensagem ao usuário");
         this.deviceRepository.save(newDevice);
 
-        //Adicionar um kafka aqui, onde eu vou enviar os arquivos para o simulador de dispositivos e lá tbm adicionar um banco de dados,
-        //para que eu possa ter um histórico de todos os dispositivos que foram cadastrados.
-        //e assim utilizar o status lá, se o dispostivo for active ele rodará no sheduling, e tbm no microserviço de teste de dispositvos
-        //Vou adcionar uma função onde eu possa alterar o status, ai no front eu clico no botao e muda o status do dispositivo e assim começa o teste,
-        //E tbm adicionarei um retorno de todos os dispositivos que estão ativos e que estão sendo testados, os que estiverem inativos serão ignorados
+        this.kafkaTemplate.send("device-management-for-sensor-test-topic",
+                new DeviceManagementEventForSensor(
+                        request.name(),
+                        request.type(),
+                        request.description(),
+                        request.deviceModel(),
+                        request.manufacturer(),
+                        request.type().getUnit()
+                ));
+
+        //Implementei tudo no backend, eu acho kk, agora preciso ir para o front end, colocar os endpoints do sensor test
+        //
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("Message","Your device has been registered successfully!")
@@ -123,11 +131,11 @@ public class DeviceService {
     }
 
 
-    public ResponseEntity<List<DeviceDto>> allDevices() {
+    public ResponseEntity<List<AllDevicesDto>> allDevices() {
 
         return ResponseEntity.ok(
                 deviceRepository.findAll().stream()
-                        .map(device -> new DeviceDto(
+                        .map(device -> new AllDevicesDto(
                                 device.getName(),
                                 device.getType(),
                                 device.getDescription(),
@@ -140,5 +148,19 @@ public class DeviceService {
                         ))
                         .toList()
         );
+    }
+
+    public ResponseEntity<FindByDeviceWithDeviceModel> findByDeviceWithDeviceModel(String deviceModel) {
+
+        Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
+
+        return entity.map(device -> ResponseEntity.ok(new FindByDeviceWithDeviceModel(
+                device.getName(),
+                device.getDeviceModel(),
+                device.getManufacturer(),
+                device.getLocation(),
+                device.getDescription()
+        ))).orElseGet(() -> ResponseEntity.notFound().build());
+
     }
 }

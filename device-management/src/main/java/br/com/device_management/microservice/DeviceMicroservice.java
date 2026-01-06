@@ -1,7 +1,6 @@
 package br.com.device_management.microservice;
 
 import br.com.device_management.enums.Type;
-import br.com.device_management.enums.Unit;
 import br.com.device_management.model.Device;
 import br.com.device_management.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,45 +22,18 @@ public class DeviceMicroservice {
         this.deviceRepository = deviceRepository;
     }
 
-    @GetMapping("/verification-for-iot_gateway")
-    private Boolean verificationForIotGateway(
-            @RequestParam String deviceId,
-            @RequestParam String name,
-            @RequestParam Type type,
-            @RequestParam String description,
-            @RequestParam String deviceModel,
-            @RequestParam String manufacturer) {
-
-        Optional<Device> device = this.deviceRepository.findById(deviceId);
-
-        if (device.isPresent() &&
-            device.get().getName().equals(name) &&
-            device.get().getType().equals(type) &&
-            device.get().getDescription().equals(description) &&
-            device.get().getDeviceModel().equals(deviceModel) &&
-            device.get().getManufacturer().equals(manufacturer)) {
-
-            return true;
-        }
-
-        return false;
-    }
-
     @GetMapping("/verification-for-device-analysis")
-    private Boolean verificationForDeviceAnalysis(@RequestParam String deviceId,
-                                                  @RequestParam Unit unit,
+    private Boolean verificationForDeviceAnalysis(@RequestParam String deviceModel,
                                                   @RequestParam Float minLimit,
                                                   @RequestParam Float maxLimit) {
 
-        Optional<Device> device = this.deviceRepository.findById(deviceId);
+        Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
 
-        if (device.isPresent() &&
-            device.get().getUnit().equals(unit) &&
-            device.get().getMinLimit() <= minLimit &&
-            device.get().getMaxLimit() >= maxLimit) {
+        if (entity.get().getMinLimit() <= minLimit &&
+                entity.get().getMaxLimit() >= maxLimit) {
 
-            System.out.println(device.get().getMinLimit());
-            System.out.println(device.get().getMaxLimit());
+            System.out.println(entity.get().getMinLimit());
+            System.out.println(entity.get().getMaxLimit());
             System.out.println(minLimit);
             System.out.println(maxLimit);
 

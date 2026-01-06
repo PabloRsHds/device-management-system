@@ -1,6 +1,5 @@
 package br.com.device_management.model;
 
-import br.com.device_management.enums.Status;
 import br.com.device_management.enums.Type;
 import br.com.device_management.enums.Unit;
 import jakarta.persistence.*;
@@ -21,8 +20,6 @@ public class Device {
     private String description;
     private String deviceModel;
     private String manufacturer;
-    @Enumerated(EnumType.STRING)
-    private Status status;
     private String location;
 
     @Enumerated(EnumType.STRING)

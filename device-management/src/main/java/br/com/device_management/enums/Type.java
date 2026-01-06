@@ -1,59 +1,71 @@
 package br.com.device_management.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Type {
 
     // Temperature & Humidity
-    TEMPERATURE_SENSOR,
-    HUMIDITY_SENSOR,
-    THERMOCOUPLE,
-    THERMISTOR,
+    TEMPERATURE_SENSOR(-40f, 125f, Unit.CELSIUS),
+    HUMIDITY_SENSOR(0f, 100f, Unit.PERCENTAGE),
+    THERMOCOUPLE(-200f, 600f, Unit.CELSIUS),
+    THERMISTOR(-50f, 150f, Unit.CELSIUS),
 
     // Gas & Air Quality
-    GAS_SENSOR,
-    CO2_SENSOR,
-    CO_SENSOR,
-    AIR_QUALITY_SENSOR,
-    VOC_SENSOR,
+    GAS_SENSOR(0f, 1000f, Unit.PPM),
+    CO2_SENSOR(400f, 5000f, Unit.PPM),
+    CO_SENSOR(0f, 1000f, Unit.PPM),
+    AIR_QUALITY_SENSOR(0f, 500f, Unit.PPM),
+    VOC_SENSOR(0f, 500f, Unit.PPM),
 
     // Water & Liquid
-    WATER_LEVEL_SENSOR,
-    FLOW_SENSOR,
-    PH_SENSOR,
-    TURBIDITY_SENSOR,
-    PRESSURE_SENSOR,
+    WATER_LEVEL_SENSOR(0f, 100f, Unit.PERCENTAGE),
+    FLOW_SENSOR(0f, 1000f, Unit.LITER_PER_MINUTE),
+    PH_SENSOR(0f, 14f, Unit.PERCENTAGE), // pH não tem unidade no seu enum
+    TURBIDITY_SENSOR(0f, 1000f, Unit.PPM), // aproximação comum
+    PRESSURE_SENSOR(0f, 300f, Unit.BAR),
 
     // Distance & Proximity
-    DISTANCE_SENSOR,
-    ULTRASONIC_SENSOR,
-    PROXIMITY_SENSOR,
-    LIDAR_SENSOR,
-    TOF_SENSOR,
+    DISTANCE_SENSOR(0f, 500f, Unit.METER),
+    ULTRASONIC_SENSOR(2f, 400f, Unit.CENTIMETER),
+    PROXIMITY_SENSOR(0f, 50f, Unit.CENTIMETER),
+    LIDAR_SENSOR(0f, 1000f, Unit.METER),
+    TOF_SENSOR(0f, 200f, Unit.CENTIMETER),
 
     // Motion & Position
-    MOTION_SENSOR,
-    ACCELEROMETER,
-    GYROSCOPE,
-    MAGNETOMETER,
-    IMU,
+    MOTION_SENSOR(0f, 1f, Unit.PERCENTAGE),
+    ACCELEROMETER(-16f, 16f, Unit.METER_PER_SECOND),
+    GYROSCOPE(-2000f, 2000f, Unit.METER_PER_SECOND),
+    MAGNETOMETER(-100f, 100f, Unit.AMPERE), // aproximação
+    IMU(-100f, 100f, Unit.METER_PER_SECOND),
 
     // Light
-    LIGHT_SENSOR,
-    UV_SENSOR,
-    AMBIENT_LIGHT_SENSOR,
+    LIGHT_SENSOR(0f, 100_000f, Unit.LUX),
+    UV_SENSOR(0f, 11f, Unit.PERCENTAGE),
+    AMBIENT_LIGHT_SENSOR(0f, 100_000f, Unit.LUX),
 
     // Sound
-    SOUND_SENSOR,
-    MICROPHONE,
+    SOUND_SENSOR(0f, 150f, Unit.DECIBEL),
+    MICROPHONE(0f, 150f, Unit.DECIBEL),
 
     // Vibration & Force
-    VIBRATION_SENSOR,
-    FORCE_SENSOR,
-    LOAD_CELL,
-    STRAIN_GAUGE,
+    VIBRATION_SENSOR(0f, 100f, Unit.METER_PER_SECOND),
+    FORCE_SENSOR(0f, 1000f, Unit.NEWTON),
+    LOAD_CELL(0f, 5000f, Unit.KILOGRAM_FORCE),
+    STRAIN_GAUGE(-1000f, 1000f, Unit.OHM), // aproximação elétrica
 
     // Security
-    SMOKE_SENSOR,
-    FLAME_SENSOR,
-    PIR_SENSOR;
+    SMOKE_SENSOR(0f, 1000f, Unit.PPM),
+    FLAME_SENSOR(0f, 1f, Unit.PERCENTAGE),
+    PIR_SENSOR(0f, 1f, Unit.PERCENTAGE);
 
+    private final float min;
+    private final float max;
+    private final Unit unit;
+
+    Type(float min, float max, Unit unit) {
+        this.min = min;
+        this.max = max;
+        this.unit = unit;
+    }
 }

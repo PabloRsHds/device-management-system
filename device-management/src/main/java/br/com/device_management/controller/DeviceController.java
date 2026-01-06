@@ -1,7 +1,8 @@
 package br.com.device_management.controller;
 
-import br.com.device_management.dtos.DeleteDevice;
+import br.com.device_management.dtos.AllDevicesDto;
 import br.com.device_management.dtos.DeviceDto;
+import br.com.device_management.dtos.FindByDeviceWithDeviceModel;
 import br.com.device_management.dtos.UpdateDevice;
 import br.com.device_management.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,12 @@ public class DeviceController {
     }
 
     @GetMapping("/all-devices")
-    public ResponseEntity<List<DeviceDto>> allDevices(){
+    public ResponseEntity<List<AllDevicesDto>> allDevices(){
         return this.deviceService.allDevices();
+    }
+
+    @GetMapping("/find-by-device/{deviceModel:.+}")
+    public ResponseEntity<FindByDeviceWithDeviceModel> findByDeviceWithDeviceModel(@PathVariable String deviceModel){
+        return this.deviceService.findByDeviceWithDeviceModel(deviceModel);
     }
 }

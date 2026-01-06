@@ -1,7 +1,6 @@
 package br.com.device_management.dtos;
 
 import br.com.device_management.enums.Type;
-import br.com.device_management.enums.Unit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -29,15 +28,6 @@ public record DeviceDto(
 
         @NotBlank(message = "The location field cannot be blank")
         @Size(max = 100, message = "The location field must have a maximum of 100 characters")
-        String location,
-
-        @NotNull(message = "The unit field cannot be null")
-        Unit unit,
-
-        @NotNull(message = "The min Limit field is required")
-        Float minLimit,
-
-        @NotNull(message = "The max limit field is required")
-        Float maxLimit
+        String location
 ) {
 }

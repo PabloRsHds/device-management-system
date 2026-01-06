@@ -17,10 +17,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="sensor-test" />
-        <module name="iot-gateway" />
         <module name="device-management" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="iot-gateway" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
