@@ -1,7 +1,6 @@
 package br.com.device_management.service;
 
 import br.com.device_management.dtos.*;
-import br.com.device_management.enums.Type;
 import br.com.device_management.model.Device;
 import br.com.device_management.repository.DeviceRepository;
 import jakarta.transaction.Transactional;
@@ -73,9 +72,6 @@ public class DeviceService {
                         request.manufacturer(),
                         request.type().getUnit()
                 ));
-
-        //Implementei tudo no backend, eu acho kk, agora preciso ir para o front end, colocar os endpoints do sensor test
-        //
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("Message","Your device has been registered successfully!")

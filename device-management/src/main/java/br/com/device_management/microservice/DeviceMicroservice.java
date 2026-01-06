@@ -1,6 +1,5 @@
 package br.com.device_management.microservice;
 
-import br.com.device_management.enums.Type;
 import br.com.device_management.model.Device;
 import br.com.device_management.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
