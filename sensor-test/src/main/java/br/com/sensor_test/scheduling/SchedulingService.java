@@ -23,7 +23,7 @@ public class SchedulingService {
 
 
     @Transactional
-    @Scheduled(cron = "* */5 * * * *")
+    @Scheduled(fixedDelay = 5 * 60 * 1000)
     public void sensorTestService() {
 
         sensorRepository.findAll()
