@@ -4,9 +4,8 @@ Sistema de gerenciamento de dispositivos IoT com arquitetura de microserviços.
 
 ## Arquitetura
 
-- **Device Service**: CRUD de dispositivos, comunicação via Feign
-- **Sensor Test Service**: Testes agendados de sensores, envio para Kafka
-- **IoT Gateway**: Validações brutas dos dados
+- **Device Management**: CRUD de dispositivos, comunicação síncrona entre microserviços
+- **Sensor Test**: Testes agendados de sensores, envio para Kafka
 - **Sensor Analysis**: Análises detalhadas dos dados
 - **Apache Kafka**: Comunicação assíncrona entre serviços
 
@@ -25,6 +24,7 @@ Sistema de gerenciamento de dispositivos IoT com arquitetura de microserviços.
 - Microserviço para login
 - Implementar segurança
 - Implementar validações
+- Microserviço IoT Gateway: Validações brutas dos dados, foi removido porque estava sem utilidade no momento
 
 ## Como Executar
 
