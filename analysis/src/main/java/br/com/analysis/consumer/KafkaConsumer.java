@@ -1,5 +1,6 @@
 package br.com.analysis.consumer;
 
+import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.microservice.DeviceClient;
 import br.com.analysis.model.Analysis;
@@ -7,6 +8,7 @@ import br.com.analysis.repository.AnalysisRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +25,16 @@ public class KafkaConsumer {
 
     private final DeviceClient deviceClient;
     private final AnalysisRepository analysisRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Autowired
-    public KafkaConsumer(DeviceClient deviceClient, AnalysisRepository analysisRepository) {
+    public KafkaConsumer(
+            DeviceClient deviceClient,
+            AnalysisRepository analysisRepository,
+            KafkaTemplate<String, Object> kafkaTemplate) {
         this.deviceClient = deviceClient;
         this.analysisRepository = analysisRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Transactional
@@ -115,14 +122,17 @@ public class KafkaConsumer {
             log.info("Reading update at",entity.getLastReadingUpdateAt());
             log.info("Análise atualizada no banco");
 
+            this.kafkaTemplate.send("analysis-for-notification-topic",
+                    new AnalysisEventForNotification(
+                            consumer.deviceModel(),
+                            false
+                    ));
+
         } else {
 
-            // =========================
-            // 🆕 NOVO REGISTRO
-            // =========================
             log.info("Novo dispositivo, criando análise");
 
-            Analysis newEntity = new Analysis();
+            var newEntity = new Analysis();
             newEntity.setName(consumer.name());
             newEntity.setType(consumer.type());
             newEntity.setDescription(consumer.description());
@@ -141,6 +151,12 @@ public class KafkaConsumer {
             this.analysisRepository.save(newEntity);
             log.info("Novo dispositivo salvo no banco");
             ack.acknowledge();
+
+            this.kafkaTemplate.send("analysis-for-notification-topic",
+                    new AnalysisEventForNotification(
+                            consumer.deviceModel(),
+                            true
+                    ));
         }
     }
 }

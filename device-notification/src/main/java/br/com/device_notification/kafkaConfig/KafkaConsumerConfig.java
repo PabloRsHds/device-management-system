@@ -1,7 +1,8 @@
-package br.com.analysis.kafkaConfig;
+package br.com.device_notification.kafkaConfig;
 
-import br.com.analysis.dtos.ConsumerSensorTest;
+import br.com.device_notification.dtos.ConsumerAnalysis;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
+
 import java.util.Map;
 
 @Configuration
@@ -18,20 +20,19 @@ public class KafkaConsumerConfig {
 
     private final KafkaProperties kafkaProperties;
 
-
+    @Autowired
     public KafkaConsumerConfig(KafkaProperties kafka) {
         this.kafkaProperties = kafka;
     }
 
     @Bean
-    public ConsumerFactory<String, ConsumerSensorTest> consumerSensorTestEvent() {
-
+    public ConsumerFactory<String, ConsumerAnalysis> consumerAnalysis() {
         Map<String, Object> props = this.kafkaProperties.buildConsumerProperties();
 
-        JsonDeserializer<ConsumerSensorTest> valueDeserializer =
-                new JsonDeserializer<>(ConsumerSensorTest.class, false);
+        JsonDeserializer<ConsumerAnalysis> valueDeserializer =
+                new JsonDeserializer<>(ConsumerAnalysis.class, false);
 
-        valueDeserializer.addTrustedPackages("br.com.analysis.dtos");
+        valueDeserializer.addTrustedPackages("br.com.device_notification.dtos");
         valueDeserializer.setRemoveTypeHeaders(false);
         valueDeserializer.setUseTypeMapperForKey(false);
 
@@ -42,13 +43,15 @@ public class KafkaConsumerConfig {
         );
     }
 
+
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ConsumerSensorTest> kafkaListenerSensorTestFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ConsumerSensorTest> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, ConsumerAnalysis> kafkaListenerAnalysisFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, ConsumerAnalysis> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(consumerSensorTestEvent());
+        factory.setConsumerFactory(consumerAnalysis());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
+    //*************************
 }

@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: device-user
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/device_user}
+    username: root
+    password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
+    fetch-registry: 'true'
+    register-with-eureka: 'true'
+  instance:
+    lease-renewal-interval-in-seconds: '5'
+    lease-expiration-duration-in-seconds: '10'
+
+public:
+  key: classpath:public-key
+
+server:
+  port: 8080
