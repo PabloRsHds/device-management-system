@@ -35,7 +35,7 @@ public:
   key: classpath:public-key
 
 server:
-  port: 8082
+  port: 8085
   error:
     include-stacktrace: never
     include-message: never

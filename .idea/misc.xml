@@ -1,12 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/analysis/pom.xml" />
-        <option value="$PROJECT_DIR$/iot-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/device-user/pom.xml" />
         <option value="$PROJECT_DIR$/sensor-test/pom.xml" />
+        <option value="$PROJECT_DIR$/device-login/pom.xml" />
         <option value="$PROJECT_DIR$/device-management/pom.xml" />
+        <option value="$PROJECT_DIR$/device-notification/pom.xml" />
       </list>
     </option>
   </component>

@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="analysis" />
       </profile>
@@ -16,18 +17,28 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="sensor-test" />
+        <module name="device-login" />
         <module name="device-management" />
       </profile>
+      <profile name="Annotation profile for device-notification" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="device-notification" />
+        <module name="device-user" />
+      </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="iot-gateway" target="21" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="analysis" options="-parameters" />
+      <module name="device-login" options="-parameters" />
       <module name="device-management" options="-parameters" />
-      <module name="iot-gateway" options="-parameters" />
+      <module name="device-notification" options="-parameters" />
+      <module name="device-user" options="-parameters" />
       <module name="sensor-test" options="-parameters" />
     </option>
   </component>

@@ -28,10 +28,10 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${public-key}")
+    @Value("${public.key}")
     private RSAPublicKey publicKey;
 
-    @Value("${private-key}")
+    @Value("${private.key}")
     private RSAPrivateKey privateKey;
 
     @Bean

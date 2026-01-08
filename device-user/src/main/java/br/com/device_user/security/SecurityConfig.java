@@ -21,7 +21,7 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${public-key}")
+    @Value("${public.key}")
     private RSAPublicKey publicKey;
 
     @Bean
