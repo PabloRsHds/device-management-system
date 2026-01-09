@@ -42,7 +42,7 @@ public class SecurityConfig {
                     return configuration;
                 }))
                 .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 );
         return http.build();
     }
