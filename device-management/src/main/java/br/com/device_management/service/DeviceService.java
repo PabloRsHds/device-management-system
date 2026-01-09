@@ -66,11 +66,13 @@ public class DeviceService {
         this.kafkaTemplate.send("device-management-for-sensor-test-topic",
                 new DeviceManagementEventForSensor(
                         request.name(),
-                        request.type(),
+                        request.type().toString(),
                         request.description(),
                         request.deviceModel(),
                         request.manufacturer(),
-                        request.type().getUnit()
+                        request.type().getUnit().toString(),
+                        request.type().getMin(),
+                        request.type().getMax()
                 ));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
