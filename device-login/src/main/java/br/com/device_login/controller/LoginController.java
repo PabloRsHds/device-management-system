@@ -1,8 +1,8 @@
 package br.com.device_login.controller;
 
-import br.com.device_login.dtos.RequestLoginDto;
-import br.com.device_login.dtos.RequestTokensDto;
-import br.com.device_login.dtos.ResponseTokens;
+import br.com.device_login.dtos.loginDto.RequestLoginDto;
+import br.com.device_login.dtos.tokenDto.RequestTokensDto;
+import br.com.device_login.dtos.tokenDto.ResponseTokens;
 import br.com.device_login.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

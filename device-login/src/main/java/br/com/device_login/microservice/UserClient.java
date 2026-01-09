@@ -1,13 +1,17 @@
 package br.com.device_login.microservice;
 
-import br.com.device_login.dtos.ResponseUserForLogin;
+import br.com.device_login.dtos.loginDto.ResponseUserForLogin;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "DeviceManagement", url = "http://localhost:8080/microservice")
+@FeignClient(name = "DEVICE-USER")
 public interface UserClient {
 
-    @GetMapping("/verify-if-email-already-cadastred")
+     /*
+      * Eu faço uma verificação passando o e-mail do usuário, caso ele esteja registrado ele me retorna os dados
+      * do usuário, como userId, password(para fazer a verificação do password), e a role do usuário.
+      */
+    @GetMapping("/microservice/verify-if-email-already-cadastred")
     ResponseUserForLogin getUserForLoginWithEmail(@RequestParam String email);
 }

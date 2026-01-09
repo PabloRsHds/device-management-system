@@ -1,4 +1,4 @@
-package br.com.device_login.dtos;
+package br.com.device_login.dtos.tokenDto;
 
 public record ResponseTokens(
         String accessToken,

@@ -1,8 +1,8 @@
 package br.com.device_login.service;
 
-import br.com.device_login.dtos.RequestLoginDto;
-import br.com.device_login.dtos.RequestTokensDto;
-import br.com.device_login.dtos.ResponseTokens;
+import br.com.device_login.dtos.loginDto.RequestLoginDto;
+import br.com.device_login.dtos.tokenDto.RequestTokensDto;
+import br.com.device_login.dtos.tokenDto.ResponseTokens;
 import br.com.device_login.microservice.UserClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,7 +35,7 @@ public class LoginService {
         this.jwtDecoder = jwtDecoder;
     }
 
-
+    // Função onde o usuário consegue fazer o seu login.
     public ResponseEntity<Map<String, String>> login(RequestLoginDto request) {
 
         var user = this.userClient.getUserForLoginWithEmail(request.email());
@@ -78,6 +78,7 @@ public class LoginService {
     }
 
 
+    // Função onde o usuário consegue fazer o refresh do seu token.
     public ResponseEntity<ResponseTokens> refreshTokens(RequestTokensDto request){
 
         var accessToken = this.jwtDecoder.decode(request.accessToken());
