@@ -43,6 +43,8 @@ public class KafkaConsumer {
             newEntity.setDeviceModel(consumer.deviceModel());
             newEntity.setManufacturer(consumer.manufacturer());
             newEntity.setUnit(consumer.unit());
+            newEntity.setMinLimit(consumer.minLimit());
+            newEntity.setMaxLimit(consumer.maxLimit());
             newEntity.setStatus(Status.DEACTIVATED);
             this.sensorRepository.save(newEntity);
 
