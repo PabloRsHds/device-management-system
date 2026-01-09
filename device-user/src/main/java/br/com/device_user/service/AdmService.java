@@ -1,4 +1,4 @@
-package br.com.device_user.service.adm;
+package br.com.device_user.service;
 
 import br.com.device_user.enums.Role;
 import br.com.device_user.model.User;
