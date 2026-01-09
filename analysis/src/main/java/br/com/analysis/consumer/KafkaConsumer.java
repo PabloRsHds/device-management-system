@@ -2,7 +2,6 @@ package br.com.analysis.consumer;
 
 import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.dtos.ConsumerSensorTest;
-import br.com.analysis.microservice.DeviceClient;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +22,13 @@ import java.util.Optional;
 @Service
 public class KafkaConsumer {
 
-    private final DeviceClient deviceClient;
     private final AnalysisRepository analysisRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Autowired
     public KafkaConsumer(
-            DeviceClient deviceClient,
             AnalysisRepository analysisRepository,
             KafkaTemplate<String, Object> kafkaTemplate) {
-        this.deviceClient = deviceClient;
         this.analysisRepository = analysisRepository;
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -47,15 +43,9 @@ public class KafkaConsumer {
         log.info("Recebendo mensagem do Kafka para o deviceModel={}", consumer.deviceModel());
         log.info("minLimit={}, maxLimit={}", consumer.minLimit(), consumer.maxLimit());
 
-        // 1️⃣ Verificação externa
-        boolean deviceValid = this.deviceClient.verificationForDeviceAnalysis(
-                consumer.deviceModel(),
-                consumer.minLimit(),
-                consumer.maxLimit()
-        );
+        if (consumer.minValue() >= consumer.minLimit() &&
+                consumer.maxValue() <= consumer.maxLimit()) {
 
-        if (!deviceValid) {
-            log.warn("Verificação falhou para o deviceModel={}", consumer.deviceModel());
             ack.acknowledge();
             return;
         }

@@ -1,16 +1,15 @@
 package br.com.analysis.dtos;
 
-import br.com.analysis.enums.Type;
-import br.com.analysis.enums.Unit;
-
 public record ConsumerSensorTest(
         String name,
-        Type type,
+        String type,
         String description,
         String deviceModel,
         String manufacturer,
-        Unit unit,
+        String unit,
         Float minLimit,
-        Float maxLimit
+        Float maxLimit,
+        Float minValue,
+        Float maxValue
 ) {
 }

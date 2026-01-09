@@ -1,11 +1,9 @@
 package br.com.analysis.dtos;
 
-import br.com.analysis.enums.Unit;
-
 public record DeviceAnalysisDto(
         Float minLimit,
         Float maxLimit,
-        Unit unit,
+        String unit,
         String updatedAt,
         String createdAt,
         Float lastReadingMinLimit,

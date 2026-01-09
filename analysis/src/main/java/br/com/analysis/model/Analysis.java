@@ -1,7 +1,5 @@
 package br.com.analysis.model;
 
-import br.com.analysis.enums.Type;
-import br.com.analysis.enums.Unit;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,14 +17,12 @@ public class Analysis {
     private String deviceAnalysisId;
 
     private String name;
-    @Enumerated(EnumType.STRING)
-    private Type type;
+    private String type;
     private String description;
     private String deviceModel;
     private String manufacturer;
 
-    @Enumerated(EnumType.STRING)
-    private Unit unit;
+    private String unit;
     private Float minLimit;
     private Float maxLimit;
 
