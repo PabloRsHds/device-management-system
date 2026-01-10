@@ -40,12 +40,13 @@ public class KafkaConsumer {
             containerFactory = "kafkaListenerSensorTestFactory")
     public void consumerIotGateway(ConsumerSensorTest consumer, Acknowledgment ack) {
 
-        log.info("Recebendo mensagem do Kafka para o deviceModel={}", consumer.deviceModel());
-        log.info("minLimit={}, maxLimit={}", consumer.minLimit(), consumer.maxLimit());
+        System.out.println(consumer.minLimit());
+        System.out.println(consumer.maxLimit());
+        System.out.println(consumer.minValue());
+        System.out.println(consumer.maxValue());
 
-        if (consumer.minValue() >= consumer.minLimit() &&
-                consumer.maxValue() <= consumer.maxLimit()) {
-
+        if (consumer.minValue() < consumer.minLimit() ||
+                consumer.maxValue() > consumer.maxLimit()) {
             ack.acknowledge();
             return;
         }
@@ -83,13 +84,13 @@ public class KafkaConsumer {
             var listUpdate = entity.getHistoryUpdate();
 
             // 4️⃣ Adiciona histórico
-            listMin.add(consumer.minLimit());
-            listMax.add(consumer.maxLimit());
+            listMin.add(consumer.minValue());
+            listMax.add(consumer.maxValue());
             listUpdate.add(now);
 
             // 5️⃣ Atualiza valores atuais
-            entity.setMinLimit(consumer.minLimit());
-            entity.setMaxLimit(consumer.maxLimit());
+            entity.setMinLimit(consumer.minValue());
+            entity.setMaxLimit(consumer.maxValue());
             entity.setUpdatedAt(now);
 
             // 6️⃣ Define a leitura anterior (penúltima)
@@ -129,8 +130,8 @@ public class KafkaConsumer {
             newEntity.setDeviceModel(consumer.deviceModel());
             newEntity.setManufacturer(consumer.manufacturer());
             newEntity.setUnit(consumer.unit());
-            newEntity.setMinLimit(consumer.minLimit());
-            newEntity.setMaxLimit(consumer.maxLimit());
+            newEntity.setMinLimit(consumer.minValue());
+            newEntity.setMaxLimit(consumer.maxValue());
             newEntity.setCreatedAt(now);
 
             // Inicializa listas vazias

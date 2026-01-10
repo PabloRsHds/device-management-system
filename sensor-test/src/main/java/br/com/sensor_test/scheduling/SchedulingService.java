@@ -28,7 +28,7 @@ public class SchedulingService {
 
 
     @Transactional
-    @Scheduled(fixedDelay = 5 * 60 * 1000)
+    @Scheduled(fixedDelay = 2 * 60 * 1000)
     public void sensorTestService() {
 
         sensorRepository.findAll()
@@ -39,8 +39,8 @@ public class SchedulingService {
                     var minLimit = device.getMinLimit();
                     var maxLimit = device.getMaxLimit();
 
-                    var valueMin = this.randomMinLimit(minLimit, maxLimit);
-                    var valueMax = this.randomMaxLimit(minLimit, maxLimit);
+                    var valueMin = this.randomMinLimit(minLimit);
+                    var valueMax = this.randomMaxLimit(maxLimit);
 
 
                     kafkaTemplate.send(
@@ -61,17 +61,17 @@ public class SchedulingService {
                 });
     }
 
-    public float randomMinLimit(float minLimit, float maxLimit) {
+    public float randomMinLimit(float minLimit) {
 
         float lower = minLimit - TEST_MARGIN;
-        float upper = Math.min(minLimit + TEST_MARGIN, maxLimit);
+        float upper = minLimit + TEST_MARGIN;
 
         return random.nextFloat(lower, upper);
     }
 
-    public float randomMaxLimit(float minLimit, float maxLimit) {
+    public float randomMaxLimit(float maxLimit) {
 
-        float lower = Math.max(maxLimit - TEST_MARGIN, minLimit);
+        float lower = maxLimit - TEST_MARGIN;
         float upper = maxLimit + TEST_MARGIN;
 
         return random.nextFloat(lower, upper);

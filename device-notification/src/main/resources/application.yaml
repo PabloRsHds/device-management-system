@@ -2,7 +2,7 @@ spring:
   application:
     name: device-notification
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/device-notification}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/device_notification}
     username: root
     password: root
     driver-class-name: org.postgresql.Driver
