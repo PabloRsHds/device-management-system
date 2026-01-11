@@ -3,6 +3,7 @@ package br.com.device_notification.service;
 import br.com.device_notification.dtos.ResponseNotifications;
 import br.com.device_notification.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -22,16 +23,16 @@ public class NotificationService {
 
 
 
-    //public ResponseEntity<List<ResponseNotifications>> allNotifications(JwtAuthenticationToken token) {
+    public ResponseEntity<List<ResponseNotifications>> allNotifications(String deviceModel,int page, int size) {
 
-    //    List<ResponseNotifications> notifications = this.notificationRepository.findAllByDeviceModel(token.getName()).stream()
-    //            .filter(notification -> Boolean.TRUE.equals(notification.getShowNotification()))
-     //           .map(notification -> new ResponseNotifications(
-     //                   notification.getMessage()))
-     //           .toList();
-//
-        // return ResponseEntity.ok(notifications);
-    //}
+        List<ResponseNotifications> notifications = this.notificationRepository.findAllByDeviceModelAndShowNotificationTrue(deviceModel,PageRequest.of(page, size))
+                .stream()
+                .map(notification -> new ResponseNotifications(
+                        notification.getMessage()))
+                .toList();
+
+         return ResponseEntity.ok(notifications);
+    }
 
 
     //public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(JwtAuthenticationToken token) {

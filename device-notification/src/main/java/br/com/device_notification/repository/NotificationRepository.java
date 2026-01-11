@@ -1,11 +1,14 @@
 package br.com.device_notification.repository;
 
 import br.com.device_notification.model.Notification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Collection;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Collection<Notification> findAllByDeviceModel(String name);
+    Page<Notification> findAllByDeviceModelAndShowNotificationTrue(
+            String deviceModel,
+            Pageable pageable
+    );
 }

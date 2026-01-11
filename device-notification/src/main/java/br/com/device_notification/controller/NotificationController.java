@@ -1,7 +1,10 @@
 package br.com.device_notification.controller;
 
+import br.com.device_notification.dtos.ResponseNotifications;
 import br.com.device_notification.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +24,14 @@ public class NotificationController {
     }
 
 
-    //@GetMapping("/notifications")
-    //public ResponseEntity<List<ResponseNotifications>> allNotifications(JwtAuthenticationToken token){
-    //    return this.notificationService.allNotifications(token);
-    //}
+    @GetMapping("/notifications")
+    public ResponseEntity<List<ResponseNotifications>> allNotifications(
+            @RequestParam String deviceModel,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        return this.notificationService.allNotifications(deviceModel, page, size);
+    }
 
     //@GetMapping("/notifications-occult")
     //public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(JwtAuthenticationToken token){
