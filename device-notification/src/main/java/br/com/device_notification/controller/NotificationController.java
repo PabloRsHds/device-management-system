@@ -3,10 +3,7 @@ package br.com.device_notification.controller;
 import br.com.device_notification.dtos.ResponseNotifications;
 import br.com.device_notification.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,30 +23,32 @@ public class NotificationController {
 
     @GetMapping("/notifications")
     public ResponseEntity<List<ResponseNotifications>> allNotifications(
-            @RequestParam String deviceModel,
             @RequestParam int page,
             @RequestParam int size
     ) {
-        return this.notificationService.allNotifications(deviceModel, page, size);
+        return this.notificationService.allNotifications(page, size);
     }
 
-    //@GetMapping("/notifications-occult")
-    //public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(JwtAuthenticationToken token){
-    //    return this.notificationService.allNotificationsOccult(token);
-    //}
+    @GetMapping("/notifications-occult")
+    public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        return this.notificationService.allNotificationsOccult(page, size);
+    }
 
-    //@PostMapping("/occult-notification")
-    //public void occultNotification(@RequestBody RequestNotificationId request) {
-    //    this.notificationService.occultNotification(request);
-    //}
+    @PutMapping("/visualisation-notification")
+    public ResponseEntity<Void> visualisation() {
+        return this.notificationService.visualisation();
+    }
 
-    //@PutMapping("/visualisation-notification")
-    //public ResponseEntity<Void> visualisation(JwtAuthenticationToken token) {
-    //    return this.notificationService.visualisation(token);
-    //}
+    @PutMapping("/occult-notification/{notificationId}")
+    public void occultNotification(@PathVariable Long notificationId) {
+        this.notificationService.occultNotification(notificationId);
+    }
 
-    //@GetMapping("/count-notification")
-    //public int countNotifications(JwtAuthenticationToken token){
-    //    return this.notificationService.countNotifications(token);
-    //}
+    @GetMapping("/count-notification")
+    public int countNotifications(){
+        return this.notificationService.countNotifications();
+    }
 }

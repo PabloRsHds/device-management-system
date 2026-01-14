@@ -1,15 +1,15 @@
 package br.com.device_notification.service;
 
 import br.com.device_notification.dtos.ResponseNotifications;
+import br.com.device_notification.model.Notification;
 import br.com.device_notification.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
@@ -23,59 +23,55 @@ public class NotificationService {
 
 
 
-    public ResponseEntity<List<ResponseNotifications>> allNotifications(String deviceModel,int page, int size) {
+    public ResponseEntity<List<ResponseNotifications>> allNotifications(int page, int size) {
 
-        List<ResponseNotifications> notifications = this.notificationRepository.findAllByDeviceModelAndShowNotificationTrue(deviceModel,PageRequest.of(page, size))
+        List<ResponseNotifications> notifications = this.notificationRepository.findAllByShowNotificationTrue(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
                 .stream()
                 .map(notification -> new ResponseNotifications(
+                        notification.getNotificationId(),
                         notification.getMessage()))
                 .toList();
 
          return ResponseEntity.ok(notifications);
     }
 
+    public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(int page, int size) {
 
-    //public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(JwtAuthenticationToken token) {
+        List<ResponseNotifications> notifications = this.notificationRepository.findAllByShowNotificationFalse(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+                .stream()
+                .map(notification -> new ResponseNotifications(
+                        notification.getNotificationId(),
+                        notification.getMessage()))
+                .toList();
 
-       // List<ResponseNotifications> notifications = this.notificationRepository.findAllByUserId(token.getName()).stream()
-               // .filter(notification -> Boolean.FALSE.equals(notification.getShowNotification()))
-               // .map(notification -> new ResponseNotifications(
-                  //      notification.getNotificationId(),
-                  //      notification.getMessage(),
-                   //     notification.getShowNotification(),
-                  //      notification.getTimestamp()))
-                //.collect(Collectors.toList());
+        return ResponseEntity.ok(notifications);
+    }
 
-        //return ResponseEntity.ok(notifications);
-    //}
+    public ResponseEntity<Void> visualisation() {
+        List<Notification> notifications = this.notificationRepository.findAll();
 
-    //public void occultNotification(RequestNotificationId request) {
+        for (var notification : notifications) {
+            notification.setVisualisation(true);
+            this.notificationRepository.save(notification);
+        }
 
-        //var notification = this.notificationRepository.findById(request.notificationId());
+        return ResponseEntity.ok().build();
+    }
 
-        //if (notification.isEmpty()) {
-        //    return;
-        //}
+    public void occultNotification(Long notificationId) {
 
-        //notification.get().setShowNotification(false);
-        //this.notificationRepository.save(notification.get());
-    //}
+        var notification = this.notificationRepository.findById(notificationId);
 
+        if (notification.isEmpty()) {
+            return;
+        }
 
-   // public ResponseEntity<Void> visualisation(JwtAuthenticationToken token) {
+        notification.get().setShowNotification(false);
+        this.notificationRepository.save(notification.get());
+    }
 
-      //  List<Notification> notifications = this.notificationRepository.findAllByUserId(token.getName());
+    public int countNotifications() {
+        return this.notificationRepository.countByVisualisationFalse();
+    }
 
-      //  for (var notification : notifications) {
-      //      notification.setVisualisation(true);
-      //      this.notificationRepository.save(notification);
-      //  }
-
-     //   return ResponseEntity.ok().build();
-    //}
-
-
-    //public int countNotifications(JwtAuthenticationToken token) {
-    //    return this.notificationRepository.countByUserIdAndVisualisationFalse(token.getName());
-    //}
 }

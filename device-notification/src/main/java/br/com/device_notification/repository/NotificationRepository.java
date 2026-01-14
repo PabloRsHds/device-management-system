@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Page<Notification> findAllByDeviceModelAndShowNotificationTrue(
-            String deviceModel,
-            Pageable pageable
-    );
+    Page<Notification> findAllByShowNotificationTrue(Pageable pageable);
+
+    Page<Notification> findAllByShowNotificationFalse(Pageable pageable);
+
+    int countByVisualisationFalse();
 }
