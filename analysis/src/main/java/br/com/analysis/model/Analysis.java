@@ -41,4 +41,6 @@ public class Analysis {
     private List<String> historyUpdate = new ArrayList<>();
 
 
+    private int analysisWorked;
+    private int analysisFailed;
 }

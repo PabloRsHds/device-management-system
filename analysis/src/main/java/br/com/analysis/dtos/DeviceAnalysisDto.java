@@ -8,7 +8,9 @@ public record DeviceAnalysisDto(
         String createdAt,
         Float lastReadingMinLimit,
         Float lastReadingMaxLimit,
-        String lastReadingUpdateAt
+        String lastReadingUpdateAt,
+        int analysisWorked,
+        int analysisFailed
 
 ) {
 }

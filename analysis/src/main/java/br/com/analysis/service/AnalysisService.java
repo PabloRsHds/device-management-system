@@ -32,7 +32,9 @@ public class AnalysisService {
                 value.getCreatedAt(),
                 value.getLastReadingMinLimit(),
                 value.getLastReadingMaxLimit(),
-                value.getLastReadingUpdateAt()
+                value.getLastReadingUpdateAt(),
+                value.getAnalysisWorked(),
+                value.getAnalysisFailed()
 
         ))).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }

@@ -47,6 +47,16 @@ public class KafkaConsumer {
 
         if (consumer.minValue() < consumer.minLimit() ||
                 consumer.maxValue() > consumer.maxLimit()) {
+
+            Optional<Analysis> optionalEntity =
+                    this.analysisRepository.findByDeviceModel(consumer.deviceModel());
+
+            if (optionalEntity.isPresent()) {
+                var entity = optionalEntity.get();
+                entity.setAnalysisFailed(entity.getAnalysisFailed() + 1);
+                this.analysisRepository.save(entity);
+            }
+
             ack.acknowledge();
             return;
         }
@@ -105,9 +115,10 @@ public class KafkaConsumer {
                 log.info("Última leitura anterior salva com sucesso");
             }
 
-            // 7️⃣ Salva no banco
+            entity.setAnalysisWorked(entity.getAnalysisWorked() + 1);
             this.analysisRepository.save(entity);
             ack.acknowledge();
+
             log.info("Reading min limit",entity.getLastReadingMinLimit());
             log.info("Reading max limit",entity.getLastReadingMaxLimit());
             log.info("Reading update at",entity.getLastReadingUpdateAt());
