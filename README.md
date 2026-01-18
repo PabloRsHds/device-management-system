@@ -33,7 +33,6 @@ graph TB
     C -- Kafka Events --> F[Sensor Test - Port 8083]
     F -- Test Results --> C
     F --> G[Sensor Analysis - Port 8084]
-    G --> H[(MongoDB - Analises)]
 ```
 
 ### Fluxo de Comunicação
@@ -46,7 +45,7 @@ graph TB
 ## Tecnologias
 
 ### Backend
-- Java 17
+- Java 21
 - Spring Boot 3.1.5
 - Spring Kafka
 - Feign Client
@@ -55,19 +54,16 @@ graph TB
 
 ### Banco de Dados
 - PostgreSQL 15 (dados transacionais)
-- MongoDB (dados analíticos - planejado)
 
 ### Infraestrutura
 - Docker
 - Docker Compose
-- Apache Kafka 3.4
-- Apache ZooKeeper
+- Apache Kafka
 
 ### Ferramentas
 - Maven
 - Lombok
 - MapStruct
-- SpringDoc OpenAPI
 
 ## Funcionalidades
 
@@ -138,3 +134,4 @@ device-management-system
 
 ## Licença
 Este projeto está sob a licença MIT. Consulte o arquivo LICENSE para mais informações.
+
