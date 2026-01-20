@@ -24,17 +24,17 @@ public class DeviceController {
     }
 
     @PostMapping("/register-device")
-    private ResponseEntity<Map<String, String>> registerDevice(@RequestBody DeviceDto request) {
+    private ResponseEntity<?> registerDevice(@RequestBody DeviceDto request) {
         return this.deviceService.registerDevice(request);
     }
 
     @PatchMapping("/update-device/{deviceModel:.+}")
-    private ResponseEntity<Map<String, String>> updateDevice(@PathVariable String deviceModel,@RequestBody UpdateDevice request) {
+    private ResponseEntity<?> updateDevice(@PathVariable String deviceModel,@RequestBody UpdateDevice request) {
         return this.deviceService.updateDevice(deviceModel,request);
     }
 
     @DeleteMapping("/delete-device/{deviceModel:.+}")
-    private ResponseEntity<Void> deleteDevice(@PathVariable String deviceModel) {
+    private ResponseEntity<?> deleteDevice(@PathVariable String deviceModel) {
         return this.deviceService.deleteDevice(deviceModel);
     }
 

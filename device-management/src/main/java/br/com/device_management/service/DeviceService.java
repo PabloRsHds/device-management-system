@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class DeviceService {
     }
 
     @Transactional
-    public ResponseEntity<Map<String, String>> registerDevice(DeviceDto request) {
+    public ResponseEntity<?> registerDevice(DeviceDto request) {
 
         Optional<Device> device = this.deviceRepository.findByDeviceModel(request.deviceModel());
 
@@ -76,11 +77,20 @@ public class DeviceService {
                 ));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                Map.of("Message","Your device has been registered successfully!")
+                new AllDevicesDto(
+                        request.name(),
+                        request.type(),
+                        request.description(),
+                        request.deviceModel(),
+                        request.manufacturer(),
+                        request.location(),
+                        request.type().getUnit(),
+                        request.type().getMin(),
+                        request.type().getMax())
         );
     }
 
-    public ResponseEntity<Map<String, String>> updateDevice(String deviceModel,UpdateDevice request) {
+    public ResponseEntity<?> updateDevice(String deviceModel,UpdateDevice request) {
 
         Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
 
@@ -110,12 +120,21 @@ public class DeviceService {
         }
         this.deviceRepository.save(entity.get());
 
-        return ResponseEntity.ok().body(
-                Map.of("Update", "Device updated successfully")
-        );
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new AllDevicesDto(
+                        entity.get().getName(),
+                        entity.get().getType(),
+                        entity.get().getDescription(),
+                        entity.get().getDeviceModel(),
+                        entity.get().getManufacturer(),
+                        entity.get().getLocation(),
+                        entity.get().getType().getUnit(),
+                        entity.get().getType().getMin(),
+                        entity.get().getType().getMax()
+        ));
     }
 
-    public ResponseEntity<Void> deleteDevice(String deviceModel) {
+    public ResponseEntity<?> deleteDevice(String deviceModel) {
 
         Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
 
@@ -123,9 +142,22 @@ public class DeviceService {
             return ResponseEntity.notFound().build();
         }
 
+        var device = entity.get();
+
         this.deviceRepository.delete(entity.get());
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new AllDevicesDto(
+                        device.getName(),
+                        device.getType(),
+                        device.getDescription(),
+                        device.getDeviceModel(),
+                        device.getManufacturer(),
+                        device.getLocation(),
+                        device.getType().getUnit(),
+                        device.getType().getMin(),
+                        device.getType().getMax()
+                ));
     }
 
 
@@ -133,6 +165,7 @@ public class DeviceService {
 
         return ResponseEntity.ok(
                 deviceRepository.findAll().stream()
+                        .sorted(Comparator.comparing(Device::getCreatedAt).reversed())
                         .map(device -> new AllDevicesDto(
                                 device.getName(),
                                 device.getType(),
@@ -144,6 +177,7 @@ public class DeviceService {
                                 device.getMinLimit(),
                                 device.getMaxLimit()
                         ))
+
                         .toList()
         );
     }
