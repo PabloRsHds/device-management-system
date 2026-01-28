@@ -28,7 +28,11 @@ public class LoginService {
     private final JwtDecoder jwtDecoder;
 
     @Autowired
-    public LoginService(UserClient userClient,PasswordEncoder passwordEncoder, JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
+    public LoginService(
+            UserClient userClient,
+            PasswordEncoder passwordEncoder,
+            JwtEncoder jwtEncoder,
+            JwtDecoder jwtDecoder) {
         this.userClient = userClient;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
@@ -41,8 +45,8 @@ public class LoginService {
         var user = this.userClient.getUserForLoginWithEmail(request.email());
 
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("Not found","Email or Password is incorrect"));
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("Conflict","Email or Password is incorrect"));
         }
 
         if (!this.passwordEncoder.matches(request.password(), user.password())) {
