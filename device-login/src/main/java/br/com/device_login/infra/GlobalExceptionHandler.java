@@ -1,7 +1,11 @@
 package br.com.device_login.infra;
 
-import br.com.device_login.service.metrics.MetricsService;
+import br.com.device_login.infra.exceptions.InvalidCredentialsException;
+import br.com.device_login.infra.exceptions.ServiceUnavailableException;
+import br.com.device_login.metrics.CircuitBreakerMetrics;
+import br.com.device_login.metrics.UserServiceMetrics;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,25 +18,49 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final MetricsService metricsService;
+    @Value("${spring.application.name}")
+    private String serviceName;
+    private final CircuitBreakerMetrics circuitBreakerMetrics;
+    private final UserServiceMetrics userServiceMetrics;
 
-    public GlobalExceptionHandler(MetricsService metricsService) {
-        this.metricsService = metricsService;
+    public GlobalExceptionHandler(CircuitBreakerMetrics circuitBreakerMetrics,
+                                  UserServiceMetrics userServiceMetrics) {
+        this.circuitBreakerMetrics = circuitBreakerMetrics;
+        this.userServiceMetrics = userServiceMetrics;
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentialsException(InvalidCredentialsException ex,
+                                                                                 HttpServletRequest request) {
+
+        this.circuitBreakerMetrics.recordCircuitBreakerResponse(request.getRequestURI(), "401");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                Map.of(
+                        "timestamp", Instant.now().toString(),
+                        "status", HttpStatus.UNAUTHORIZED.value(),
+                        "error","User does not have authorization",
+                        "source", "DEVICE-LOGIN",
+                        "target", "USER-DEVICE",
+                        "service", this.serviceName,
+                        "message", ex.getMessage(),
+                        "path", request.getRequestURI()
+                ));
     }
 
     @ExceptionHandler(ServiceUnavailableException.class)
     public ResponseEntity<Map<String, Object>> handleServiceUnavailableException(ServiceUnavailableException ex,
                                                                                  HttpServletRequest request) {
 
-        this.metricsService.recordServiceUnavailable("DEVICE-USER", request.getRequestURI());
-        this.metricsService.recordCircuitBreakerResponse("DEVICE-USER", request.getRequestURI(), "503");
+        this.userServiceMetrics.recordServiceUnavailable(request.getRequestURI());
+        this.circuitBreakerMetrics.recordCircuitBreakerResponse(request.getRequestURI(), "503");
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
                 Map.of(
                         "timestamp", Instant.now().toString(),
                         "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
                         "error","Service unavailable",
-                        "service", "DEVICE-USER",
+                        "service", this.serviceName,
                         "message", ex.getMessage(),
                         "path", request.getRequestURI()
                 ));
@@ -48,6 +76,7 @@ public class GlobalExceptionHandler {
                 Map.of("timestamp", Instant.now().toString(),
                         "status", HttpStatus.BAD_REQUEST.value(),
                         "error", "Validation incorrect",
+                        "service", this.serviceName,
                         "message", ex.getMessage(),
                         "path", request.getRequestURI())
         );

@@ -1,24 +1,33 @@
 package br.com.device_login.infra;
 
-import br.com.device_login.dtos.loginDto.ResponseUserForLogin;
+import br.com.device_login.infra.exceptions.InvalidCredentialsException;
+import br.com.device_login.infra.exceptions.ServiceUnavailableException;
+import br.com.device_login.metrics.CircuitBreakerMetrics;
 import br.com.device_login.microservice.UserClient;
-import br.com.device_login.service.metrics.MetricsService;
+import feign.FeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeviceUserFallBack implements UserClient {
+public class DeviceUserFallBack implements FallbackFactory<UserClient> {
 
-    private final MetricsService metricsService;
+    private static final Logger log = LoggerFactory.getLogger(DeviceUserFallBack.class);
+    private final CircuitBreakerMetrics circuitBreakerMetrics;
 
-    public DeviceUserFallBack(MetricsService metricsService) {
-        this.metricsService = metricsService;
+    public DeviceUserFallBack(CircuitBreakerMetrics circuitBreakerMetrics) {
+        this.circuitBreakerMetrics = circuitBreakerMetrics;
     }
 
     @Override
-    public ResponseUserForLogin getUserForLoginWithEmail(String email) {
+    public UserClient create(Throwable cause) {
 
-        metricsService.recordCircuitBreakerOpened("DEVICE-USER");
+        if (cause instanceof FeignException.Unauthorized) {
+            throw new InvalidCredentialsException("This user does not have authorization");
+        }
 
+        circuitBreakerMetrics.recordCircuitBreakerOpened();
         throw new ServiceUnavailableException("Service unavailable, please try again later");
     }
 }

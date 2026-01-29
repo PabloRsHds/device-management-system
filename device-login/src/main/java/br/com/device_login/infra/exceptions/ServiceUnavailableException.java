@@ -1,4 +1,4 @@
-package br.com.device_login.infra;
+package br.com.device_login.infra.exceptions;
 
 public class ServiceUnavailableException extends RuntimeException{
 

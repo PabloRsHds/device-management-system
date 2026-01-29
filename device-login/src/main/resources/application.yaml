@@ -52,3 +52,9 @@ server:
   error:
     include-stacktrace: never
     include-message: never
+
+logging:
+  level:
+    br.com.device_login.infra.client.UserClient: DEBUG
+    feign: DEBUG
+    org.springframework.cloud.openfeign: DEBUG

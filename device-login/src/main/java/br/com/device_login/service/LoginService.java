@@ -1,9 +1,12 @@
-package br.com.device_login.service.login;
+package br.com.device_login.service;
 
 import br.com.device_login.dtos.loginDto.RequestLoginDto;
 import br.com.device_login.dtos.tokenDto.RequestTokensDto;
 import br.com.device_login.dtos.tokenDto.ResponseTokens;
+import br.com.device_login.metrics.LoginMetrics;
 import br.com.device_login.microservice.UserClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,34 +25,47 @@ import java.util.Map;
 @Service
 public class LoginService {
 
+    private static final Logger log = LoggerFactory.getLogger(LoginService.class);
     private final UserClient userClient;
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
+    private final LoginMetrics loginMetrics;
 
     @Autowired
     public LoginService(
             UserClient userClient,
             PasswordEncoder passwordEncoder,
             JwtEncoder jwtEncoder,
-            JwtDecoder jwtDecoder) {
+            JwtDecoder jwtDecoder,
+            LoginMetrics loginMetrics) {
         this.userClient = userClient;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
+        this.loginMetrics = loginMetrics;
     }
 
     // Função onde o usuário consegue fazer o seu login.
     public ResponseEntity<Map<String, String>> login(RequestLoginDto request) {
 
+        log.info("Iniciando o timer total da requisição");
+        var timeSample = this.loginMetrics.startTimer();
+
         var user = this.userClient.getUserForLoginWithEmail(request.email());
 
         if (user == null) {
+
+            this.loginMetrics.userNotFound();
+            this.loginMetrics.stopFailedLoginTimer(timeSample);
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("Conflict","Email or Password is incorrect"));
         }
 
         if (!this.passwordEncoder.matches(request.password(), user.password())) {
+
+            this.loginMetrics.invalidCredentials();
+            this.loginMetrics.stopFailedLoginTimer(timeSample);
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("Conflict","Email or Password is incorrect"));
         }
@@ -78,6 +94,8 @@ public class LoginService {
         var accessToken = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
         var accessRefreshToken = this.jwtEncoder.encode(JwtEncoderParameters.from(claimsRefresh)).getTokenValue();
 
+        this.loginMetrics.loginSuccess();
+        this.loginMetrics.stopSuccessLoginTimer(timeSample);
         return ResponseEntity.ok().body(Map.of("accessToken", accessToken, "refreshToken", accessRefreshToken));
     }
 
@@ -119,9 +137,11 @@ public class LoginService {
             //gero o refresh-token
             var newRefreshToken = this.jwtEncoder.encode(JwtEncoderParameters.from(claimsRefresh)).getTokenValue();
 
+            this.loginMetrics.refreshTokenSuccess();
             return ResponseEntity.ok(new ResponseTokens(newAccessToken, newRefreshToken));
         }
 
+        this.loginMetrics.refreshTokenInvalid();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
