@@ -6,6 +6,17 @@ spring:
       circuitbreaker:
         enabled: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Só o essencial
+
+  metrics:
+    tags:
+      application: device-login
+      environment: local
+
 eureka:
   client:
     service-url:

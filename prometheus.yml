@@ -1,0 +1,47 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # ⭐ DESCOBERTA EUREKA (CORRIGIDO)
+  - job_name: 'spring-boot-apps'
+    metrics_path: '/actuator/prometheus'
+    eureka_sd_configs:
+      - server: 'http://host.docker.internal:8761/eureka'
+        refresh_interval: 30s
+
+    # ⭐⭐ RELABEL CRÍTICO: Corrige o problema do IPv6 "::"
+    relabel_configs:
+      # Se o host for "::", substitui por "host.docker.internal"
+      - source_labels: [__meta_eureka_instance_host]
+        regex: "::|0:0:0:0:0:0:0:0"
+        replacement: "host.docker.internal"
+        target_label: __meta_eureka_instance_host
+
+      # Pega o nome da aplicação
+      - source_labels: [__meta_eureka_app_name]
+        target_label: application
+
+      # Constrói o endereço CORRETO
+      - source_labels: [__meta_eureka_instance_host, __meta_eureka_instance_port]
+        separator: ':'
+        target_label: __address__
+        replacement: $1:$2
+
+      # Filtra apenas serviços que queremos
+      - source_labels: [__meta_eureka_app_name]
+        regex: "DEVICE-.*"
+        action: keep
+
+  # ⭐ CONFIGURAÇÃO MANUAL (backup enquanto corrige o service discovery)
+  - job_name: 'device-login'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+        labels:
+          application: 'device-login'
+          service: 'auth'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

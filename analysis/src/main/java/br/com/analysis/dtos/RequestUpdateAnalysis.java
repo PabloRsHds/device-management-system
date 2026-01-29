@@ -1,4 +1,9 @@
 package br.com.analysis.dtos;
 
-public record RequestUpdateAnalysis() {
+public record RequestUpdateAnalysis(
+        String name,
+        String deviceModel,
+        String manufacturer,
+        String description
+) {
 }

@@ -1,6 +1,7 @@
 package br.com.analysis.controller;
 
 import br.com.analysis.dtos.DeviceAnalysisDto;
+import br.com.analysis.dtos.RequestUpdateAnalysis;
 import br.com.analysis.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,4 +24,13 @@ public class AnalysisController {
         return this.analysisService.findDeviceForAnalysis(deviceModel);
     }
 
+    @PatchMapping("/update-analysis/{deviceModel:.+}")
+    public ResponseEntity<DeviceAnalysisDto> updateAnalysis(@PathVariable String deviceModel,@RequestBody RequestUpdateAnalysis request) {
+        return this.analysisService.updateAnalysis(deviceModel, request);
+    }
+
+    @DeleteMapping("/delete-analysis/{deviceModel:.+}")
+    public ResponseEntity<DeviceAnalysisDto> deleteAnalysis(@PathVariable String deviceModel) {
+        return this.analysisService.deleteAnalysis(deviceModel);
+    }
 }

@@ -1,4 +1,4 @@
-package br.com.device_login.service;
+package br.com.device_login.service.login;
 
 import br.com.device_login.dtos.loginDto.RequestLoginDto;
 import br.com.device_login.dtos.tokenDto.RequestTokensDto;

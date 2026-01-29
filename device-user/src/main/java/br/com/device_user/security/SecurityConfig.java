@@ -40,7 +40,7 @@ public class SecurityConfig {
                     configuration.setAllowedHeaders(List.of("Content-Type","Authorization"));
                     return configuration;
                 }))
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
 
         return http.build();
     }

@@ -1,5 +1,6 @@
 package br.com.device_login.infra;
 
+import br.com.device_login.service.metrics.MetricsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,18 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final MetricsService metricsService;
+
+    public GlobalExceptionHandler(MetricsService metricsService) {
+        this.metricsService = metricsService;
+    }
+
     @ExceptionHandler(ServiceUnavailableException.class)
     public ResponseEntity<Map<String, Object>> handleServiceUnavailableException(ServiceUnavailableException ex,
                                                                                  HttpServletRequest request) {
+
+        this.metricsService.recordServiceUnavailable("DEVICE-USER", request.getRequestURI());
+        this.metricsService.recordCircuitBreakerResponse("DEVICE-USER", request.getRequestURI(), "503");
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
                 Map.of(
