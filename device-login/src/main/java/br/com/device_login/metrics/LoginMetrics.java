@@ -13,6 +13,7 @@ public class LoginMetrics {
     private final Timer failedLoginTimer;
 
     public LoginMetrics(MeterRegistry meterRegistry) {
+
         this.meterRegistry = meterRegistry;
 
         // Timer SEPARADO para sucessos
