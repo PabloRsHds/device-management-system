@@ -49,7 +49,7 @@ public class LoginService {
     // Função onde o usuário consegue fazer o seu login.
     public ResponseEntity<Map<String, String>> login(RequestLoginDto request) {
 
-        log.info("Iniciando o timer total da requisição");
+        log.info("Iniciando o timer para o serviço de LOGIN");
         var timeSample = this.loginMetrics.startTimer();
 
         var user = this.userClient.getUserForLoginWithEmail(request.email());
@@ -103,12 +103,20 @@ public class LoginService {
     // Função onde o usuário consegue fazer o refresh do seu token.
     public ResponseEntity<ResponseTokens> refreshTokens(RequestTokensDto request){
 
+        log.info("Iniciando o timer para o serviço de REFRESH-TOKENS");
+        var timeSample = this.loginMetrics.startTimer();
+
         var accessToken = this.jwtDecoder.decode(request.accessToken());
         var refreshToken = this.jwtDecoder.decode(request.refreshToken());
 
+        log.debug("Refresh token expiry: {}, Current time: {}", refreshToken.getExpiresAt(), Instant.now());
+
+        // Se o refresh token a expiração não fora nula e ela não foi vencida, criará novos tokens.
         if (refreshToken.getExpiresAt() != null && Instant.now().isBefore(refreshToken.getExpiresAt())) {
 
             var user = this.userClient.getUserForLoginWithEmail(accessToken.getSubject());
+
+            log.debug("Processing refresh for user: {}", user.userId());
 
             var expireToken = LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.of("-03:00"));
             var now = Instant.now();
@@ -137,11 +145,19 @@ public class LoginService {
             //gero o refresh-token
             var newRefreshToken = this.jwtEncoder.encode(JwtEncoderParameters.from(claimsRefresh)).getTokenValue();
 
+            // Métrica de contagem de sucesso na renavação de tokens.
             this.loginMetrics.refreshTokenSuccess();
+            // Métrica de tempo para ver quanto que demora para a renovar os tokens.
+            this.loginMetrics.stopSuccessRefreshTokensTimer(timeSample);
+
+            // Retorno os novos tokens
             return ResponseEntity.ok(new ResponseTokens(newAccessToken, newRefreshToken));
         }
 
-        this.loginMetrics.refreshTokenInvalid();
+        // Métrica de contagem de falha na renavação de tokens.
+        this.loginMetrics.failedRefreshTokens();
+        // Métrica de tempo para ver quanto que demora para a falha ao não conseguir renovar os tokens.
+        this.loginMetrics.stopFailedRefreshTokensTimer(timeSample);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
