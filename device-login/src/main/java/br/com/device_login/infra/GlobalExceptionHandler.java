@@ -1,5 +1,6 @@
 package br.com.device_login.infra;
 
+import br.com.device_login.dtos.exceptionDto.ResponseExceptionDto;
 import br.com.device_login.infra.exceptions.InvalidCredentialsException;
 import br.com.device_login.infra.exceptions.ServiceUnavailableException;
 import br.com.device_login.metrics.CircuitBreakerMetrics;
@@ -30,8 +31,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidCredentialsException(InvalidCredentialsException ex,
-                                                                                 HttpServletRequest request) {
+    public ResponseEntity<ResponseExceptionDto> handleInvalidCredentialsException(InvalidCredentialsException ex,
+                                                                                  HttpServletRequest request) {
 
         this.circuitBreakerMetrics.recordCircuitBreakerResponse(request.getRequestURI(), "401");
         this.metricsForExceptions.recordErrors(
@@ -41,20 +42,20 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                Map.of(
-                        "timestamp", Instant.now().toString(),
-                        "status", HttpStatus.UNAUTHORIZED.value(),
-                        "error","User does not have authorization",
-                        "source", "DEVICE-LOGIN",
-                        "target", "USER-DEVICE",
-                        "service", this.serviceName,
-                        "message", ex.getMessage(),
-                        "path", request.getRequestURI()
+                new ResponseExceptionDto(
+                        Instant.now().toString(),
+                        HttpStatus.UNAUTHORIZED.value(),
+                        "User does not have authorization",
+                        "DEVICE-LOGIN",
+                        "USER-DEVICE",
+                        this.serviceName,
+                        ex.getMessage(),
+                        request.getRequestURI()
                 ));
     }
 
     @ExceptionHandler(ServiceUnavailableException.class)
-    public ResponseEntity<Map<String, Object>> handleServiceUnavailableException(ServiceUnavailableException ex,
+    public ResponseEntity<ResponseExceptionDto> handleServiceUnavailableException(ServiceUnavailableException ex,
                                                                                  HttpServletRequest request) {
 
         this.metricsForExceptions.recordErrors(
@@ -65,21 +66,23 @@ public class GlobalExceptionHandler {
 
         this.circuitBreakerMetrics.recordCircuitBreakerResponse(request.getRequestURI(), "503");
 
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
-                Map.of(
-                        "timestamp", Instant.now().toString(),
-                        "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
-                        "error","Service unavailable",
-                        "service", this.serviceName,
-                        "message", ex.getMessage(),
-                        "path", request.getRequestURI()
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new ResponseExceptionDto(
+                        Instant.now().toString(),
+                        HttpStatus.SERVICE_UNAVAILABLE.value(),
+                        "Service unavailable",
+                        "DEVICE-LOGIN",
+                        "USER-DEVICE",
+                        this.serviceName,
+                        ex.getMessage(),
+                        request.getRequestURI()
                 ));
     }
 
     // Pega as mensagens de erro das validações diretamente por causa do
     // @Validation
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex,
+    public ResponseEntity<ResponseExceptionDto> handleValidationExceptions(MethodArgumentNotValidException ex,
                                                                           HttpServletRequest request) {
 
         this.metricsForExceptions.recordErrors(
@@ -89,13 +92,16 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                Map.of("timestamp", Instant.now().toString(),
-                        "status", HttpStatus.BAD_REQUEST.value(),
-                        "error", "Validation incorrect",
-                        "service", this.serviceName,
-                        "message", ex.getMessage(),
-                        "path", request.getRequestURI())
-        );
+                new ResponseExceptionDto(
+                        Instant.now().toString(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Validation incorrect",
+                        "DEVICE-LOGIN",
+                        "USER-DEVICE",
+                        this.serviceName,
+                        ex.getMessage(),
+                        request.getRequestURI()
+                ));
     }
 
 }
