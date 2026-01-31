@@ -14,6 +14,32 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Só o essencial
+
+  metrics:
+    tags:
+      application: device-user
+      environment: local
+
+# Configuração do Resilience4J
+resilience4j:
+  circuitbreaker:
+    instances:
+      circuitbreaker_for_database:
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+
 eureka:
   client:
     service-url:

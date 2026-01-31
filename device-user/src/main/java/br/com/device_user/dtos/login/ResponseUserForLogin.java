@@ -1,4 +1,4 @@
-package br.com.device_user.dtos;
+package br.com.device_user.dtos.login;
 
 import br.com.device_user.enums.Role;
 

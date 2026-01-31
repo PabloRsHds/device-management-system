@@ -36,11 +36,12 @@ public class SecurityConfig {
 
                     var configuration = new CorsConfiguration();
                     configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-                    configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH"));
+                    configuration.setAllowedMethods(List.of("GET"));
                     configuration.setAllowedHeaders(List.of("Content-Type","Authorization"));
                     return configuration;
                 }))
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+                .authorizeHttpRequests(authorize ->
+                        authorize.anyRequest().permitAll());
 
         return http.build();
     }
