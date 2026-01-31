@@ -1,10 +1,10 @@
-package br.com.device_login.infra;
+package br.com.device_login.infra.global_exceptions;
 
+import br.com.device_login.dtos.exceptionDto.RequestExceptionDto;
 import br.com.device_login.dtos.exceptionDto.ResponseExceptionDto;
 import br.com.device_login.infra.exceptions.InvalidCredentialsException;
 import br.com.device_login.infra.exceptions.ServiceUnavailableException;
-import br.com.device_login.metrics.CircuitBreakerMetrics;
-import br.com.device_login.metrics.MetricsForExceptions;
+import br.com.device_login.metrics.exception.MetricsForExceptions;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,19 +14,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @Value("${spring.application.name}")
     private String serviceName;
-    private final CircuitBreakerMetrics circuitBreakerMetrics;
     private final MetricsForExceptions metricsForExceptions;
 
-    public GlobalExceptionHandler(CircuitBreakerMetrics circuitBreakerMetrics,
-                                  MetricsForExceptions metricsForExceptions) {
-        this.circuitBreakerMetrics = circuitBreakerMetrics;
+    public GlobalExceptionHandler(MetricsForExceptions metricsForExceptions) {
         this.metricsForExceptions = metricsForExceptions;
     }
 
@@ -34,12 +30,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseExceptionDto> handleInvalidCredentialsException(InvalidCredentialsException ex,
                                                                                   HttpServletRequest request) {
 
-        this.circuitBreakerMetrics.recordCircuitBreakerResponse(request.getRequestURI(), "401");
-        this.metricsForExceptions.recordErrors(
-                "401",
+        this.metricsForExceptions.recordErrors(new RequestExceptionDto(
+                HttpStatus.UNAUTHORIZED.toString(),
                 "invalid_credentials",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI())
+        );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 new ResponseExceptionDto(
@@ -58,15 +54,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseExceptionDto> handleServiceUnavailableException(ServiceUnavailableException ex,
                                                                                  HttpServletRequest request) {
 
-        this.metricsForExceptions.recordErrors(
-                "503",
+        this.metricsForExceptions.recordErrors(new RequestExceptionDto(
+                HttpStatus.SERVICE_UNAVAILABLE.toString(),
                 "service_unavailable",
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI())
+        );
 
-        this.circuitBreakerMetrics.recordCircuitBreakerResponse(request.getRequestURI(), "503");
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
                 new ResponseExceptionDto(
                         Instant.now().toString(),
                         HttpStatus.SERVICE_UNAVAILABLE.value(),
@@ -85,11 +81,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseExceptionDto> handleValidationExceptions(MethodArgumentNotValidException ex,
                                                                           HttpServletRequest request) {
 
-        this.metricsForExceptions.recordErrors(
-                "400",
-                "validation_error",
-                ex.getMessage(),
-                request.getRequestURI());
+        this.metricsForExceptions.recordErrors(new RequestExceptionDto(
+                        HttpStatus.BAD_REQUEST.toString(),
+                        "validation_error",
+                        ex.getMessage(),
+                        request.getRequestURI())
+        );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ResponseExceptionDto(

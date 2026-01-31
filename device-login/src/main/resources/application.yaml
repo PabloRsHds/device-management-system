@@ -30,7 +30,7 @@ eureka:
 resilience4j:
   circuitbreaker:
     instances:
-      DEVICE-USER:
+      circuitbreaker_for_feign:
         sliding-window-type: COUNT_BASED
         sliding-window-size: 10
         failure-rate-threshold: 50

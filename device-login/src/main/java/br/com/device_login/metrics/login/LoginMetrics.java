@@ -1,4 +1,4 @@
-package br.com.device_login.metrics;
+package br.com.device_login.metrics.login;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;

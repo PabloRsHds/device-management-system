@@ -1,5 +1,6 @@
-package br.com.device_login.metrics;
+package br.com.device_login.metrics.exception;
 
+import br.com.device_login.dtos.exceptionDto.RequestExceptionDto;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +13,13 @@ public class MetricsForExceptions {
         this.meterRegistry = meterRegistry;
     }
 
-    public void recordErrors(String httpStatus, String errorType , String description, String path) {
+    public void recordErrors(RequestExceptionDto request) {
         this.meterRegistry.counter(
                 "errors_lookup_total",
-                        "output", httpStatus,
-                        "error_type", errorType,
-                        "description", description,
-                        "path", path)
+                        "output", request.httpStatus(),
+                        "error_type", request.errorType(),
+                        "description", request.description(),
+                        "path", request.path())
                 .increment();
     }
 }

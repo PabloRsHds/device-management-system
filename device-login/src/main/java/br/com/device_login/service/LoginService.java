@@ -3,7 +3,7 @@ package br.com.device_login.service;
 import br.com.device_login.dtos.loginDto.RequestLoginDto;
 import br.com.device_login.dtos.tokenDto.RequestTokensDto;
 import br.com.device_login.dtos.tokenDto.ResponseTokens;
-import br.com.device_login.metrics.LoginMetrics;
+import br.com.device_login.metrics.login.LoginMetrics;
 import br.com.device_login.microservice.UserClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
