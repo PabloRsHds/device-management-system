@@ -18,7 +18,7 @@ public class ServiceForLogin {
     }
 
     @GetMapping("/verify-if-email-already-cadastred")
-    public ResponseUserForLogin getUserForLoginWithEmail(@RequestParam String email) {
-        return this.userService.getResponseUserWithEmail(email);
+    public ResponseUserForLogin getUserForLoginWithEmail(@RequestParam String email, @RequestParam String userId) {
+        return this.userService.getResponseUserWithEmailOrUserId(email, userId);
     }
 }

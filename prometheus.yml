@@ -42,6 +42,14 @@ scrape_configs:
           application: 'device-login'
           service: 'auth'
 
+  - job_name: 'device-user'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'host.docker.internal:8080' ]
+        labels:
+          application: 'device-user'
+          service: 'auth'
+
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']

@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api")
 public class LoginController {
@@ -25,12 +23,14 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    private ResponseEntity<Map<String, String>> login(@RequestBody RequestLoginDto request) {
-       return this.loginService.login(request);
+    private ResponseEntity<ResponseTokens> login(@RequestBody RequestLoginDto request) {
+       var tokens = this.loginService.login(request);
+       return ResponseEntity.ok().body(tokens);
     }
 
     @PostMapping("/refresh-tokens")
     private ResponseEntity<ResponseTokens> refreshTokens(@RequestBody RequestTokensDto request) {
-        return this.loginService.refreshTokens(request);
+        var tokens = this.loginService.refreshTokens(request);
+        return ResponseEntity.ok().body(tokens);
     }
 }

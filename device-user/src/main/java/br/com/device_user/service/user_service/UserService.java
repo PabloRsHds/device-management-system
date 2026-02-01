@@ -25,26 +25,40 @@ public class UserService {
     }
 
     @CircuitBreaker(name = "circuitbreaker_for_database", fallbackMethod = "databaseOfflineFallBack")
-    public ResponseUserForLogin getResponseUserWithEmail(String email) {
+    public ResponseUserForLogin getResponseUserWithEmailOrUserId(String email, String userId) {
 
         var sampleTimer = this.userMetrics.startTimer();
 
-        Optional<User> entity = this.userRepository.findByEmail(email);
+        Optional<User> entity_email = this.userRepository.findByEmail(email);
+        Optional<User> entity_userId = this.userRepository.findByUserId(userId);
 
-        if (entity.isEmpty()) {
+        if (entity_email.isEmpty() && entity_userId.isEmpty()) {
             this.userMetrics.recordUserNotFound();
             this.userMetrics.stopUserResponseFailedTimer(sampleTimer);
             return null;
         }
 
-        var user = entity.get();
+        if (entity_email.isPresent()) {
+
+            var user = entity_email.get();
+
+            this.userMetrics.recordUserFound();
+            this.userMetrics.stopUserResponseSuccessTimer(sampleTimer);
+            return new ResponseUserForLogin(
+                    user.getUserId(),
+                    user.getPassword(),
+                    user.getRole().toString()
+            );
+        }
+
+        var user = entity_userId.get();
 
         this.userMetrics.recordUserFound();
         this.userMetrics.stopUserResponseSuccessTimer(sampleTimer);
         return new ResponseUserForLogin(
                 user.getUserId(),
                 user.getPassword(),
-                user.getRole()
+                user.getRole().toString()
         );
     }
 

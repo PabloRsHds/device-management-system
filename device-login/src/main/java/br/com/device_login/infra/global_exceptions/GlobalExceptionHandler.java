@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
                 new ResponseExceptionDto(
                         Instant.now().toString(),
                         HttpStatus.UNAUTHORIZED.value(),
-                        "User does not have authorization",
+                        "Invalid or expired credentials",
                         "DEVICE-LOGIN",
                         "USER-DEVICE",
                         this.serviceName,

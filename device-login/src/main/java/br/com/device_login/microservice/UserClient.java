@@ -14,5 +14,5 @@ public interface UserClient {
       * do usuário, como userId, password(para fazer a verificação do password), e a role do usuário.
       */
     @GetMapping("/microservice/verify-if-email-already-cadastred")
-    ResponseUserForLogin getUserForLoginWithEmail(@RequestParam String email);
+    ResponseUserForLogin getResponseUserWithEmailOrUserId(@RequestParam String email, @RequestParam String userId);
 }

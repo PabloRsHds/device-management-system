@@ -1,5 +1,7 @@
 package br.com.device_management.infra;
 
+import br.com.device_management.infra.exceptions.DeviceIsPresent;
+import br.com.device_management.infra.exceptions.ServiceUnavailable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,6 +17,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         String message = ex.getMessage();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", message));
+    }
+
+    @ExceptionHandler(ServiceUnavailable.class)
+    public ResponseEntity<Map<String, String>> handleServiceUnavailableExceptions(ServiceUnavailable ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DeviceIsPresent.class)
+    public ResponseEntity<Map<String, String>> handleDeviceIsPresentException(DeviceIsPresent ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
     }
 }
 

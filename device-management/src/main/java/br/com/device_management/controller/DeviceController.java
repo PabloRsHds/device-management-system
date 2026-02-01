@@ -1,16 +1,16 @@
 package br.com.device_management.controller;
 
 import br.com.device_management.dtos.AllDevicesDto;
-import br.com.device_management.dtos.DeviceDto;
+import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.dtos.FindByDeviceWithDeviceModel;
 import br.com.device_management.dtos.UpdateDevice;
 import br.com.device_management.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -24,17 +24,17 @@ public class DeviceController {
     }
 
     @PostMapping("/register-device")
-    private ResponseEntity<?> registerDevice(@RequestBody DeviceDto request) {
-        return this.deviceService.registerDevice(request);
+    public ResponseEntity<?> registerDevice(@RequestBody DeviceDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(request);
     }
 
     @PatchMapping("/update-device/{deviceModel:.+}")
-    private ResponseEntity<?> updateDevice(@PathVariable String deviceModel,@RequestBody UpdateDevice request) {
+    public ResponseEntity<?> updateDevice(@PathVariable String deviceModel,@RequestBody UpdateDevice request) {
         return this.deviceService.updateDevice(deviceModel,request);
     }
 
     @DeleteMapping("/delete-device/{deviceModel:.+}")
-    private ResponseEntity<?> deleteDevice(@PathVariable String deviceModel) {
+    public ResponseEntity<?> deleteDevice(@PathVariable String deviceModel) {
         return this.deviceService.deleteDevice(deviceModel);
     }
 

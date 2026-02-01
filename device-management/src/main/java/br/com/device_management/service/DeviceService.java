@@ -1,6 +1,10 @@
 package br.com.device_management.service;
 
-import br.com.device_management.dtos.*;
+import br.com.device_management.dtos.AllDevicesDto;
+import br.com.device_management.dtos.DeviceManagementEventForSensor;
+import br.com.device_management.dtos.FindByDeviceWithDeviceModel;
+import br.com.device_management.dtos.UpdateDevice;
+import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.model.Device;
 import br.com.device_management.repository.DeviceRepository;
 import jakarta.transaction.Transactional;
@@ -33,6 +37,9 @@ public class DeviceService {
         this.deviceRepository = deviceRepository;
         this.kafkaTemplate = kafkaTemplate;
     }
+
+
+    // ========================================== REGISTER DEVICE ====================================================
 
     @Transactional
     public ResponseEntity<?> registerDevice(DeviceDto request) {
@@ -89,6 +96,8 @@ public class DeviceService {
                         request.type().getMax())
         );
     }
+
+    // ================================================================================================================
 
     public ResponseEntity<?> updateDevice(String deviceModel,UpdateDevice request) {
 

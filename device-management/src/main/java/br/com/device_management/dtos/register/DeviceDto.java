@@ -1,4 +1,4 @@
-package br.com.device_management.dtos;
+package br.com.device_management.dtos.register;
 
 import br.com.device_management.enums.Type;
 import jakarta.validation.constraints.NotBlank;
