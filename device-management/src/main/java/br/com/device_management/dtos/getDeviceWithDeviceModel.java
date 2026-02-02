@@ -1,6 +1,6 @@
 package br.com.device_management.dtos;
 
-public record FindByDeviceWithDeviceModel(
+public record getDeviceWithDeviceModel(
         String name,
         String deviceModel,
         String manufacturer,

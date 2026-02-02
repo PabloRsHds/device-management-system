@@ -1,9 +1,9 @@
 package br.com.device_management.service;
 
 import br.com.device_management.dtos.DeviceManagementEventForSensor;
-import br.com.device_management.dtos.FindByDeviceWithDeviceModel;
 import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.UpdateDeviceDto;
+import br.com.device_management.dtos.getDeviceWithDeviceModel;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.infra.exceptions.DeviceIsEmpty;
 import br.com.device_management.infra.exceptions.DeviceIsPresent;
@@ -15,15 +15,13 @@ import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-
+import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,8 +141,6 @@ public class DeviceService {
 
     // ================================================================================================================
 
-
-
     // =========================================== UPDATE =============================================================
 
     public ResponseDeviceDto updateDevice(String deviceModel,UpdateDeviceDto request) {
@@ -218,8 +214,8 @@ public class DeviceService {
 
     //=================================================================================================================
 
-
     // ============================================ DELETE ============================================================
+
     public ResponseDeviceDto deleteDevice(String deviceModel) {
 
         log.info("Verifico se o device existe no banco de dados");
@@ -248,39 +244,45 @@ public class DeviceService {
 
     // ================================================================================================================
 
-    // ================================= Retorna todos os
-    public ResponseEntity<List<Device>> allDevices() {
+    // ================================= Retorna todos os dispositivos ================================================
 
-        return ResponseEntity.ok(
-                deviceRepository.findAll().stream()
-                        .sorted(Comparator.comparing(Device::getCreatedAt).reversed())
-                        .map(device -> new AllDevicesDto(
-                                device.getName(),
-                                device.getType(),
-                                device.getDescription(),
-                                device.getDeviceModel(),
-                                device.getManufacturer(),
-                                device.getLocation(),
-                                device.getUnit(),
-                                device.getMinLimit(),
-                                device.getMaxLimit()
-                        ))
+    @Retry(name = "retry-database", fallbackMethod = "retry_for_database")
+    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    public List<ResponseDeviceDto> getAllDevices(int page, int size) {
 
-                        .toList()
-        );
+        return this.deviceRepository.findAllDevices((Pageable) PageRequest.of(page, size))
+                .stream()
+                .map(device -> new ResponseDeviceDto(
+                        device.getName(),
+                        device.getType(),
+                        device.getDescription(),
+                        device.getDeviceModel(),
+                        device.getManufacturer(),
+                        device.getLocation(),
+                        device.getUnit(),
+                        device.getMinLimit(),
+                        device.getMaxLimit()
+                ))
+                .toList();
     }
 
-    public ResponseEntity<FindByDeviceWithDeviceModel> findByDeviceWithDeviceModel(String deviceModel) {
+    // ================================================================================================================
 
-        Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
+    // =============================== Retorna o dispositivo com o modelo dele ========================================
 
-        return entity.map(device -> ResponseEntity.ok(new FindByDeviceWithDeviceModel(
+    @Retry(name = "retry-database", fallbackMethod = "retry_for_database")
+    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    public getDeviceWithDeviceModel getDeviceWithDeviceModel(String deviceModel) {
+
+        var device = this.verifyIfDeviceIsEmpty(deviceModel);
+
+        return new getDeviceWithDeviceModel(
                 device.getName(),
                 device.getDeviceModel(),
                 device.getManufacturer(),
                 device.getLocation(),
                 device.getDescription()
-        ))).orElseGet(() -> ResponseEntity.notFound().build());
-
+        );
     }
+    //=================================================================================================================
 }
