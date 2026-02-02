@@ -1,9 +1,11 @@
 package br.com.device_management.controller;
 
 import br.com.device_management.dtos.AllDevicesDto;
+import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.dtos.FindByDeviceWithDeviceModel;
-import br.com.device_management.dtos.UpdateDevice;
+import br.com.device_management.dtos.UpdateDeviceDto;
+import br.com.device_management.dtos.register.ResponseDeviceDto;
 import br.com.device_management.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,19 +26,21 @@ public class DeviceController {
     }
 
     @PostMapping("/register-device")
-    public ResponseEntity<DeviceDto> registerDevice(@RequestBody DeviceDto request) {
+    public ResponseEntity<ResponseDeviceDto> registerDevice(@RequestBody DeviceDto request) {
         var device = this.deviceService.registerDevice(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(device);
     }
 
     @PatchMapping("/update-device/{deviceModel:.+}")
-    public ResponseEntity<?> updateDevice(@PathVariable String deviceModel,@RequestBody UpdateDevice request) {
-        return this.deviceService.updateDevice(deviceModel,request);
+    public ResponseEntity<ResponseDeviceDto> updateDevice(@PathVariable String deviceModel,@RequestBody UpdateDeviceDto request) {
+        var device = this.deviceService.updateDevice(deviceModel,request);
+        return ResponseEntity.status(HttpStatus.OK).body(device);
     }
 
     @DeleteMapping("/delete-device/{deviceModel:.+}")
-    public ResponseEntity<?> deleteDevice(@PathVariable String deviceModel) {
-        return this.deviceService.deleteDevice(deviceModel);
+    public ResponseEntity<ResponseDeviceDto> deleteDevice(@PathVariable String deviceModel) {
+        var device = this.deviceService.deleteDevice(deviceModel);
+        return ResponseEntity.ok().body(device);
     }
 
     @GetMapping("/all-devices")

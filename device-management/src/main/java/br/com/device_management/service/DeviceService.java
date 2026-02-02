@@ -1,10 +1,11 @@
 package br.com.device_management.service;
 
-import br.com.device_management.dtos.AllDevicesDto;
 import br.com.device_management.dtos.DeviceManagementEventForSensor;
 import br.com.device_management.dtos.FindByDeviceWithDeviceModel;
-import br.com.device_management.dtos.UpdateDevice;
+import br.com.device_management.dtos.ResponseDeviceDto;
+import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.dtos.register.DeviceDto;
+import br.com.device_management.infra.exceptions.DeviceIsEmpty;
 import br.com.device_management.infra.exceptions.DeviceIsPresent;
 import br.com.device_management.infra.exceptions.ServiceUnavailable;
 import br.com.device_management.model.Device;
@@ -24,7 +25,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -46,18 +46,28 @@ public class DeviceService {
     // ========================================== REGISTER DEVICE ====================================================
 
 
-    public DeviceDto registerDevice(DeviceDto request) {
+    public ResponseDeviceDto registerDevice(DeviceDto request) {
 
         log.info("Verificando se o dispositivo ja esta cadastrado");
         this.verifyIfDeviceIsPresent(request.deviceModel());
 
         log.info("Novo dispositivo salvo no banco de dados");
-        var device = this.save(request);
+        var deviceDto = this.save(request);
 
         log.info("Enviando evento para o sensor");
-        this.sendEvent("device-management-for-sensor-test-topic",device);
+        this.sendEvent("device-management-for-sensor-test-topic",deviceDto);
 
-        return device;
+        return new ResponseDeviceDto(
+                deviceDto.name(),
+                deviceDto.type(),
+                deviceDto.description(),
+                deviceDto.deviceModel(),
+                deviceDto.manufacturer(),
+                deviceDto.location(),
+                deviceDto.type().getUnit(),
+                deviceDto.type().getMin(),
+                deviceDto.type().getMax()
+        );
     }
 
     @Retry(name = "retry-database", fallbackMethod = "retry_for_database")
@@ -136,80 +146,110 @@ public class DeviceService {
 
 
     // =========================================== UPDATE =============================================================
-    public ResponseEntity<?> updateDevice(String deviceModel,UpdateDevice request) {
+
+    public ResponseDeviceDto updateDevice(String deviceModel,UpdateDeviceDto request) {
+
+        log.info("Verificando se o dispositivo não está cadastrado");
+        var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+
+        var deviceDto = this.saveUpdate(entity, request);
+
+        log.debug("Salvo as atualizações e a retorno como um dto");
+        return new ResponseDeviceDto(
+                deviceDto.name(),
+                deviceDto.type(),
+                deviceDto.description(),
+                deviceDto.deviceModel(),
+                deviceDto.manufacturer(),
+                deviceDto.location(),
+                deviceDto.type().getUnit(),
+                deviceDto.type().getMin(),
+                deviceDto.type().getMax()
+        );
+    }
+
+    @Retry(name = "retry-database", fallbackMethod = "retry_for_database")
+    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    public Device verifyIfDeviceIsEmpty(String deviceModel) {
 
         Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
 
         if (entity.isEmpty()) {
-            System.out.println("Não foi");
-            return ResponseEntity.notFound().build();
+            throw new DeviceIsEmpty("This device model is not registered in the database");
         }
 
-        if (request.newName() != null ) {
-            entity.get().setName(request.newName());
-        }
-
-        if (request.newDeviceModel() != null ) {
-            entity.get().setDeviceModel(request.newDeviceModel());
-        }
-
-        if (request.newManufacturer() != null) {
-            entity.get().setManufacturer(request.newManufacturer());
-        }
-
-        if (request.newLocation() != null) {
-            entity.get().setLocation(request.newLocation());
-        }
-
-        if (request.newDescription() != null) {
-            entity.get().setDescription(request.newDescription());
-        }
-        this.deviceRepository.save(entity.get());
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new AllDevicesDto(
-                        entity.get().getName(),
-                        entity.get().getType(),
-                        entity.get().getDescription(),
-                        entity.get().getDeviceModel(),
-                        entity.get().getManufacturer(),
-                        entity.get().getLocation(),
-                        entity.get().getType().getUnit(),
-                        entity.get().getType().getMin(),
-                        entity.get().getType().getMax()
-        ));
+        return entity.get();
     }
+
+    @Transactional
+    public DeviceDto saveUpdate(Device entity, UpdateDeviceDto dto) {
+
+        if (dto.newName() != null ) {
+            entity.setName(dto.newName());
+        }
+
+        if (dto.newDeviceModel() != null ) {
+            entity.setDeviceModel(dto.newDeviceModel());
+        }
+
+        if (dto.newManufacturer() != null) {
+            entity.setManufacturer(dto.newManufacturer());
+        }
+
+        if (dto.newLocation() != null) {
+            entity.setLocation(dto.newLocation());
+        }
+
+        if (dto.newDescription() != null) {
+            entity.setDescription(dto.newDescription());
+        }
+        this.deviceRepository.save(entity);
+
+        return new DeviceDto(
+                entity.getName(),
+                entity.getType(),
+                entity.getDescription(),
+                entity.getDeviceModel(),
+                entity.getManufacturer(),
+                entity.getLocation()
+        );
+    }
+
 
     //=================================================================================================================
 
-    public ResponseEntity<?> deleteDevice(String deviceModel) {
 
-        Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
+    // ============================================ DELETE ============================================================
+    public ResponseDeviceDto deleteDevice(String deviceModel) {
 
-        if (entity.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        log.info("Verifico se o device existe no banco de dados");
+        var entity = this.verifyIfDeviceIsEmpty(deviceModel);
 
-        var device = entity.get();
+        var responseDto = new ResponseDeviceDto(
+                entity.getName(),
+                entity.getType(),
+                entity.getDescription(),
+                entity.getDeviceModel(),
+                entity.getManufacturer(),
+                entity.getLocation(),
+                entity.getUnit(),
+                entity.getType().getMin(),
+                entity.getType().getMax()
+        );
 
-        this.deviceRepository.delete(entity.get());
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new AllDevicesDto(
-                        device.getName(),
-                        device.getType(),
-                        device.getDescription(),
-                        device.getDeviceModel(),
-                        device.getManufacturer(),
-                        device.getLocation(),
-                        device.getType().getUnit(),
-                        device.getType().getMin(),
-                        device.getType().getMax()
-                ));
+        this.delete(entity);
+        return responseDto;
     }
 
+    @Transactional
+    public void delete(Device entity) {
+        this.deviceRepository.delete(entity);
+    }
 
-    public ResponseEntity<List<AllDevicesDto>> allDevices() {
+    // ================================================================================================================
+
+    // ================================= Retorna todos os
+    public ResponseEntity<List<Device>> allDevices() {
 
         return ResponseEntity.ok(
                 deviceRepository.findAll().stream()
