@@ -53,12 +53,15 @@ public class LoginService {
         log.info("Iniciando o timer para o serviço de LOGIN");
         var timeSample = this.loginMetrics.startTimer();
 
+        log.info("Iniciando a verficação do usuário");
         var user = this.verifyUser(request.email(), request.password(), timeSample);
 
+        log.info("Iniciando a geração de tokens");
         var tokens = this.generateTokens(user.userId(), user.role());
 
         this.loginMetrics.loginSuccess();
         this.loginMetrics.stopSuccessLoginTimer(timeSample);
+        log.info("Retornando os tokens");
         return tokens;
     }
 

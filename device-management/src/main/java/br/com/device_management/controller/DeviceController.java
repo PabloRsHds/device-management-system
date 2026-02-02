@@ -24,8 +24,9 @@ public class DeviceController {
     }
 
     @PostMapping("/register-device")
-    public ResponseEntity<?> registerDevice(@RequestBody DeviceDto request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(request);
+    public ResponseEntity<DeviceDto> registerDevice(@RequestBody DeviceDto request) {
+        var device = this.deviceService.registerDevice(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(device);
     }
 
     @PatchMapping("/update-device/{deviceModel:.+}")

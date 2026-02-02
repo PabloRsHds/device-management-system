@@ -25,8 +25,19 @@ management:
       application: device-user
       environment: local
 
-# Configuração do Resilience4J
 resilience4j:
+  retry:
+    instances:
+      user-retry:  # ← Nome do @Retry
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - br.com.device_user.infra.exceptions.ServiceUnavailableException
+
   circuitbreaker:
     instances:
       circuitbreaker_for_database:
@@ -39,6 +50,8 @@ resilience4j:
         record-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
+        ignore-exceptions:
+          - br.com.device_user.infra.exceptions.ServiceUnavailableException
 
 eureka:
   client:

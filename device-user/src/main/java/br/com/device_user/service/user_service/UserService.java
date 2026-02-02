@@ -6,6 +6,7 @@ import br.com.device_user.metrics.UserMetrics;
 import br.com.device_user.model.User;
 import br.com.device_user.repository.UserRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class UserService {
         this.userMetrics = userMetrics;
     }
 
+    @Retry(name = "user-retry", fallbackMethod = "userRetryFallback")
     @CircuitBreaker(name = "circuitbreaker_for_database", fallbackMethod = "databaseOfflineFallBack")
     public ResponseUserForLogin getResponseUserWithEmailOrUserId(String email, String userId) {
 
@@ -62,7 +64,13 @@ public class UserService {
         );
     }
 
-    public ResponseUserForLogin databaseOfflineFallBack(String email, Exception e) {
+    public Optional<ResponseUserForLogin> userRetryFallback(String email, String userId, Exception e) {
+        log.warn("Database retry exhausted after multiple attempts for email: {}", email, e);
+
+        return Optional.empty();
+    }
+
+    public ResponseUserForLogin databaseOfflineFallBack(String email, String userId, Exception e) {
         log.warn("Database offline, using fallback for email: {}", email);
 
         throw new ServiceUnavailableException("Database service temporarily unavailable - Circuit Breaker is OPEN");
