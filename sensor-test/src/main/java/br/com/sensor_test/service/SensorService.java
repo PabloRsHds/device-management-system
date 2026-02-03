@@ -1,6 +1,5 @@
 package br.com.sensor_test.service;
 
-import br.com.sensor_test.dtos.AllSensorsDto;
 import br.com.sensor_test.dtos.ConsumerDeviceManagement;
 import br.com.sensor_test.dtos.UpdateSensor;
 import br.com.sensor_test.dtos.sensor.ResponseSensorDto;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -207,6 +205,7 @@ public class SensorService {
     }
     // ===============================================================================================================
 
+    // ============================================ PEGO O STATUS ====================================================
     public String getStatus(String deviceModel) {
 
         var entity = this.verifyIfSensorIsPresent(deviceModel);

@@ -25,7 +25,7 @@ public class KafkaConsumer {
             topics = "device-management-for-sensor-test-topic",
             groupId = "device-management-for-sensor-test-groupId",
             containerFactory = "kafkaListenerSensorTestFactory")
-    @CircuitBreaker(name = "circuitbreaker-kafka", fallbackMethod = "circuitbreaker_for_kafka")
+    @CircuitBreaker(name = "circuitbreaker-kafka-consumer", fallbackMethod = "circuitbreaker_kafka_consumer")
     public void consumerIotGateway(ConsumerDeviceManagement consumer, Acknowledgment ack) {
 
         try {
@@ -36,7 +36,7 @@ public class KafkaConsumer {
         }
     }
 
-    public void circuitbreaker_for_kafka(ConsumerDeviceManagement consumer, Acknowledgment ack, Exception ex) {
+    public void circuitbreaker_kafka_consumer(ConsumerDeviceManagement consumer, Acknowledgment ack, Exception ex) {
         log.error("Circuit breaker opened or error in consumer: {}", ex.getMessage(), ex);
 
         throw new ServiceUnavailableException("Service unavailable, message will be retried");
