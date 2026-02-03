@@ -2,8 +2,11 @@ package br.com.sensor_test.consumer;
 
 import br.com.sensor_test.dtos.ConsumerDeviceManagement;
 import br.com.sensor_test.enums.Status;
+import br.com.sensor_test.infra.DeviceIsPresentException;
+import br.com.sensor_test.infra.ServiceUnavailableException;
 import br.com.sensor_test.model.Sensor;
 import br.com.sensor_test.repository.SensorRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -24,32 +27,52 @@ public class KafkaConsumer {
         this.sensorRepository = sensorRepository;
     }
 
-    @Transactional
     @KafkaListener(
             topics = "device-management-for-sensor-test-topic",
             groupId = "device-management-for-sensor-test-groupId",
             containerFactory = "kafkaListenerSensorTestFactory")
     public void consumerIotGateway(ConsumerDeviceManagement consumer, Acknowledgment ack) {
 
-        Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(consumer.deviceModel());
+        try {
+            this.verifyIfDeviceIsPresent(consumer.deviceModel());
+            this.save(consumer);
 
-        if (entity.isEmpty()) {
-
-            var newEntity = new Sensor();
-
-            newEntity.setName(consumer.name());
-            newEntity.setType(consumer.type());
-            newEntity.setDescription(consumer.description());
-            newEntity.setDeviceModel(consumer.deviceModel());
-            newEntity.setManufacturer(consumer.manufacturer());
-            newEntity.setUnit(consumer.unit());
-            newEntity.setMinLimit(consumer.minLimit());
-            newEntity.setMaxLimit(consumer.maxLimit());
-            newEntity.setStatus(Status.DEACTIVATED);
-            this.sensorRepository.save(newEntity);
-
+        } finally {
             ack.acknowledge();
         }
-        ack.acknowledge();
+    }
+
+    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    public void verifyIfDeviceIsPresent(String deviceModel) {
+
+        Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
+
+        if (entity.isPresent()) {
+            throw new DeviceIsPresentException("This device already cadastred in database");
+        }
+    }
+
+    @Transactional
+    public void save(ConsumerDeviceManagement consumer) {
+
+        var newEntity = new Sensor();
+
+        newEntity.setName(consumer.name());
+        newEntity.setType(consumer.type());
+        newEntity.setDescription(consumer.description());
+        newEntity.setDeviceModel(consumer.deviceModel());
+        newEntity.setManufacturer(consumer.manufacturer());
+        newEntity.setUnit(consumer.unit());
+        newEntity.setMinLimit(consumer.minLimit());
+        newEntity.setMaxLimit(consumer.maxLimit());
+        newEntity.setStatus(Status.DEACTIVATED);
+        this.sensorRepository.save(newEntity);
+    }
+
+    public void circuitbreaker_for_database(String deviceModel, Exception ex) {
+
+        log.warn("Database service is not available, error:", ex);
+
+        throw new ServiceUnavailableException("Database service is not available");
     }
 }
