@@ -118,37 +118,42 @@ public class SensorService {
 
     // ===============================================================================================================
 
-    // Altera o status do sensor
-    public ResponseEntity<?> changeStatus(String deviceModel) {
+    // ===================================== ALTERA O STATUS DO SENSOR ===============================================
 
-        Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
+    public ResponseSensorDto changeStatus(String deviceModel) {
 
-        if (entity.get().getStatus().equals(Status.ACTIVATED)) {
-            entity.get().setStatus(Status.DEACTIVATED);
-            this.sensorRepository.save(entity.get());
-
-            return ResponseEntity.ok()
-                    .body(new AllSensorsDto(
-                            entity.get().getName(),
-                            entity.get().getType(),
-                            entity.get().getDeviceModel(),
-                            entity.get().getManufacturer(),
-                            entity.get().getStatus()
-                    ));
-        } else {
-            entity.get().setStatus(Status.ACTIVATED);
-            this.sensorRepository.save(entity.get());
-
-            return ResponseEntity.ok()
-                    .body(new AllSensorsDto(
-                            entity.get().getName(),
-                            entity.get().getType(),
-                            entity.get().getDeviceModel(),
-                            entity.get().getManufacturer(),
-                            entity.get().getStatus()
-                    ));
-        }
+        var entity = this.verifyIfSensorIsPresent(deviceModel);
+        return this.change(entity);
     }
+
+    @Autowired
+    public ResponseSensorDto change(Sensor entity) {
+
+        if (entity.getStatus().equals(Status.ACTIVATED)) {
+            entity.setStatus(Status.DEACTIVATED);
+            this.sensorRepository.save(entity);
+
+            return new ResponseSensorDto(
+                        entity.getName(),
+                        entity.getType(),
+                        entity.getDeviceModel(),
+                        entity.getManufacturer(),
+                        entity.getStatus()
+                );
+        }
+
+        entity.setStatus(Status.ACTIVATED);
+        this.sensorRepository.save(entity);
+
+        return new ResponseSensorDto(
+                        entity.getName(),
+                        entity.getType(),
+                        entity.getDeviceModel(),
+                        entity.getManufacturer(),
+                        entity.getStatus()
+                );
+    }
+    // ===============================================================================================================
 
     public ResponseEntity<String> getStatus(String deviceModel) {
 

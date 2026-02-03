@@ -24,19 +24,19 @@ public class SensorController {
     @PatchMapping("/update-sensor/{deviceModel:.+}")
     public ResponseEntity<ResponseSensorDto> updateSensor(@PathVariable String deviceModel, @RequestBody UpdateSensor request){
         var response = this.sensorService.updateSensor(deviceModel, request);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete-sensor/{deviceModel:.+}")
     public ResponseEntity<?> deleteSensor(@PathVariable String deviceModel){
         var response = this.sensorService.deleteSensor(deviceModel);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/find-all-sensors-activated")
     public ResponseEntity<List<ResponseSensorDto>> findAllSensorsActivated(@RequestParam int page, @RequestParam int size) {
         var response = this.sensorService.findAllSensorsActivated(page, size);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/get-status/{deviceModel:.+}")
@@ -45,7 +45,8 @@ public class SensorController {
     }
 
     @PatchMapping("/change-status/{deviceModel:.+}")
-    public ResponseEntity<?> changeStatus(@PathVariable String deviceModel) {
-       return this.sensorService.changeStatus(deviceModel);
+    public ResponseEntity<ResponseSensorDto> changeStatus(@PathVariable String deviceModel) {
+       var response = this.sensorService.changeStatus(deviceModel);
+       return ResponseEntity.ok(response);
     }
 }
