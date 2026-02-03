@@ -1,8 +1,11 @@
 package br.com.sensor_test.infra.global;
 
+import br.com.sensor_test.dtos.exceptionDto.ExceptionMetricDto;
 import br.com.sensor_test.dtos.exceptionDto.ResponseExceptionDto;
+import br.com.sensor_test.infra.exceptions.SensorIsEmptyException;
 import br.com.sensor_test.infra.exceptions.SensorIsPresentException;
 import br.com.sensor_test.infra.exceptions.ServiceUnavailableException;
+import br.com.sensor_test.metrics.MetricsForExceptions;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -17,9 +20,23 @@ public class GlobalHandlerException {
 
     @Value("${spring.application.name}")
     private String serviceName;
+    private final MetricsForExceptions metrics;
+
+    public GlobalHandlerException(MetricsForExceptions metrics) {
+        this.metrics = metrics;
+    }
 
     @ExceptionHandler(ServiceUnavailableException.class)
-    public ResponseEntity<?> serviceUnavailable(ServiceUnavailableException ex, HttpServletRequest request) {
+    public ResponseEntity<ResponseExceptionDto> serviceUnavailable(ServiceUnavailableException ex, HttpServletRequest request) {
+
+        this.metrics.recordErrors(
+                new ExceptionMetricDto(
+                    HttpStatus.SERVICE_UNAVAILABLE.toString(),
+                    "Service unavailable",
+                    ex.getMessage(),
+                    request.getRequestURI()
+                )
+        );
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
                 new ResponseExceptionDto(
@@ -35,7 +52,41 @@ public class GlobalHandlerException {
     }
 
     @ExceptionHandler(SensorIsPresentException.class)
-    public ResponseEntity<?> deviceIsPresent(SensorIsPresentException ex, HttpServletRequest request) {
+    public ResponseEntity<ResponseExceptionDto> sensorIsPresent(SensorIsPresentException ex, HttpServletRequest request) {
+
+        this.metrics.recordErrors(
+                new ExceptionMetricDto(
+                        HttpStatus.SERVICE_UNAVAILABLE.toString(),
+                        "Sensor is present in the database",
+                        ex.getMessage(),
+                        request.getRequestURI()
+                )
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new ResponseExceptionDto(
+                        Instant.now().toString(),
+                        HttpStatus.CONFLICT.value(),
+                        "CONFLICT",
+                        "SENSOR-TEST",
+                        "DATABASE",
+                        this.serviceName,
+                        ex.getMessage(),
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(SensorIsEmptyException.class)
+    public ResponseEntity<ResponseExceptionDto> sensorIsEmpty(SensorIsEmptyException ex, HttpServletRequest request) {
+
+        this.metrics.recordErrors(
+                new ExceptionMetricDto(
+                        HttpStatus.SERVICE_UNAVAILABLE.toString(),
+                        "Sensor is not present in the database",
+                        ex.getMessage(),
+                        request.getRequestURI()
+                )
+        );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ResponseExceptionDto(
