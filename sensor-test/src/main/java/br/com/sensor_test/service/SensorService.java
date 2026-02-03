@@ -9,6 +9,8 @@ import br.com.sensor_test.model.Sensor;
 import br.com.sensor_test.repository.SensorRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -96,14 +98,15 @@ public class SensorService {
     // ===============================================================================================================
 
 
-    // Pega todos os sensores cadastrados com o status ativo
-    public ResponseEntity<List<AllSensorsDto>> findAllSensorsActivated() {
+    // ====================================== PEGA TODOS OS SENSORES =================================================
 
-        List<AllSensorsDto> sensors = this.sensorRepository
-                .findAll()
+    public List<ResponseSensorDto> findAllSensorsActivated(int page, int size) {
+
+        return this.sensorRepository
+                .findAllSensors(PageRequest.of(page, size, Sort.Direction.DESC))
                 .stream()
                 .filter(device -> Status.ACTIVATED.equals(device.getStatus()))
-                .map(device -> new AllSensorsDto(
+                .map(device -> new ResponseSensorDto(
                         device.getName(),
                         device.getType(),
                         device.getDeviceModel(),
@@ -111,9 +114,9 @@ public class SensorService {
                         device.getStatus()
                 ))
                 .toList();
-
-        return ResponseEntity.ok(sensors);
     }
+
+    // ===============================================================================================================
 
     // Altera o status do sensor
     public ResponseEntity<?> changeStatus(String deviceModel) {

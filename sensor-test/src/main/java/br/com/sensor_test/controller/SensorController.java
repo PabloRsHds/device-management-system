@@ -21,9 +21,22 @@ public class SensorController {
         this.sensorService = sensorService;
     }
 
+    @PatchMapping("/update-sensor/{deviceModel:.+}")
+    public ResponseEntity<ResponseSensorDto> updateSensor(@PathVariable String deviceModel, @RequestBody UpdateSensor request){
+        var response = this.sensorService.updateSensor(deviceModel, request);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("/delete-sensor/{deviceModel:.+}")
+    public ResponseEntity<?> deleteSensor(@PathVariable String deviceModel){
+        var response = this.sensorService.deleteSensor(deviceModel);
+        return ResponseEntity.ok().body(response);
+    }
+
     @GetMapping("/find-all-sensors-activated")
-    public ResponseEntity<List<AllSensorsDto>> findAllSensorsActivated() {
-        return this.sensorService.findAllSensorsActivated();
+    public ResponseEntity<List<ResponseSensorDto>> findAllSensorsActivated(@RequestParam int page, @RequestParam int size) {
+        var response = this.sensorService.findAllSensorsActivated(page, size);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/get-status/{deviceModel:.+}")
@@ -34,16 +47,5 @@ public class SensorController {
     @PatchMapping("/change-status/{deviceModel:.+}")
     public ResponseEntity<?> changeStatus(@PathVariable String deviceModel) {
        return this.sensorService.changeStatus(deviceModel);
-    }
-
-    @PatchMapping("/update-sensor/{deviceModel:.+}")
-    public ResponseEntity<ResponseSensorDto> updateSensor(@PathVariable String deviceModel, @RequestBody UpdateSensor request){
-        var sensor = this.sensorService.updateSensor(deviceModel, request);
-        return ResponseEntity.ok().body(sensor);
-    }
-
-    @DeleteMapping("/delete-sensor/{deviceModel:.+}")
-    public ResponseEntity<?> deleteSensor(@PathVariable String deviceModel){
-        return this.sensorService.deleteSensor(deviceModel);
     }
 }
