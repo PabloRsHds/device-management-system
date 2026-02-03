@@ -2,8 +2,8 @@ package br.com.sensor_test.consumer;
 
 import br.com.sensor_test.dtos.ConsumerDeviceManagement;
 import br.com.sensor_test.enums.Status;
-import br.com.sensor_test.infra.DeviceIsPresentException;
-import br.com.sensor_test.infra.ServiceUnavailableException;
+import br.com.sensor_test.infra.exceptions.DeviceIsPresentException;
+import br.com.sensor_test.infra.exceptions.ServiceUnavailableException;
 import br.com.sensor_test.model.Sensor;
 import br.com.sensor_test.repository.SensorRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -31,6 +31,7 @@ public class KafkaConsumer {
             topics = "device-management-for-sensor-test-topic",
             groupId = "device-management-for-sensor-test-groupId",
             containerFactory = "kafkaListenerSensorTestFactory")
+    @CircuitBreaker(name = "circuitbreaker-kafka", fallbackMethod = "circuitbreaker_for_kafka")
     public void consumerIotGateway(ConsumerDeviceManagement consumer, Acknowledgment ack) {
 
         try {
@@ -72,7 +73,12 @@ public class KafkaConsumer {
     public void circuitbreaker_for_database(String deviceModel, Exception ex) {
 
         log.warn("Database service is not available, error:", ex);
-
         throw new ServiceUnavailableException("Database service is not available");
+    }
+
+    public void circuitbreaker_for_kafka(ConsumerDeviceManagement consumer, Acknowledgment ack, Exception ex) {
+        log.error("Circuit breaker opened or error in consumer: {}", ex.getMessage(), ex);
+
+        throw new ServiceUnavailableException("Service unavailable, message will be retried");
     }
 }
