@@ -41,7 +41,8 @@ public class SensorController {
 
     @GetMapping("/get-status/{deviceModel:.+}")
     public ResponseEntity<String> getStatus(@PathVariable String deviceModel) {
-        return this.sensorService.getStatus(deviceModel);
+        var response = this.sensorService.getStatus(deviceModel);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/change-status/{deviceModel:.+}")

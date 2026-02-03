@@ -155,10 +155,10 @@ public class SensorService {
     }
     // ===============================================================================================================
 
-    public ResponseEntity<String> getStatus(String deviceModel) {
+    public String getStatus(String deviceModel) {
 
-        Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
+        var entity = this.verifyIfSensorIsPresent(deviceModel);
 
-        return entity.map(sensor -> ResponseEntity.ok(sensor.getStatus().toString())).orElseThrow();
+        return entity.getStatus().toString();
     }
 }
