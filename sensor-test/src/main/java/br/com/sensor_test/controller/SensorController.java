@@ -2,6 +2,7 @@ package br.com.sensor_test.controller;
 
 import br.com.sensor_test.dtos.AllSensorsDto;
 import br.com.sensor_test.dtos.UpdateSensor;
+import br.com.sensor_test.dtos.sensor.ResponseSensorDto;
 import br.com.sensor_test.service.SensorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,9 @@ public class SensorController {
     }
 
     @PatchMapping("/update-sensor/{deviceModel:.+}")
-    public ResponseEntity<?> updateSensor(@PathVariable String deviceModel, @RequestBody UpdateSensor request){
-        return this.sensorService.updateSensor(deviceModel, request);
+    public ResponseEntity<ResponseSensorDto> updateSensor(@PathVariable String deviceModel, @RequestBody UpdateSensor request){
+        var sensor = this.sensorService.updateSensor(deviceModel, request);
+        return ResponseEntity.ok().body(sensor);
     }
 
     @DeleteMapping("/delete-sensor/{deviceModel:.+}")

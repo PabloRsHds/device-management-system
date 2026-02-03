@@ -2,7 +2,7 @@ package br.com.sensor_test.consumer;
 
 import br.com.sensor_test.dtos.ConsumerDeviceManagement;
 import br.com.sensor_test.enums.Status;
-import br.com.sensor_test.infra.exceptions.DeviceIsPresentException;
+import br.com.sensor_test.infra.exceptions.SensorIsPresentException;
 import br.com.sensor_test.infra.exceptions.ServiceUnavailableException;
 import br.com.sensor_test.model.Sensor;
 import br.com.sensor_test.repository.SensorRepository;
@@ -49,7 +49,7 @@ public class KafkaConsumer {
         Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
 
         if (entity.isPresent()) {
-            throw new DeviceIsPresentException("This device already cadastred in database");
+            throw new SensorIsPresentException("This device already cadastred in database");
         }
     }
 

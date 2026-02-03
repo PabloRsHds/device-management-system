@@ -2,7 +2,9 @@ package br.com.sensor_test.service;
 
 import br.com.sensor_test.dtos.AllSensorsDto;
 import br.com.sensor_test.dtos.UpdateSensor;
+import br.com.sensor_test.dtos.sensor.ResponseSensorDto;
 import br.com.sensor_test.enums.Status;
+import br.com.sensor_test.infra.exceptions.SensorIsEmptyException;
 import br.com.sensor_test.model.Sensor;
 import br.com.sensor_test.repository.SensorRepository;
 import jakarta.transaction.Transactional;
@@ -23,31 +25,51 @@ public class SensorService {
         this.sensorRepository = sensorRepository;
     }
 
-    @Transactional
-    public ResponseEntity<?> updateSensor(String deviceModel, UpdateSensor request) {
+    // =============================================  UPDATE =========================================================
+
+    public ResponseSensorDto updateSensor(String deviceModel, UpdateSensor request) {
+
+        var entity = verifyIfSensorIsPresent(deviceModel);
+        return this.update(entity, request);
+    }
+
+    // Metodo para verificar se o sensor é presente, se não ele retorna um erro.
+    public Sensor verifyIfSensorIsPresent(String deviceModel) {
 
         Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
 
+        if (entity.isEmpty()) {
+            throw new SensorIsEmptyException("Sensor not found");
+        }
+
+        return entity.get();
+    }
+
+    @Transactional
+    public ResponseSensorDto update(Sensor entity, UpdateSensor request) {
+
         if (!request.name().isBlank()) {
-            entity.get().setName(request.name());
+            entity.setName(request.name());
         }
         if (!request.deviceModel().isBlank()) {
-            entity.get().setDeviceModel(request.deviceModel());
+            entity.setDeviceModel(request.deviceModel());
         }
         if (!request.manufacturer().isBlank()) {
-            entity.get().setManufacturer(request.manufacturer());
+            entity.setManufacturer(request.manufacturer());
         }
 
-        this.sensorRepository.save(entity.get());
+        this.sensorRepository.save(entity);
 
-        return ResponseEntity.ok(new AllSensorsDto(
-                entity.get().getName(),
-                entity.get().getType(),
-                entity.get().getDeviceModel(),
-                entity.get().getManufacturer(),
-                entity.get().getStatus()
-        ));
+        return new ResponseSensorDto(
+                entity.getName(),
+                entity.getType(),
+                entity.getDeviceModel(),
+                entity.getManufacturer(),
+                entity.getStatus()
+        );
     }
+
+    // ===============================================================================================================
 
     public ResponseEntity<?> deleteSensor(String deviceModel) {
 

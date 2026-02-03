@@ -1,7 +1,7 @@
 package br.com.sensor_test.infra.global;
 
 import br.com.sensor_test.dtos.exceptionDto.ResponseExceptionDto;
-import br.com.sensor_test.infra.exceptions.DeviceIsPresentException;
+import br.com.sensor_test.infra.exceptions.SensorIsPresentException;
 import br.com.sensor_test.infra.exceptions.ServiceUnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +34,8 @@ public class GlobalHandlerException {
                 ));
     }
 
-    @ExceptionHandler(DeviceIsPresentException.class)
-    public ResponseEntity<?> deviceIsPresent(DeviceIsPresentException ex, HttpServletRequest request) {
+    @ExceptionHandler(SensorIsPresentException.class)
+    public ResponseEntity<?> deviceIsPresent(SensorIsPresentException ex, HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ResponseExceptionDto(
