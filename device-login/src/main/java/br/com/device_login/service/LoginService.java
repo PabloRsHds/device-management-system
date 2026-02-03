@@ -131,7 +131,7 @@ public class LoginService {
         var refreshToken = this.jwtDecoder.decode(request.refreshToken());
 
         log.debug("Refresh token expiry: {}, Current time: {}", refreshToken.getExpiresAt(), Instant.now());
-        if (refreshToken.getExpiresAt() != null && Instant.now().isBefore(refreshToken.getExpiresAt())) {
+        if (refreshToken.getExpiresAt() == null || Instant.now().isBefore(refreshToken.getExpiresAt())) {
 
             var user = this.userClient.getResponseUserWithEmailOrUserId(null,accessToken.getSubject());
             var tokens = this.generateTokens(user.userId(), user.role());

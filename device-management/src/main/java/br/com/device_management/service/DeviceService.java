@@ -51,30 +51,27 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        try {
-            log.info("Verificando se o dispositivo ja esta cadastrado");
-            this.verifyIfDeviceIsPresent(request.deviceModel());
+        log.info("Verificando se o dispositivo ja esta cadastrado");
+        this.verifyIfDeviceIsPresent(request.deviceModel());
 
-            log.info("Novo dispositivo salvo no banco de dados");
-            var deviceDto = this.save(request);
+        log.info("Novo dispositivo salvo no banco de dados");
+        var deviceDto = this.save(request);
 
-            log.info("Enviando evento para o sensor");
-            this.sendEvent("device-management-for-sensor-test-topic",deviceDto);
+        log.info("Enviando evento para o sensor");
+        this.sendEvent("device-management-for-sensor-test-topic",deviceDto);
 
-            return new ResponseDeviceDto(
-                    deviceDto.name(),
-                    deviceDto.type(),
-                    deviceDto.description(),
-                    deviceDto.deviceModel(),
-                    deviceDto.manufacturer(),
-                    deviceDto.location(),
-                    deviceDto.type().getUnit(),
-                    deviceDto.type().getMin(),
-                    deviceDto.type().getMax()
-            );
-        } finally {
-            this.timer.stopRegisterTimer(sampleTimer);
-        }
+        this.timer.stopRegisterTimer(sampleTimer);
+        return new ResponseDeviceDto(
+                deviceDto.name(),
+                deviceDto.type(),
+                deviceDto.description(),
+                deviceDto.deviceModel(),
+                deviceDto.manufacturer(),
+                deviceDto.location(),
+                deviceDto.type().getUnit(),
+                deviceDto.type().getMin(),
+                deviceDto.type().getMax()
+        );
     }
 
     @Retry(name = "retry-database", fallbackMethod = "retry_for_database")
@@ -156,27 +153,24 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        try {
-            log.info("Verificando se o dispositivo não está cadastrado");
-            var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+        log.info("Verificando se o dispositivo não está cadastrado");
+        var entity = this.verifyIfDeviceIsEmpty(deviceModel);
 
-            var deviceDto = this.saveUpdate(entity, request);
+        var deviceDto = this.saveUpdate(entity, request);
 
-            log.debug("Salvo as atualizações e a retorno como um dto");
-            return new ResponseDeviceDto(
-                    deviceDto.name(),
-                    deviceDto.type(),
-                    deviceDto.description(),
-                    deviceDto.deviceModel(),
-                    deviceDto.manufacturer(),
-                    deviceDto.location(),
-                    deviceDto.type().getUnit(),
-                    deviceDto.type().getMin(),
-                    deviceDto.type().getMax()
-            );
-        } finally {
-            this.timer.stopUpdateTimer(sampleTimer);
-        }
+        log.debug("Salvo as atualizações e a retorno como um dto");
+        this.timer.stopUpdateTimer(sampleTimer);
+        return new ResponseDeviceDto(
+                deviceDto.name(),
+                deviceDto.type(),
+                deviceDto.description(),
+                deviceDto.deviceModel(),
+                deviceDto.manufacturer(),
+                deviceDto.location(),
+                deviceDto.type().getUnit(),
+                deviceDto.type().getMin(),
+                deviceDto.type().getMax()
+        );
     }
 
     @Retry(name = "retry-database", fallbackMethod = "retry_for_database")
@@ -235,28 +229,24 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        try {
-            log.info("Verifico se o device existe no banco de dados");
-            var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+        log.info("Verifico se o device existe no banco de dados");
+        var entity = this.verifyIfDeviceIsEmpty(deviceModel);
 
-            var responseDto = new ResponseDeviceDto(
-                    entity.getName(),
-                    entity.getType(),
-                    entity.getDescription(),
-                    entity.getDeviceModel(),
-                    entity.getManufacturer(),
-                    entity.getLocation(),
-                    entity.getUnit(),
-                    entity.getType().getMin(),
-                    entity.getType().getMax()
-            );
+        this.timer.stopDeleteTimer(sampleTimer);
+        var responseDto = new ResponseDeviceDto(
+                entity.getName(),
+                entity.getType(),
+                entity.getDescription(),
+                entity.getDeviceModel(),
+                entity.getManufacturer(),
+                entity.getLocation(),
+                entity.getUnit(),
+                entity.getType().getMin(),
+                entity.getType().getMax()
+        );
 
-            this.delete(entity);
-            return responseDto;
-
-        } finally {
-            this.timer.stopDeleteTimer(sampleTimer);
-        }
+        this.delete(entity);
+        return responseDto;
     }
 
     @Transactional
@@ -274,20 +264,16 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        try {
-            var device = this.verifyIfDeviceIsEmpty(deviceModel);
+        var device = this.verifyIfDeviceIsEmpty(deviceModel);
 
-            return new getDeviceWithDeviceModel(
-                    device.getName(),
-                    device.getDeviceModel(),
-                    device.getManufacturer(),
-                    device.getLocation(),
-                    device.getDescription()
-            );
-
-        } finally {
-            this.timer.stopGetDeviceTimer(sampleTimer);
-        }
+        this.timer.stopGetDeviceTimer(sampleTimer);
+        return new getDeviceWithDeviceModel(
+                device.getName(),
+                device.getDeviceModel(),
+                device.getManufacturer(),
+                device.getLocation(),
+                device.getDescription()
+        );
     }
     //=================================================================================================================
 
@@ -299,25 +285,21 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        try {
-            return this.deviceRepository.findAllDevices((Pageable) PageRequest.of(page, size))
-                    .stream()
-                    .map(device -> new ResponseDeviceDto(
-                            device.getName(),
-                            device.getType(),
-                            device.getDescription(),
-                            device.getDeviceModel(),
-                            device.getManufacturer(),
-                            device.getLocation(),
-                            device.getUnit(),
-                            device.getMinLimit(),
-                            device.getMaxLimit()
-                    ))
-                    .toList();
-
-        } finally {
-            this.timer.stopGetDevicesTimer(sampleTimer);
-        }
+        this.timer.stopGetDevicesTimer(sampleTimer);
+        return this.deviceRepository.findAllDevices((Pageable) PageRequest.of(page, size))
+                .stream()
+                .map(device -> new ResponseDeviceDto(
+                        device.getName(),
+                        device.getType(),
+                        device.getDescription(),
+                        device.getDeviceModel(),
+                        device.getManufacturer(),
+                        device.getLocation(),
+                        device.getUnit(),
+                        device.getMinLimit(),
+                        device.getMaxLimit()
+                ))
+                .toList();
     }
 
     // ================================================================================================================
