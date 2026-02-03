@@ -71,25 +71,29 @@ public class SensorService {
 
     // ===============================================================================================================
 
-    public ResponseEntity<?> deleteSensor(String deviceModel) {
+    // ========================================== DELETE =============================================================
 
-        Optional<Sensor> entity = sensorRepository.findByDeviceModel(deviceModel);
+    public ResponseSensorDto deleteSensor(String deviceModel) {
 
-        if (entity.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        var entity = this.verifyIfSensorIsPresent(deviceModel);
+        var response = new ResponseSensorDto(
+                entity.getName(),
+                entity.getType(),
+                entity.getDeviceModel(),
+                entity.getManufacturer(),
+                entity.getStatus()
+        );
+        this.delete(entity);
 
-        Sensor sensor = entity.get();
-        sensorRepository.delete(sensor);
-
-        return ResponseEntity.ok(new AllSensorsDto(
-                sensor.getName(),
-                sensor.getType(),
-                sensor.getDeviceModel(),
-                sensor.getManufacturer(),
-                sensor.getStatus()
-        ));
+        return response;
     }
+
+    @Transactional
+    public void delete(Sensor entity) {
+        this.sensorRepository.delete(entity);
+    }
+
+    // ===============================================================================================================
 
 
     // Pega todos os sensores cadastrados com o status ativo
