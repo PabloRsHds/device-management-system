@@ -28,6 +28,9 @@ spring:
       auto-offset-reset: earliest
       enable-auto-commit: false
 
+  main:
+    allow-bean-definition-overriding: true
+
 server:
   port: 8084
 public:
