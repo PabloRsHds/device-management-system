@@ -7,6 +7,7 @@ import br.com.sensor_test.enums.Status;
 import br.com.sensor_test.infra.exceptions.SensorIsEmptyException;
 import br.com.sensor_test.infra.exceptions.SensorIsPresentException;
 import br.com.sensor_test.infra.exceptions.ServiceUnavailableException;
+import br.com.sensor_test.metrics.MetricsService;
 import br.com.sensor_test.model.Sensor;
 import br.com.sensor_test.repository.SensorRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -25,17 +26,29 @@ import java.util.Optional;
 public class SensorService {
 
     private final SensorRepository sensorRepository;
+    private final MetricsService metricsTimer;
 
     @Autowired
-    public SensorService(SensorRepository sensorRepository) {
+    public SensorService(
+            SensorRepository sensorRepository,
+            MetricsService metricsTimer) {
         this.sensorRepository = sensorRepository;
+        this.metricsTimer = metricsTimer;
     }
 
     // ========================================== REGISTER ===========================================================
 
     public void registerSensor(ConsumerDeviceManagement consumer) {
-        this.verifyIfSensorIsEmpty(consumer.deviceModel());
-        this.save(consumer);
+
+        var sampleTimer = this.metricsTimer.startTimer();
+
+        try {
+            this.verifyIfSensorIsEmpty(consumer.deviceModel());
+            this.save(consumer);
+
+        } finally {
+            this.metricsTimer.stopConsumerTimer(sampleTimer);
+        }
     }
 
     @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
@@ -74,8 +87,15 @@ public class SensorService {
 
     public ResponseSensorDto updateSensor(String deviceModel, UpdateSensor request) {
 
-        var entity = verifyIfSensorIsPresent(deviceModel);
-        return this.update(entity, request);
+        var sampleTimer = this.metricsTimer.startTimer();
+
+        try {
+            var entity = verifyIfSensorIsPresent(deviceModel);
+            return this.update(entity, request);
+
+        } finally {
+            this.metricsTimer.stopUpdateTimer(sampleTimer);
+        }
     }
 
     // Metodo para verificar se o sensor é presente, se não ele retorna um erro.
@@ -121,17 +141,23 @@ public class SensorService {
 
     public ResponseSensorDto deleteSensor(String deviceModel) {
 
-        var entity = this.verifyIfSensorIsPresent(deviceModel);
-        var response = new ResponseSensorDto(
-                entity.getName(),
-                entity.getType(),
-                entity.getDeviceModel(),
-                entity.getManufacturer(),
-                entity.getStatus()
-        );
-        this.delete(entity);
+        var sampleTimer = this.metricsTimer.startTimer();
 
-        return response;
+        try {
+            var entity = this.verifyIfSensorIsPresent(deviceModel);
+            var response = new ResponseSensorDto(
+                    entity.getName(),
+                    entity.getType(),
+                    entity.getDeviceModel(),
+                    entity.getManufacturer(),
+                    entity.getStatus()
+            );
+            this.delete(entity);
+            return response;
+
+        } finally {
+            this.metricsTimer.stopDeleteTimer(sampleTimer);
+        }
     }
 
     @Transactional
@@ -147,18 +173,26 @@ public class SensorService {
     @CircuitBreaker(name = "circuitbreaker-all-database", fallbackMethod = "circuitbreaker_for_all_database")
     public List<ResponseSensorDto> findAllSensorsActivated(int page, int size) {
 
-        return this.sensorRepository
-                .findAllSensors(PageRequest.of(page, size, Sort.Direction.DESC))
-                .stream()
-                .filter(device -> Status.ACTIVATED.equals(device.getStatus()))
-                .map(device -> new ResponseSensorDto(
-                        device.getName(),
-                        device.getType(),
-                        device.getDeviceModel(),
-                        device.getManufacturer(),
-                        device.getStatus()
-                ))
-                .toList();
+        var sampleTimer = this.metricsTimer.startTimer();
+
+        try {
+            return this.sensorRepository
+                    .findAllSensors(PageRequest.of(page, size, Sort.Direction.DESC))
+                    .stream()
+                    .filter(device -> Status.ACTIVATED.equals(device.getStatus()))
+                    .map(device -> new ResponseSensorDto(
+                            device.getName(),
+                            device.getType(),
+                            device.getDeviceModel(),
+                            device.getManufacturer(),
+                            device.getStatus()
+                    ))
+                    .toList();
+
+        } finally {
+            this.metricsTimer.stopSensorsTimer(sampleTimer);
+        }
+
     }
 
     public List<ResponseSensorDto> circuitbreaker_for_all_database(int page, int size, Exception ex) {

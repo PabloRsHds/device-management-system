@@ -1,6 +1,5 @@
 package br.com.sensor_test.controller;
 
-import br.com.sensor_test.dtos.AllSensorsDto;
 import br.com.sensor_test.dtos.UpdateSensor;
 import br.com.sensor_test.dtos.sensor.ResponseSensorDto;
 import br.com.sensor_test.service.SensorService;

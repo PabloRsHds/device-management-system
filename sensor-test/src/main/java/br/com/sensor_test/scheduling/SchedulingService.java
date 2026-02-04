@@ -1,9 +1,9 @@
 package br.com.sensor_test.scheduling;
 
 import br.com.sensor_test.dtos.SensorForAnalysisEvent;
-import br.com.sensor_test.dtos.sensor.ResponseSensorDto;
 import br.com.sensor_test.enums.Status;
 import br.com.sensor_test.infra.exceptions.ServiceUnavailableException;
+import br.com.sensor_test.metrics.MetricsService;
 import br.com.sensor_test.repository.SensorRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -22,14 +20,19 @@ public class SchedulingService {
 
     private final SensorRepository sensorRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final MetricsService metricsService;
 
     private static final Random random = new Random();
     private static final float TEST_MARGIN = 100f;
 
     @Autowired
-    public SchedulingService(SensorRepository sensorRepository,KafkaTemplate<String, Object> kafkaTemplate) {
+    public SchedulingService(
+            SensorRepository sensorRepository,
+            KafkaTemplate<String, Object> kafkaTemplate,
+            MetricsService metricsService) {
         this.sensorRepository = sensorRepository;
         this.kafkaTemplate = kafkaTemplate;
+        this.metricsService = metricsService;
     }
 
 
@@ -68,6 +71,7 @@ public class SchedulingService {
 
     public void circuitbreaker_for_all_database(Exception ex) {
         log.warn("Database service is not available, error:", ex);
+        this.metricsService.metricForScheduling();
     }
 
     @CircuitBreaker(name = "circuitbreaker-kafka-producer", fallbackMethod = "circuitbreaker_kafka_producer")
