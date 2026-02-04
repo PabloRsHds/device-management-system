@@ -5,7 +5,6 @@ import br.com.sensor_test.infra.exceptions.ServiceUnavailableException;
 import br.com.sensor_test.service.SensorService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ public class KafkaConsumer {
 
     private final SensorService sensorService;
 
-    @Autowired
     public KafkaConsumer(SensorService sensorService ) {
         this.sensorService = sensorService;
     }

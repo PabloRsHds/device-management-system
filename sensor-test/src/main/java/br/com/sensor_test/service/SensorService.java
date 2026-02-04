@@ -15,7 +15,6 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,28 +25,28 @@ import java.util.Optional;
 public class SensorService {
 
     private final SensorRepository sensorRepository;
-    private final MetricsService metricsTimer;
+    private final MetricsService metricsService;
 
     @Autowired
     public SensorService(
             SensorRepository sensorRepository,
-            MetricsService metricsTimer) {
+            MetricsService metricsService) {
         this.sensorRepository = sensorRepository;
-        this.metricsTimer = metricsTimer;
+        this.metricsService = metricsService;
     }
 
     // ========================================== REGISTER ===========================================================
 
     public void registerSensor(ConsumerDeviceManagement consumer) {
 
-        var sampleTimer = this.metricsTimer.startTimer();
+        var sampleTimer = this.metricsService.startTimer();
 
         try {
             this.verifyIfSensorIsEmpty(consumer.deviceModel());
             this.save(consumer);
 
         } finally {
-            this.metricsTimer.stopConsumerTimer(sampleTimer);
+            this.metricsService.stopConsumerTimer(sampleTimer);
         }
     }
 
@@ -87,14 +86,14 @@ public class SensorService {
 
     public ResponseSensorDto updateSensor(String deviceModel, UpdateSensor request) {
 
-        var sampleTimer = this.metricsTimer.startTimer();
+        var sampleTimer = this.metricsService.startTimer();
 
         try {
             var entity = verifyIfSensorIsPresent(deviceModel);
             return this.update(entity, request);
 
         } finally {
-            this.metricsTimer.stopUpdateTimer(sampleTimer);
+            this.metricsService.stopUpdateTimer(sampleTimer);
         }
     }
 
@@ -141,7 +140,7 @@ public class SensorService {
 
     public ResponseSensorDto deleteSensor(String deviceModel) {
 
-        var sampleTimer = this.metricsTimer.startTimer();
+        var sampleTimer = this.metricsService.startTimer();
 
         try {
             var entity = this.verifyIfSensorIsPresent(deviceModel);
@@ -156,7 +155,7 @@ public class SensorService {
             return response;
 
         } finally {
-            this.metricsTimer.stopDeleteTimer(sampleTimer);
+            this.metricsService.stopDeleteTimer(sampleTimer);
         }
     }
 
@@ -170,14 +169,13 @@ public class SensorService {
 
     // ====================================== PEGA TODOS OS SENSORES =================================================
 
-    @CircuitBreaker(name = "circuitbreaker-all-database", fallbackMethod = "circuitbreaker_for_all_database")
     public List<ResponseSensorDto> findAllSensorsActivated(int page, int size) {
 
-        var sampleTimer = this.metricsTimer.startTimer();
+        var sampleTimer = this.metricsService.startTimer();
 
         try {
             return this.sensorRepository
-                    .findAllSensors(PageRequest.of(page, size, Sort.Direction.DESC))
+                    .findAllSensors(PageRequest.of(page, size))
                     .stream()
                     .filter(device -> Status.ACTIVATED.equals(device.getStatus()))
                     .map(device -> new ResponseSensorDto(
@@ -190,14 +188,8 @@ public class SensorService {
                     .toList();
 
         } finally {
-            this.metricsTimer.stopSensorsTimer(sampleTimer);
+            this.metricsService.stopSensorsTimer(sampleTimer);
         }
-
-    }
-
-    public List<ResponseSensorDto> circuitbreaker_for_all_database(int page, int size, Exception ex) {
-        log.warn("Database service is not available, error:", ex);
-        throw new ServiceUnavailableException("Database service is not available");
     }
 
     // ===============================================================================================================

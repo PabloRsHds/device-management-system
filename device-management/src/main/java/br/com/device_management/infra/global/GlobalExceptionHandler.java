@@ -2,6 +2,7 @@ package br.com.device_management.infra.global;
 
 import br.com.device_management.dtos.exception.RequestExceptionDto;
 import br.com.device_management.dtos.exception.ResponseExceptionDto;
+import br.com.device_management.infra.exceptions.DeviceIsEmpty;
 import br.com.device_management.infra.exceptions.DeviceIsPresent;
 import br.com.device_management.infra.exceptions.ServiceUnavailable;
 import br.com.device_management.metrics.excepiton.MetricsForExceptions;
@@ -69,8 +70,8 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    @ExceptionHandler(DeviceIsPresent.class)
-    public ResponseEntity<ResponseExceptionDto> handleDeviceIsEmptyException(DeviceIsPresent ex,
+    @ExceptionHandler(DeviceIsEmpty.class)
+    public ResponseEntity<ResponseExceptionDto> handleDeviceIsEmptyException(DeviceIsEmpty ex,
                                                                                HttpServletRequest request) {
 
         this.metrics.recordErrors(new RequestExceptionDto(

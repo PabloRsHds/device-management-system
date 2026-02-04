@@ -56,18 +56,18 @@ public class GlobalHandlerException {
 
         this.metrics.recordErrors(
                 new ExceptionMetricDto(
-                        HttpStatus.SERVICE_UNAVAILABLE.toString(),
+                        HttpStatus.NOT_FOUND.toString(),
                         "Sensor is present in the database",
                         ex.getMessage(),
                         request.getRequestURI()
                 )
         );
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ResponseExceptionDto(
                         Instant.now().toString(),
-                        HttpStatus.CONFLICT.value(),
-                        "CONFLICT",
+                        HttpStatus.NOT_FOUND.value(),
+                        "NOT FOUND",
                         "SENSOR-TEST",
                         "DATABASE",
                         this.serviceName,
@@ -81,18 +81,18 @@ public class GlobalHandlerException {
 
         this.metrics.recordErrors(
                 new ExceptionMetricDto(
-                        HttpStatus.SERVICE_UNAVAILABLE.toString(),
+                        HttpStatus.NOT_FOUND.toString(),
                         "Sensor is not present in the database",
                         ex.getMessage(),
                         request.getRequestURI()
                 )
         );
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ResponseExceptionDto(
                         Instant.now().toString(),
-                        HttpStatus.CONFLICT.value(),
-                        "CONFLICT",
+                        HttpStatus.NOT_FOUND.value(),
+                        "NOT FOUND",
                         "SENSOR-TEST",
                         "DATABASE",
                         this.serviceName,

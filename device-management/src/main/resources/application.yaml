@@ -64,8 +64,6 @@ resilience4j:
         automatic-transition-from-open-to-half-open-enabled: true
         record-exceptions:
           - org.springframework.kafka.KafkaException
-          - org.springframework.kafka.KafkaTimeoutException
-
 
 server:
   port: 8082

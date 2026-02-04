@@ -50,6 +50,14 @@ scrape_configs:
           application: 'device-user'
           service: 'auth'
 
+  - job_name: 'sensor-test'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'host.docker.internal:8083' ]
+        labels:
+          application: 'device-user'
+          service: 'auth'
+
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']

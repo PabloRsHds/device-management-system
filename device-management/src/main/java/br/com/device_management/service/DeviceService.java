@@ -286,7 +286,7 @@ public class DeviceService {
         var sampleTimer = this.timer.startTimer();
 
         this.timer.stopGetDevicesTimer(sampleTimer);
-        return this.deviceRepository.findAllDevices((Pageable) PageRequest.of(page, size))
+        return this.deviceRepository.findAllDevices(PageRequest.of(page, size))
                 .stream()
                 .map(device -> new ResponseDeviceDto(
                         device.getName(),

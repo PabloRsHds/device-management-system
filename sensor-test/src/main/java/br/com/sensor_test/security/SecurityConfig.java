@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -15,6 +16,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Value("${public.key}")
@@ -35,7 +37,7 @@ public class SecurityConfig {
                     configuration.setAllowedHeaders(List.of("Content-Type","Authorization"));
                     return configuration;
                 }))
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
 
         return http.build();
     }

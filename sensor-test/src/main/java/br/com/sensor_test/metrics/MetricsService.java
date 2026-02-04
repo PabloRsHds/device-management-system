@@ -2,14 +2,12 @@ package br.com.sensor_test.metrics;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MetricsService {
 
-    @Value("${spring.application.name}")
-    private String serviceName;
+    private final String serviceName = "sensor-test";
 
     private final MeterRegistry meterRegistry;
     private final Timer consumerTimer;
@@ -39,7 +37,7 @@ public class MetricsService {
 
     public void metricForScheduling() {
         this.meterRegistry.counter("scheduling_error",
-                        "output", "findAll")
+                        "output", "find_all_sensors")
                 .increment();
     }
 
