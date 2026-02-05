@@ -1,11 +1,11 @@
 package br.com.analysis.service;
 
-import br.com.analysis.dtos.DeviceAnalysisDto;
+import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
 import br.com.analysis.dtos.RequestUpdateAnalysis;
+import br.com.analysis.infra.DeviceNotFoundException;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,33 +17,43 @@ public class AnalysisService {
 
     private final AnalysisRepository analysisRepository;
 
-    @Autowired
     public AnalysisService(AnalysisRepository analysisRepository) {
         this.analysisRepository = analysisRepository;
     }
 
-    public ResponseEntity<DeviceAnalysisDto> findDeviceForAnalysis(String deviceModel) {
+    // ====================================== FIND DEVICE FOR ANALYSIS ==============================================
+    public ResponseDeviceAnalysisDto findDeviceForAnalysis(String deviceModel) {
 
-        Optional<Analysis> analysis = this.analysisRepository.findByDeviceModel(deviceModel);
-
-        return analysis.map(value -> ResponseEntity.ok(new DeviceAnalysisDto(
-                value.getName(),
-                value.getDeviceModel(),
-                value.getMinLimit(),
-                value.getMaxLimit(),
-                value.getUnit(),
-                value.getUpdatedAt(),
-                value.getCreatedAt(),
-                value.getLastReadingMinLimit(),
-                value.getLastReadingMaxLimit(),
-                value.getLastReadingUpdateAt(),
-                value.getAnalysisWorked(),
-                value.getAnalysisFailed()
-
-        ))).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return this.findDeviceModel(deviceModel);
     }
 
-    public ResponseEntity<DeviceAnalysisDto> updateAnalysis(String deviceModel, RequestUpdateAnalysis request) {
+    public ResponseDeviceAnalysisDto findDeviceModel(String deviceModel) {
+
+        Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
+
+        if (entity.isEmpty()) {
+            throw new DeviceNotFoundException("Device not found for analysis");
+        }
+
+        var device = entity.get();
+
+        return new ResponseDeviceAnalysisDto(
+                device.getName(),
+                device.getDeviceModel(),
+                device.getMinLimit(),
+                device.getMaxLimit(),
+                device.getUnit(),
+                device.getUpdatedAt(),
+                device.getCreatedAt(),
+                device.getLastReadingMinLimit(),
+                device.getLastReadingMaxLimit(),
+                device.getLastReadingUpdateAt(),
+                device.getAnalysisWorked(),
+                device.getAnalysisFailed());
+    }
+    // ===============================================================================================================
+
+    public ResponseEntity<ResponseDeviceAnalysisDto> updateAnalysis(String deviceModel, RequestUpdateAnalysis request) {
 
         Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
 
@@ -70,7 +80,7 @@ public class AnalysisService {
 
         this.analysisRepository.save(entity.get());
 
-        return ResponseEntity.ok(new DeviceAnalysisDto(
+        return ResponseEntity.ok(new ResponseDeviceAnalysisDto(
                 entity.get().getName(),
                 entity.get().getDeviceModel(),
                 entity.get().getMinLimit(),
@@ -87,7 +97,7 @@ public class AnalysisService {
     }
 
     @Transactional
-    public ResponseEntity<DeviceAnalysisDto> deleteAnalysis(String deviceModel) {
+    public ResponseEntity<ResponseDeviceAnalysisDto> deleteAnalysis(String deviceModel) {
 
         Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
 
@@ -98,7 +108,7 @@ public class AnalysisService {
         var analysis = entity.get();
         this.analysisRepository.delete(entity.get());
 
-        return ResponseEntity.ok(new DeviceAnalysisDto(
+        return ResponseEntity.ok(new ResponseDeviceAnalysisDto(
                 analysis.getName(),
                 analysis.getDeviceModel(),
                 analysis.getMinLimit(),

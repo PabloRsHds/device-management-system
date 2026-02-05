@@ -1,6 +1,6 @@
 package br.com.analysis.dtos;
 
-public record DeviceAnalysisDto(
+public record ResponseDeviceAnalysisDto(
         String name,
         String deviceModel,
         Float minLimit,
