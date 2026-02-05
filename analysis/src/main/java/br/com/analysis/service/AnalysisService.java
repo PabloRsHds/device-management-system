@@ -103,31 +103,37 @@ public class AnalysisService {
 
     // ===============================================================================================================
 
-    @Transactional
-    public ResponseEntity<ResponseDeviceAnalysisDto> deleteAnalysis(String deviceModel) {
+    // ================================================ DELETE =======================================================
 
-        Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
 
-        if (entity.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseDeviceAnalysisDto deleteAnalysis(String deviceModel) {
 
-        var analysis = entity.get();
-        this.analysisRepository.delete(entity.get());
-
-        return ResponseEntity.ok(new ResponseDeviceAnalysisDto(
-                analysis.getName(),
-                analysis.getDeviceModel(),
-                analysis.getMinLimit(),
-                analysis.getMaxLimit(),
-                analysis.getUnit(),
-                analysis.getUpdatedAt(),
-                analysis.getCreatedAt(),
-                analysis.getLastReadingMinLimit(),
-                analysis.getLastReadingMaxLimit(),
-                analysis.getLastReadingUpdateAt(),
-                analysis.getAnalysisWorked(),
-                analysis.getAnalysisFailed()
-        ));
+        var entity = this.findDeviceModel(deviceModel);
+        return this.delete(entity);
     }
+
+    @Transactional
+    public ResponseDeviceAnalysisDto delete(Analysis entity) {
+
+        var response = new ResponseDeviceAnalysisDto(
+                entity.getName(),
+                entity.getDeviceModel(),
+                entity.getMinLimit(),
+                entity.getMaxLimit(),
+                entity.getUnit(),
+                entity.getUpdatedAt(),
+                entity.getCreatedAt(),
+                entity.getLastReadingMinLimit(),
+                entity.getLastReadingMaxLimit(),
+                entity.getLastReadingUpdateAt(),
+                entity.getAnalysisWorked(),
+                entity.getAnalysisFailed()
+        );
+
+        this.analysisRepository.delete(entity);
+        return response;
+    }
+
+
+    // ===============================================================================================================
 }
