@@ -6,6 +6,7 @@ import br.com.analysis.infra.DeviceNotFoundException;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import jakarta.transaction.Transactional;
+import org.bouncycastle.pqc.crypto.util.PQCOtherInfoGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -53,48 +54,54 @@ public class AnalysisService {
     }
     // ===============================================================================================================
 
-    public ResponseEntity<ResponseDeviceAnalysisDto> updateAnalysis(String deviceModel, RequestUpdateAnalysis request) {
 
-        Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
+    // ================================================ UPDATE ========================================================
 
-        if (entity.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseDeviceAnalysisDto updateAnalysis(String deviceModel, RequestUpdateAnalysis request) {
+
+        var entity = this.findDeviceModel(deviceModel);
+
+        return this.update(entity, request);
+    }
+
+    @Transactional
+    public ResponseDeviceAnalysisDto update(Analysis entity, RequestUpdateAnalysis request) {
 
         if (!request.name().isBlank()) {
-            entity.get().setName(request.name());
+            entity.setName(request.name());
         }
 
         if (!request.deviceModel().isBlank()) {
-            entity.get().setDeviceModel(request.deviceModel());
+            entity.setDeviceModel(request.deviceModel());
         }
 
         if (!request.manufacturer().isBlank()) {
-            entity.get().setManufacturer(request.manufacturer());
+            entity.setManufacturer(request.manufacturer());
         }
 
         if (!request.description().isBlank()) {
-            entity.get().setDescription(request.description());
+            entity.setDescription(request.description());
         }
 
+        this.analysisRepository.save(entity);
 
-        this.analysisRepository.save(entity.get());
-
-        return ResponseEntity.ok(new ResponseDeviceAnalysisDto(
-                entity.get().getName(),
-                entity.get().getDeviceModel(),
-                entity.get().getMinLimit(),
-                entity.get().getMaxLimit(),
-                entity.get().getUnit(),
-                entity.get().getUpdatedAt(),
-                entity.get().getCreatedAt(),
-                entity.get().getLastReadingMinLimit(),
-                entity.get().getLastReadingMaxLimit(),
-                entity.get().getLastReadingUpdateAt(),
-                entity.get().getAnalysisWorked(),
-                entity.get().getAnalysisFailed()
-        ));
+        return new ResponseDeviceAnalysisDto(
+                entity.getName(),
+                entity.getDeviceModel(),
+                entity.getMinLimit(),
+                entity.getMaxLimit(),
+                entity.getUnit(),
+                entity.getUpdatedAt(),
+                entity.getCreatedAt(),
+                entity.getLastReadingMinLimit(),
+                entity.getLastReadingMaxLimit(),
+                entity.getLastReadingUpdateAt(),
+                entity.getAnalysisWorked(),
+                entity.getAnalysisFailed()
+        );
     }
+
+    // ===============================================================================================================
 
     @Transactional
     public ResponseEntity<ResponseDeviceAnalysisDto> deleteAnalysis(String deviceModel) {

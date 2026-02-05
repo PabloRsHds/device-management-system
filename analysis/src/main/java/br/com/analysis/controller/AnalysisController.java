@@ -26,7 +26,8 @@ public class AnalysisController {
 
     @PatchMapping("/update-analysis/{deviceModel:.+}")
     public ResponseEntity<ResponseDeviceAnalysisDto> updateAnalysis(@PathVariable String deviceModel, @RequestBody RequestUpdateAnalysis request) {
-        return this.analysisService.updateAnalysis(deviceModel, request);
+        var response = this.analysisService.updateAnalysis(deviceModel, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete-analysis/{deviceModel:.+}")
