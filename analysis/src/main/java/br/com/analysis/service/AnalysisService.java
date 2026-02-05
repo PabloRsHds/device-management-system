@@ -1,28 +1,176 @@
 package br.com.analysis.service;
 
-import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
+import br.com.analysis.dtos.AnalysisEventForNotification;
+import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.dtos.RequestUpdateAnalysis;
+import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
 import br.com.analysis.infra.DeviceNotFoundException;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import jakarta.transaction.Transactional;
-import org.bouncycastle.pqc.crypto.util.PQCOtherInfoGenerator;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
 public class AnalysisService {
 
     private final AnalysisRepository analysisRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public AnalysisService(AnalysisRepository analysisRepository) {
+
+    public AnalysisService(
+            AnalysisRepository analysisRepository,
+            KafkaTemplate<String, Object> kafkaTemplate ) {
         this.analysisRepository = analysisRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
+    // ============================================= REGISTER =======================================================
+
+    public void consumerIotGatewayService(ConsumerSensorTest consumer) {
+
+        System.out.println(consumer.minLimit());
+        System.out.println(consumer.maxLimit());
+        System.out.println(consumer.minValue());
+        System.out.println(consumer.maxValue());
+
+        var entity = this.analysisFailed(
+                consumer.deviceModel(),
+                consumer.minValue(),
+                consumer.minLimit(),
+                consumer.maxValue(),
+                consumer.maxLimit());
+
+        if (entity != null) {
+
+            this.analysisSuccess(
+                    entity,
+                    consumer.minValue(),
+                    consumer.maxValue());
+
+        } else {
+            this.register(consumer);
+        }
+    }
+
+    @Transactional
+    public Analysis analysisFailed(String deviceModel, Float minValue, Float minLimit, Float maxValue, Float maxLimit) {
+
+        if (minValue < minLimit ||
+                maxValue > maxLimit) {
+
+            Optional<Analysis> optionalEntity =
+                    this.analysisRepository.findByDeviceModel(deviceModel);
+
+            if (optionalEntity.isPresent()) {
+                var entity = optionalEntity.get();
+                entity.setAnalysisFailed(entity.getAnalysisFailed() + 1);
+                this.analysisRepository.save(entity);
+                return entity;
+            }
+
+        }
+        return null;
+    }
+
+    @Transactional
+    public void analysisSuccess(Analysis entity, Float minValue, Float maxValue) {
+
+        String now = LocalDateTime.now()
+                .atZone(ZoneId.of("America/Sao_Paulo"))
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+
+        // 3️⃣ Garantir que as listas existam (ANTI NPE)
+        if (entity.getHistoryMinLimit() == null) {
+            entity.setHistoryMinLimit(new ArrayList<>());
+        }
+        if (entity.getHistoryMaxLimit() == null) {
+            entity.setHistoryMaxLimit(new ArrayList<>());
+        }
+        if (entity.getHistoryUpdate() == null) {
+            entity.setHistoryUpdate(new ArrayList<>());
+        }
+
+        var listMin = entity.getHistoryMinLimit();
+        var listMax = entity.getHistoryMaxLimit();
+        var listUpdate = entity.getHistoryUpdate();
+
+        // 4️⃣ Adiciona histórico
+        listMin.add(minValue);
+        listMax.add(maxValue);
+        listUpdate.add(now);
+
+        // 5️⃣ Atualiza valores atuais
+        entity.setMinLimit(minValue);
+        entity.setMaxLimit(maxValue);
+        entity.setUpdatedAt(now);
+
+        // 6️⃣ Define a leitura anterior (penúltima)
+        if (listMin.size() >= 2 && listMax.size() >= 2 && listUpdate.size() >= 2) {
+
+            int index = listMin.size() - 2;
+
+            entity.setLastReadingMinLimit(listMin.get(index));
+            entity.setLastReadingMaxLimit(listMax.get(index));
+            entity.setLastReadingUpdateAt(listUpdate.get(index));
+
+        }
+
+        entity.setAnalysisWorked(entity.getAnalysisWorked() + 1);
+        this.analysisRepository.save(entity);
+
+        this.sendEvent("analysis-for-notification-topic",
+                new AnalysisEventForNotification(
+                        entity.getDeviceModel(),
+                        false
+                ));
+    }
+
+    @Transactional
+    public void register(ConsumerSensorTest consumer) {
+
+        String now = LocalDateTime.now()
+                .atZone(ZoneId.of("America/Sao_Paulo"))
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+
+        var newEntity = new Analysis();
+        newEntity.setName(consumer.name());
+        newEntity.setType(consumer.type());
+        newEntity.setDescription(consumer.description());
+        newEntity.setDeviceModel(consumer.deviceModel());
+        newEntity.setManufacturer(consumer.manufacturer());
+        newEntity.setUnit(consumer.unit());
+        newEntity.setMinLimit(consumer.minValue());
+        newEntity.setMaxLimit(consumer.maxValue());
+        newEntity.setCreatedAt(now);
+
+        // Inicializa listas vazias
+        newEntity.setHistoryMinLimit(new ArrayList<>());
+        newEntity.setHistoryMaxLimit(new ArrayList<>());
+        newEntity.setHistoryUpdate(new ArrayList<>());
+
+        this.analysisRepository.save(newEntity);
+
+        this.sendEvent("analysis-for-notification-topic", new AnalysisEventForNotification(
+                consumer.deviceModel(),
+                true
+        ));
+    }
+
+    public void sendEvent(String topic, AnalysisEventForNotification event) {
+        this.kafkaTemplate.send(topic, event);
+    }
+
+    // ==============================================================================================================
+
     // ====================================== FIND DEVICE FOR ANALYSIS ==============================================
+
     public ResponseDeviceAnalysisDto findDeviceForAnalysis(String deviceModel) {
 
         var entity = this.findDeviceModel(deviceModel);
