@@ -32,6 +32,7 @@ public class AnalysisController {
 
     @DeleteMapping("/delete-analysis/{deviceModel:.+}")
     public ResponseEntity<ResponseDeviceAnalysisDto> deleteAnalysis(@PathVariable String deviceModel) {
-        return this.analysisService.deleteAnalysis(deviceModel);
+        var response = this.analysisService.deleteAnalysis(deviceModel);
+        return ResponseEntity.ok(response);
     }
 }
