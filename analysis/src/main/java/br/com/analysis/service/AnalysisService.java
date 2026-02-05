@@ -24,10 +24,24 @@ public class AnalysisService {
     // ====================================== FIND DEVICE FOR ANALYSIS ==============================================
     public ResponseDeviceAnalysisDto findDeviceForAnalysis(String deviceModel) {
 
-        return this.findDeviceModel(deviceModel);
+        var entity = this.findDeviceModel(deviceModel);
+
+        return new ResponseDeviceAnalysisDto(
+                entity.getName(),
+                entity.getDeviceModel(),
+                entity.getMinLimit(),
+                entity.getMaxLimit(),
+                entity.getUnit(),
+                entity.getUpdatedAt(),
+                entity.getCreatedAt(),
+                entity.getLastReadingMinLimit(),
+                entity.getLastReadingMaxLimit(),
+                entity.getLastReadingUpdateAt(),
+                entity.getAnalysisWorked(),
+                entity.getAnalysisFailed());
     }
 
-    public ResponseDeviceAnalysisDto findDeviceModel(String deviceModel) {
+    public Analysis findDeviceModel(String deviceModel) {
 
         Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
 
@@ -35,21 +49,7 @@ public class AnalysisService {
             throw new DeviceNotFoundException("Device not found for analysis");
         }
 
-        var device = entity.get();
-
-        return new ResponseDeviceAnalysisDto(
-                device.getName(),
-                device.getDeviceModel(),
-                device.getMinLimit(),
-                device.getMaxLimit(),
-                device.getUnit(),
-                device.getUpdatedAt(),
-                device.getCreatedAt(),
-                device.getLastReadingMinLimit(),
-                device.getLastReadingMaxLimit(),
-                device.getLastReadingUpdateAt(),
-                device.getAnalysisWorked(),
-                device.getAnalysisFailed());
+        return entity.get();
     }
     // ===============================================================================================================
 
