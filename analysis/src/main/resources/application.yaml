@@ -1,7 +1,6 @@
 spring:
   application:
     name: analysis
-
   datasource:
     url: jdbc:postgresql://localhost:5432/analysis
     username: root
@@ -30,6 +29,33 @@ spring:
 
   main:
     allow-bean-definition-overriding: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Só o essencial
+
+  metrics:
+    tags:
+      application: device-user
+      environment: local
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      circuitbreaker_for_database:
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+        ignore-exceptions:
+          - br.com.device_user.infra.exceptions.ServiceUnavailableException
 
 server:
   port: 8084
