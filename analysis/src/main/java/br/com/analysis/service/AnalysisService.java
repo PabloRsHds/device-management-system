@@ -7,7 +7,9 @@ import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
 import br.com.analysis.infra.DeviceNotFoundException;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class AnalysisService {
 
@@ -163,8 +166,13 @@ public class AnalysisService {
         ));
     }
 
+    @CircuitBreaker(name = "circuitbreaker_kafka", fallbackMethod = "circuitbreaker_for_kafka")
     public void sendEvent(String topic, AnalysisEventForNotification event) {
         this.kafkaTemplate.send(topic, event);
+    }
+
+    public void circuitbreaker_for_kafka(String topic, AnalysisEventForNotification event, Exception e) {
+        log.warn("Circuit breaker for kafka: {}", e.getMessage());
     }
 
     // ==============================================================================================================
