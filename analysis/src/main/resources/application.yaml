@@ -54,9 +54,6 @@ resilience4j:
         record-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
-        ignore-exceptions:
-          - br.com.device_user.infra.exceptions.ServiceUnavailableException
-
 server:
   port: 8084
 public:
