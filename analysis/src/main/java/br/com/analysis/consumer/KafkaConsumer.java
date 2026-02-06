@@ -30,10 +30,13 @@ public class KafkaConsumer {
     @CircuitBreaker(name = "circuitbreaker_kafka_consumer", fallbackMethod = "circuitbreaker_for_kafka_consumer")
     public void consumerIotGateway(ConsumerSensorTest consumer, Acknowledgment ack) {
 
+        var sampleTimer = this.metricsService.startTimer();
+
         try {
             this.analysisService.consumerIotGatewayService(consumer);
 
         } finally {
+            this.metricsService.stopConsumerTimer(sampleTimer);
             ack.acknowledge();
         }
     }

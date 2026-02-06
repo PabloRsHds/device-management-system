@@ -2,6 +2,7 @@ package br.com.analysis.metrics;
 
 import br.com.analysis.dtos.exception.ExceptionMetricDto;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -9,9 +10,22 @@ public class MetricsService {
 
     private final String serviceName = "analysis";
     private final MeterRegistry meterRegistry;
+    private final Timer consumerTimer;
 
     public MetricsService(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
+
+        this.consumerTimer = Timer.builder("kafka_consumer_timer_duration_seconds")
+                .tags("service", this.serviceName)
+                .register(this.meterRegistry);
+    }
+
+    public Timer.Sample startTimer() {
+        return Timer.start(meterRegistry);
+    }
+
+    public void stopConsumerTimer(Timer.Sample sample) {
+        sample.stop(consumerTimer);
     }
 
     public void metricForExceptions(ExceptionMetricDto dto) {
