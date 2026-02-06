@@ -54,6 +54,8 @@ resilience4j:
         record-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
+        ignore-exceptions:
+          - br.com.analysis.infra.exceptions.DeviceNotFoundException
 
       circuitbreaker_kafka_consumer:
         sliding-window-size: 5

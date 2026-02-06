@@ -10,7 +10,6 @@ import br.com.analysis.metrics.MetricsService;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -99,7 +98,7 @@ public class AnalysisService {
                 .atZone(ZoneId.of("America/Sao_Paulo"))
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
-        // 3️⃣ Garantir que as listas existam (ANTI NPE)
+        // Garantir que as listas existam (ANTI NPE)
         if (entity.getHistoryMinLimit() == null) {
             entity.setHistoryMinLimit(new ArrayList<>());
         }
@@ -114,17 +113,17 @@ public class AnalysisService {
         var listMax = entity.getHistoryMaxLimit();
         var listUpdate = entity.getHistoryUpdate();
 
-        // 4️⃣ Adiciona histórico
+        // Adiciona histórico
         listMin.add(minValue);
         listMax.add(maxValue);
         listUpdate.add(now);
 
-        // 5️⃣ Atualiza valores atuais
+        // Atualiza valores atuais
         entity.setMinLimit(minValue);
         entity.setMaxLimit(maxValue);
         entity.setUpdatedAt(now);
 
-        // 6️⃣ Define a leitura anterior (penúltima)
+        // Define a leitura anterior (penúltima)
         if (listMin.size() >= 2 && listMax.size() >= 2 && listUpdate.size() >= 2) {
 
             int index = listMin.size() - 2;
