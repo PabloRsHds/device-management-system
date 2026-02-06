@@ -8,6 +8,7 @@ import br.com.analysis.infra.DeviceNotFoundException;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -198,6 +199,9 @@ public class AnalysisService {
                 entity.getAnalysisFailed());
     }
 
+
+    @Retry(name = "retry_database", fallbackMethod = "retry_for_database")
+    @CircuitBreaker(name = "circuitbreaker_database", fallbackMethod = "circuitbreaker_for_database")
     public Analysis findDeviceModel(String deviceModel) {
 
         Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
@@ -207,6 +211,18 @@ public class AnalysisService {
         }
 
         return entity.get();
+    }
+
+    public Analysis retry_for_database(String deviceModel, Exception e) {
+        log.warn("Retry for database: {}", e.getMessage());
+
+        throw new DeviceNotFoundException("Device not found for analysis");
+    }
+
+    public Analysis circuitbreaker_for_database(String deviceModel, Exception e) {
+        log.warn("Circuit breaker for database: {}", e.getMessage());
+
+        throw new DeviceNotFoundException("Device not found for analysis");
     }
     // ===============================================================================================================
 
