@@ -4,7 +4,7 @@ import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.dtos.RequestUpdateAnalysis;
 import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
-import br.com.analysis.infra.DeviceNotFoundException;
+import br.com.analysis.infra.exceptions.DeviceNotFoundException;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;

@@ -1,4 +1,4 @@
-package br.com.analysis.infra;
+package br.com.analysis.infra.exceptions;
 
 public class DeviceNotFoundException extends RuntimeException {
     public DeviceNotFoundException(String message) {
