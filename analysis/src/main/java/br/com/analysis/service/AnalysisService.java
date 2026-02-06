@@ -167,12 +167,12 @@ public class AnalysisService {
         ));
     }
 
-    @CircuitBreaker(name = "circuitbreaker_kafka", fallbackMethod = "circuitbreaker_for_kafka")
+    @CircuitBreaker(name = "circuitbreaker_kafka_producer", fallbackMethod = "circuitbreaker_for_kafka_producer")
     public void sendEvent(String topic, AnalysisEventForNotification event) {
         this.kafkaTemplate.send(topic, event);
     }
 
-    public void circuitbreaker_for_kafka(String topic, AnalysisEventForNotification event, Exception e) {
+    public void circuitbreaker_for_kafka_producer(String topic, AnalysisEventForNotification event, Exception e) {
         log.warn("Circuit breaker for kafka: {}", e.getMessage());
     }
 
