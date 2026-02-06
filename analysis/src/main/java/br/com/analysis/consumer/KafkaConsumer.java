@@ -2,6 +2,7 @@ package br.com.analysis.consumer;
 
 import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.service.AnalysisService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -22,6 +23,7 @@ public class KafkaConsumer {
             topics = "sensor-test-for-analysis-topic",
             groupId = "sensor-test-for-analysis-groupId",
             containerFactory = "kafkaListenerSensorTestFactory")
+    @CircuitBreaker(name = "circuitbreaker_kafka", fallbackMethod = "circuitbreaker_for_kafka")
     public void consumerIotGateway(ConsumerSensorTest consumer, Acknowledgment ack) {
 
         try {
@@ -30,5 +32,9 @@ public class KafkaConsumer {
         } finally {
             ack.acknowledge();
         }
+    }
+
+    public void circuitbreaker_for_kafka(ConsumerSensorTest consumer, Acknowledgment ack, Exception e) {
+        log.warn("Circuit breaker for kafka: {}", e.getMessage());
     }
 }
