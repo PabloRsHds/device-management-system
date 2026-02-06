@@ -2,6 +2,7 @@ package br.com.analysis.infra.global;
 
 import br.com.analysis.dtos.ResponseExceptionDto;
 import br.com.analysis.infra.exceptions.DeviceNotFoundException;
+import br.com.analysis.infra.exceptions.ServiceUnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,22 @@ public class GlobalHandlerException {
                 Instant.now().toString(),
                 HttpStatus.NOT_FOUND.value(),
                 "NOT FOUND",
+                "ANALYSIS",
+                "DATABASE",
+                this.serviceName,
+                ex.getMessage(),
+                request.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ResponseExceptionDto> handleServiceUnavailableException(ServiceUnavailableException ex,
+                                                                              HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ResponseExceptionDto(
+                Instant.now().toString(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "SERVICE UNAVAILABLE",
                 "ANALYSIS",
                 "DATABASE",
                 this.serviceName,

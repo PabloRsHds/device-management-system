@@ -5,6 +5,8 @@ import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.dtos.RequestUpdateAnalysis;
 import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
 import br.com.analysis.infra.exceptions.DeviceNotFoundException;
+import br.com.analysis.infra.exceptions.ServiceUnavailableException;
+import br.com.analysis.metrics.MetricsService;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -26,13 +28,16 @@ public class AnalysisService {
 
     private final AnalysisRepository analysisRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final MetricsService metricsService;
 
 
     public AnalysisService(
             AnalysisRepository analysisRepository,
-            KafkaTemplate<String, Object> kafkaTemplate ) {
+            KafkaTemplate<String, Object> kafkaTemplate,
+            MetricsService metricsService) {
         this.analysisRepository = analysisRepository;
         this.kafkaTemplate = kafkaTemplate;
+        this.metricsService = metricsService;
     }
 
     // ============================================= REGISTER =======================================================
@@ -73,9 +78,13 @@ public class AnalysisService {
                     this.analysisRepository.findByDeviceModel(deviceModel);
 
             if (optionalEntity.isPresent()) {
+
                 var entity = optionalEntity.get();
                 entity.setAnalysisFailed(entity.getAnalysisFailed() + 1);
+
                 this.analysisRepository.save(entity);
+
+                this.metricsService.analysisSuccess(false);
                 return entity;
             }
 
@@ -127,6 +136,8 @@ public class AnalysisService {
         }
 
         entity.setAnalysisWorked(entity.getAnalysisWorked() + 1);
+
+        this.metricsService.analysisSuccess(true);
         this.analysisRepository.save(entity);
 
         this.sendEvent("analysis-for-notification-topic",
@@ -174,6 +185,7 @@ public class AnalysisService {
 
     public void circuitbreaker_for_kafka_producer(String topic, AnalysisEventForNotification event, Exception e) {
         log.warn("Circuit breaker for kafka: {}", e.getMessage());
+        this.metricsService.failSendEvent();
     }
 
     // ==============================================================================================================
@@ -200,7 +212,6 @@ public class AnalysisService {
     }
 
 
-    @Retry(name = "retry_database", fallbackMethod = "retry_for_database")
     @CircuitBreaker(name = "circuitbreaker_database", fallbackMethod = "circuitbreaker_for_database")
     public Analysis findDeviceModel(String deviceModel) {
 
@@ -213,16 +224,10 @@ public class AnalysisService {
         return entity.get();
     }
 
-    public Analysis retry_for_database(String deviceModel, Exception e) {
-        log.warn("Retry for database: {}", e.getMessage());
-
-        throw new DeviceNotFoundException("Device not found for analysis");
-    }
-
     public Analysis circuitbreaker_for_database(String deviceModel, Exception e) {
         log.warn("Circuit breaker for database: {}", e.getMessage());
 
-        throw new DeviceNotFoundException("Device not found for analysis");
+        throw new ServiceUnavailableException("Service Unavailable, please try again later");
     }
     // ===============================================================================================================
 

@@ -42,11 +42,6 @@ management:
       environment: local
 
 resilience4j:
-  retry:
-    instances:
-      retry_database:
-        max-attempts: 3
-        wait-duration: 5s
   circuitbreaker:
     instances:
       circuitbreaker_database:
