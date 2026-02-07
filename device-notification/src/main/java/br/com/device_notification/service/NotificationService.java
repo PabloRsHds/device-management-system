@@ -6,6 +6,7 @@ import br.com.device_notification.model.Notification;
 import br.com.device_notification.repository.NotificationRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class NotificationService {
 
@@ -71,24 +73,21 @@ public class NotificationService {
     @Retry(name = "retry_for_visualization", fallbackMethod = "retry_visualisation")
     @CircuitBreaker(name = "circuitbreaker_for_visualisation", fallbackMethod = "circuitbreaker_visualisation")
     public void visualisation() {
-        List<Notification> notifications = this.notificationRepository.findAll();
-
-        for (var notification : notifications) {
-            notification.setVisualisation(true);
-            this.notificationRepository.save(notification);
-        }
+        this.notificationRepository.markAllAsVisualised();
     }
 
     public void retry_visualisation(Exception ex) {
-        throw new ServiceUnavailableEx("The database service is temporarily down");
+        log.error("The database service is temporarily down");
     }
 
     public void circuitbreaker_visualisation(Exception ex) {
-
         throw new ServiceUnavailableEx("The database service is temporarily down");
     }
 
     // ================================================================================================================
+
+    // ======================================= OCULTAR NOTIFICAÇÕES ==================================================
+
 
     public void occultNotification(Long notificationId) {
 
@@ -101,6 +100,7 @@ public class NotificationService {
         notification.get().setShowNotification(false);
         this.notificationRepository.save(notification.get());
     }
+    // ===============================================================================================================
 
     public int countNotifications() {
         return this.notificationRepository.countByVisualisationFalse();

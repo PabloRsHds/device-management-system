@@ -64,8 +64,6 @@ resilience4j:
         record-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
-        ignore-exceptions:
-          - br.com.device_notification.infra.ServiceUnavailableEx
 
 
 public:
