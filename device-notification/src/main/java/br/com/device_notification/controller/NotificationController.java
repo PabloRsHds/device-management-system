@@ -35,7 +35,8 @@ public class NotificationController {
             @RequestParam int page,
             @RequestParam int size
     ) {
-        return this.notificationService.allNotificationsOccult(page, size);
+        var response = this.notificationService.allNotificationsOccult(page, size);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/visualisation-notification")

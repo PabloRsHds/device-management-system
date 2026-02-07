@@ -47,17 +47,25 @@ public class NotificationService {
 
     // ================================================================================================================
 
-    public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(int page, int size) {
 
-        List<ResponseNotifications> notifications = this.notificationRepository.findAllByShowNotificationFalse(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+    // ================================ ALL NOTIFICATIONS OCCULTS =====================================================
+
+    @Retry(name = "retry_all_notifications", fallbackMethod = "retry_notifications")
+    @CircuitBreaker(name = "circuitbreaker_all_notifications", fallbackMethod = "circuitbreaker_notifications")
+    public List<ResponseNotifications> allNotificationsOccult(int page, int size) {
+
+        return this.notificationRepository.findAllByShowNotificationFalse(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
                 .stream()
                 .map(notification -> new ResponseNotifications(
                         notification.getNotificationId(),
                         notification.getMessage()))
                 .toList();
-
-        return ResponseEntity.ok(notifications);
     }
+
+    // ================================================================================================================
+
+
+    // ================================================ VISUALIZAÇÃO ==================================================
 
     public ResponseEntity<Void> visualisation() {
         List<Notification> notifications = this.notificationRepository.findAll();
@@ -69,6 +77,8 @@ public class NotificationService {
 
         return ResponseEntity.ok().build();
     }
+
+    // ================================================================================================================
 
     public void occultNotification(Long notificationId) {
 
