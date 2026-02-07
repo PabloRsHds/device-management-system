@@ -1,6 +1,7 @@
 package br.com.device_notification.service;
 
 import br.com.device_notification.dtos.ResponseNotifications;
+import br.com.device_notification.infra.ServiceUnavailableEx;
 import br.com.device_notification.model.Notification;
 import br.com.device_notification.repository.NotificationRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -67,15 +68,24 @@ public class NotificationService {
 
     // ================================================ VISUALIZAÇÃO ==================================================
 
-    public ResponseEntity<Void> visualisation() {
+    @Retry(name = "retry_for_visualization", fallbackMethod = "retry_visualisation")
+    @CircuitBreaker(name = "circuitbreaker_for_visualisation", fallbackMethod = "circuitbreaker_visualisation")
+    public void visualisation() {
         List<Notification> notifications = this.notificationRepository.findAll();
 
         for (var notification : notifications) {
             notification.setVisualisation(true);
             this.notificationRepository.save(notification);
         }
+    }
 
-        return ResponseEntity.ok().build();
+    public void retry_visualisation(Exception ex) {
+        throw new ServiceUnavailableEx("The database service is temporarily down");
+    }
+
+    public void circuitbreaker_visualisation(Exception ex) {
+
+        throw new ServiceUnavailableEx("The database service is temporarily down");
     }
 
     // ================================================================================================================

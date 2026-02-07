@@ -41,7 +41,8 @@ public class NotificationController {
 
     @PutMapping("/visualisation-notification")
     public ResponseEntity<Void> visualisation() {
-        return this.notificationService.visualisation();
+        this.notificationService.visualisation();
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/occult-notification/{notificationId}")
