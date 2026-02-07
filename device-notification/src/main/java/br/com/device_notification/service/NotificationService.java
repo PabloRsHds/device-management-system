@@ -23,6 +23,8 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
     }
 
+    // ======================================== All NOTIFICATIONS =====================================================
+
     @Retry(name = "retry_all_notifications", fallbackMethod = "retry_notifications")
     @CircuitBreaker(name = "circuitbreaker_all_notifications", fallbackMethod = "circuitbreaker_notifications")
     public List<ResponseNotifications> allNotifications(int page, int size) {
@@ -42,6 +44,8 @@ public class NotificationService {
     public List<ResponseNotifications> circuitbreaker_notifications(int page, int size, Exception ex) {
         return List.of();
     }
+
+    // ================================================================================================================
 
     public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(int page, int size) {
 

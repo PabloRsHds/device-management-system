@@ -26,7 +26,8 @@ public class NotificationController {
             @RequestParam int page,
             @RequestParam int size
     ) {
-        return this.notificationService.allNotifications(page, size);
+        var response = this.notificationService.allNotifications(page, size);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/notifications-occult")
