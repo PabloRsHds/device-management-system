@@ -59,6 +59,8 @@ resilience4j:
         record-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
+        ignore-exceptions:
+          - br.com.device_management.infra.exceptions.ServiceUnavailable
 
       circuitbreaker_for_get_all_devices:
         sliding-window-size: 5

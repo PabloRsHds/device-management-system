@@ -41,6 +41,12 @@ management:
       environment: local
 
 resilience4j:
+  retry:
+    instances:
+      retry_get_all_devices:
+        max-attempts: 3
+        wait-duration: 5s
+
   circuitbreaker:
     configs:
       default:
@@ -51,14 +57,21 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
 
     instances:
+      circuitbreaker_all_devices:
+        base-config: default
+
       circuitbreaker_for_database:
         base-config: default
+        ignore-exceptions:
+          - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
       circuitbreaker_kafka_producer:
         base-config: default
         record-exceptions:
           - org.springframework.kafka.KafkaException
           - org.apache.kafka.common.errors.TimeoutException
+        ignore-exceptions:
+          - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
       circuitbreaker_kafka_consumer:
         base-config: default

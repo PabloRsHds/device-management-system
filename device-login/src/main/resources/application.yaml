@@ -41,6 +41,9 @@ resilience4j:
           - feign.FeignException
           - java.net.ConnectException
           - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - br.com.device_login.infra.exceptions.InvalidCredentialsException
+          - br.com.device_login.infra.exceptions.ServiceUnavailableException
 
 public:
   key: classpath:public-key

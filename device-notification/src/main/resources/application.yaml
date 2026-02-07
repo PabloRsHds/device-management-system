@@ -30,6 +30,26 @@ eureka:
     lease-renewal-interval-in-seconds: '5'
     lease-expiration-duration-in-seconds: '10'
 
+resilience4j:
+  retry:
+    instances:
+      retry_notifications:
+        max-attempts: 3
+        wait-duration: 5s
+
+  circuitbreaker:
+    instances:
+      circuitbreaker_all_notifications:
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+
 
 public:
   key: classpath:public-key

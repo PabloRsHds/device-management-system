@@ -1,7 +1,6 @@
 package br.com.sensor_test.consumer;
 
 import br.com.sensor_test.dtos.ConsumerDeviceManagement;
-import br.com.sensor_test.infra.exceptions.ServiceUnavailableException;
 import br.com.sensor_test.service.SensorService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +36,5 @@ public class KafkaConsumer {
     public void circuitbreaker_kafka_consumer(ConsumerDeviceManagement consumer, Acknowledgment ack, Exception ex) {
         log.error("Circuit breaker opened or error in consumer: {}", ex.getMessage(), ex);
 
-        throw new ServiceUnavailableException("Service unavailable, message will be retried");
     }
 }

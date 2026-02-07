@@ -11,6 +11,7 @@ import br.com.sensor_test.metrics.MetricsService;
 import br.com.sensor_test.model.Sensor;
 import br.com.sensor_test.repository.SensorRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,6 +170,8 @@ public class SensorService {
 
     // ====================================== PEGA TODOS OS SENSORES =================================================
 
+    @Retry(name = "retry_get_all_devices", fallbackMethod = "retry_all_devices")
+    @CircuitBreaker(name = "circuitbreaker_all_devices", fallbackMethod = "circuitbreaker_devices")
     public List<ResponseSensorDto> findAllSensorsActivated(int page, int size) {
 
         var sampleTimer = this.metricsService.startTimer();
@@ -190,6 +193,14 @@ public class SensorService {
         } finally {
             this.metricsService.stopSensorsTimer(sampleTimer);
         }
+    }
+
+    public List<ResponseSensorDto> retry_all_devices(int page, int size, Exception ex) {
+        return List.of();
+    }
+
+    public List<ResponseSensorDto> circuitbreaker_devices(int page, int size, Exception ex) {
+        return List.of();
     }
 
     // ===============================================================================================================
