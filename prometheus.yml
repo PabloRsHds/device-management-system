@@ -75,6 +75,14 @@ scrape_configs:
           application: 'analysis'
           service: 'auth'
 
+  - job_name: 'device-notification'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'host.docker.internal:8084' ]
+        labels:
+          application: 'device-notification'
+          service: 'auth'
+
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
