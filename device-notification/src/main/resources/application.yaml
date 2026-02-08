@@ -36,14 +36,41 @@ resilience4j:
       retry_notifications:
         max-attempts: 3
         wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
 
-      retry_for_visualization:
+      retry_occult_notifications:
         max-attempts: 3
         wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+
+      retry_visualisation:
+        max-attempts: 3
+        wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+
+      retry_occult:
+        max-attempts: 3
+        wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+
+      retry_count:
+        max-attempts: 3
+        wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
 
   circuitbreaker:
     instances:
-      circuitbreaker_all_notifications:
+      circuitbreaker_notifications:
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -54,7 +81,7 @@ resilience4j:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
-      circuitbreaker_for_visualisation:
+      circuitbreaker_occult_notifications:
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -65,6 +92,40 @@ resilience4j:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
+      circuitbreaker_visualisation:
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+
+      circuitbreaker_occult:
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+        ignore-exceptions:
+          - br.com.device_notification.infra.NotificationNotFoundEx
+
+      circuitbreaker_count:
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
 
 public:
   key: classpath:public-key
