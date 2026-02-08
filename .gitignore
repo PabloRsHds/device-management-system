@@ -9,7 +9,7 @@ keys/*
 *.key
 iot-gateway
 
-prometheus.yml
+*prometheus.yml
 prometheus-config.yaml
 
 # IntelliJ / Eclipse / VSCode
