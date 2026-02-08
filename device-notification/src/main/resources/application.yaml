@@ -114,7 +114,7 @@ resilience4j:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
         ignore-exceptions:
-          - br.com.device_notification.infra.NotificationNotFoundEx
+          - br.com.device_notification.infra.exceptions.NotificationNotFoundEx
 
       circuitbreaker_count:
         sliding-window-size: 5

@@ -1,8 +1,8 @@
 package br.com.device_notification.service;
 
 import br.com.device_notification.dtos.ResponseNotifications;
-import br.com.device_notification.infra.NotificationNotFoundEx;
-import br.com.device_notification.infra.ServiceUnavailableEx;
+import br.com.device_notification.infra.exceptions.NotificationNotFoundEx;
+import br.com.device_notification.infra.exceptions.ServiceUnavailableEx;
 import br.com.device_notification.repository.NotificationRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
