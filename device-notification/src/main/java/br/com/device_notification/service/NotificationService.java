@@ -3,6 +3,7 @@ package br.com.device_notification.service;
 import br.com.device_notification.dtos.ResponseNotifications;
 import br.com.device_notification.infra.exceptions.NotificationNotFoundEx;
 import br.com.device_notification.infra.exceptions.ServiceUnavailableEx;
+import br.com.device_notification.metrics.MetricsService;
 import br.com.device_notification.repository.NotificationRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -20,10 +21,15 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final MetricsService metricsService;
 
     @Autowired
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(
+            NotificationRepository notificationRepository,
+            MetricsService metricsService) {
+
         this.notificationRepository = notificationRepository;
+        this.metricsService = metricsService;
     }
 
     // ======================================== All NOTIFICATIONS =====================================================
@@ -45,6 +51,8 @@ public class NotificationService {
     }
 
     public List<ResponseNotifications> circuitbreaker_notifications(int page, int size, Exception ex) {
+
+        this.metricsService.circuitbreaker("circuitbreaker_notifications");
         return List.of();
     }
 
@@ -70,6 +78,8 @@ public class NotificationService {
     }
 
     public List<ResponseNotifications> circuitbreaker_occult_notifications(int page, int size, Exception ex) {
+
+        this.metricsService.circuitbreaker("circuitbreaker_occult_notifications");
         return List.of();
     }
 
@@ -89,6 +99,8 @@ public class NotificationService {
     }
 
     public void circuitbreaker_visualisation(Exception ex) {
+
+        this.metricsService.circuitbreaker("circuitbreaker_visualisation");
         throw new ServiceUnavailableEx("The database service is temporarily down");
     }
 
@@ -119,6 +131,8 @@ public class NotificationService {
     }
 
     public void circuitbreaker_occult(Long notificationId, Exception ex) {
+
+        this.metricsService.circuitbreaker("circuitbreaker_occult");
         throw new ServiceUnavailableEx("The database service is temporarily down");
     }
 
@@ -136,6 +150,8 @@ public class NotificationService {
     }
 
     public int circuitbreaker_count(Exception ex) {
+
+        this.metricsService.circuitbreaker("circuitbreaker_count");
         throw new ServiceUnavailableEx("The database service is temporarily down");
     }
 }
