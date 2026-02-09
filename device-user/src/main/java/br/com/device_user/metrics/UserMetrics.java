@@ -26,18 +26,11 @@ public class UserMetrics {
 
 
     // Métricas de contagem
-    public void recordUserFound(){
+    public void recordUserIsPresent(String trueOrFalse){
         this.meterRegistry.counter(
                 "user_lookup_total",
                         "service",this.serviceName,
-                        "outcome","found")
-                .increment();
-    }
-
-    public void recordUserNotFound(){
-        this.meterRegistry.counter("user_lookup_total",
-                        "service", this.serviceName,
-                        "outcome", "not_found")
+                        "present", trueOrFalse)
                 .increment();
     }
 

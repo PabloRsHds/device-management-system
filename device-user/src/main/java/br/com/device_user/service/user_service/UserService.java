@@ -35,7 +35,7 @@ public class UserService {
         Optional<User> entity_userId = this.userRepository.findByUserId(userId);
 
         if (entity_email.isEmpty() && entity_userId.isEmpty()) {
-            this.userMetrics.recordUserNotFound();
+            this.userMetrics.recordUserIsPresent("false");
             this.userMetrics.stopUserResponseFailedTimer(sampleTimer);
             return null;
         }
@@ -44,7 +44,7 @@ public class UserService {
 
             var user = entity_email.get();
 
-            this.userMetrics.recordUserFound();
+            this.userMetrics.recordUserIsPresent("true");
             this.userMetrics.stopUserResponseSuccessTimer(sampleTimer);
             return new ResponseUserForLogin(
                     user.getUserId(),
@@ -55,7 +55,7 @@ public class UserService {
 
         var user = entity_userId.get();
 
-        this.userMetrics.recordUserFound();
+        this.userMetrics.recordUserIsPresent("true");
         this.userMetrics.stopUserResponseSuccessTimer(sampleTimer);
         return new ResponseUserForLogin(
                 user.getUserId(),
