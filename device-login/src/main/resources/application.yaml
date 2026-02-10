@@ -1,10 +1,6 @@
 spring:
   application:
     name: device-login
-  cloud:
-    openfeign:
-      circuitbreaker:
-        enabled: true
 
 management:
   endpoints:
@@ -30,7 +26,7 @@ eureka:
 resilience4j:
   circuitbreaker:
     instances:
-      circuitbreaker_for_feign:
+      circuitbreaker_feign:
         sliding-window-type: COUNT_BASED
         sliding-window-size: 10
         failure-rate-threshold: 50
@@ -42,7 +38,6 @@ resilience4j:
           - java.net.ConnectException
           - java.net.SocketTimeoutException
         ignore-exceptions:
-          - br.com.device_login.infra.exceptions.InvalidCredentialsException
           - br.com.device_login.infra.exceptions.ServiceUnavailableException
 
 public:
