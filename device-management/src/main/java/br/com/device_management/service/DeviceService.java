@@ -73,8 +73,8 @@ public class DeviceService {
         );
     }
 
-    @Retry(name = "retry-database", fallbackMethod = "retry_for_database")
-    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    @Retry(name = "retry_database", fallbackMethod = "retry_for_database")
+    @CircuitBreaker(name = "circuitbreaker_database", fallbackMethod = "circuitbreaker_for_database")
     public void verifyIfDeviceIsPresent(String deviceModel) {
 
         Optional<Device> device = this.deviceRepository.findByDeviceModel(deviceModel);
@@ -124,7 +124,7 @@ public class DeviceService {
         );
     }
 
-    @CircuitBreaker(name = "circuitbreaker-kafka", fallbackMethod = "circuitbreaker_for_kafka")
+    @CircuitBreaker(name = "circuitbreaker_kafka", fallbackMethod = "circuitbreaker_for_kafka")
     public void sendEvent(String topic, DeviceDto dto) {
 
         this.kafkaTemplate.send(topic,
@@ -258,7 +258,7 @@ public class DeviceService {
     // =============================== Retorna o dispositivo com o modelo dele ========================================
 
     @Retry(name = "retry_database", fallbackMethod = "retry_for_database")
-    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    @CircuitBreaker(name = "circuitbreaker_database", fallbackMethod = "circuitbreaker_for_database")
     public getDeviceWithDeviceModel getDeviceWithDeviceModel(String deviceModel) {
 
         var sampleTimer = this.timer.startTimer();

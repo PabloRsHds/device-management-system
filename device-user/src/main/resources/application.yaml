@@ -28,7 +28,7 @@ management:
 resilience4j:
   retry:
     instances:
-      user-retry:  # ← Nome do @Retry
+      retry_database:  # ← Nome do @Retry
         max-attempts: 3
         wait-duration: 500ms
         retry-exceptions:
@@ -36,11 +36,11 @@ resilience4j:
           - java.net.ConnectException
           - java.net.SocketTimeoutException
         ignore-exceptions:
-          - br.com.device_user.infra.exceptions.UserNotFoundException
+          - br.com.device_user.infra.exceptions.ServiceUnavailableException
 
   circuitbreaker:
     instances:
-      circuitbreaker_for_database:
+      circuitbreaker_database:
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -52,7 +52,6 @@ resilience4j:
           - org.springframework.dao.DataAccessResourceFailureException
         ignore-exceptions:
           - br.com.device_user.infra.exceptions.ServiceUnavailableException
-          - br.com.device_user.infra.exceptions.UserNotFoundException
 
 eureka:
   client:
