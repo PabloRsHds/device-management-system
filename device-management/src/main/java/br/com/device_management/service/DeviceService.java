@@ -91,12 +91,12 @@ public class DeviceService {
     }
 
     public void verifyIfDeviceIsPresentRetry(String deviceModel, Exception e) {
-        log.error("Erro ao verificar se o dispositivo ja esta cadastrado", e);
-        throw new ServiceUnavailable("Database service unavailable");
+        log.error("Serviço de banco de dados indisponível, com isso não está sendo possível verificar se o dispositivo: {}" +
+                "está cadastrado", deviceModel);
     }
 
     public void verifyIfDeviceIsPresentCircuitBreaker(String deviceModel, Exception e) {
-        log.error("Erro ao verificar se o dispositivo ja esta cadastrado", e);
+        log.error("Circuit breaker aberto -  Banco de dados indisponível");
         throw new ServiceUnavailable("Database service unavailable, please try again later");
     }
 
@@ -158,37 +158,53 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        log.info("Verificando se o dispositivo não está cadastrado");
-        var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+        try {
+            log.info("Verificando se o dispositivo não está cadastrado");
+            var entity = this.verifyIfDeviceIsEmpty(deviceModel);
 
-        var deviceDto = this.saveUpdate(entity, request);
+            log.info("Salvando as atualizações");
+            var deviceDto = this.saveUpdate(entity, request);
 
-        log.debug("Salvo as atualizações e a retorno como um dto");
-        this.timer.stopUpdateTimer(sampleTimer);
-        return new ResponseDeviceDto(
-                deviceDto.name(),
-                deviceDto.type(),
-                deviceDto.description(),
-                deviceDto.deviceModel(),
-                deviceDto.manufacturer(),
-                deviceDto.location(),
-                deviceDto.type().getUnit(),
-                deviceDto.type().getMin(),
-                deviceDto.type().getMax()
-        );
+            log.debug("Salvo as atualizações e a retorno como um dto");
+            return new ResponseDeviceDto(
+                    deviceDto.name(),
+                    deviceDto.type(),
+                    deviceDto.description(),
+                    deviceDto.deviceModel(),
+                    deviceDto.manufacturer(),
+                    deviceDto.location(),
+                    deviceDto.type().getUnit(),
+                    deviceDto.type().getMin(),
+                    deviceDto.type().getMax()
+            );
+
+        } finally {
+            this.timer.stopUpdateTimer(sampleTimer);
+        }
     }
 
-    @Retry(name = "retry-database", fallbackMethod = "retry_for_database")
-    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    @Retry(name = "retry_device_is_empty", fallbackMethod = "verifyIfDeviceIsEmptyRetry")
+    @CircuitBreaker(name = "circuitbreaker_device_is_empty", fallbackMethod = "verifyIfDeviceIsEmptyCircuitBreaker")
     public Device verifyIfDeviceIsEmpty(String deviceModel) {
 
         Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
 
         if (entity.isEmpty()) {
+            log.error("Dispositivo não cadastrado, dispositivo: {}", deviceModel);
             throw new DeviceIsEmpty("This device model is not registered in the database");
         }
 
         return entity.get();
+    }
+
+    public Device verifyIfDeviceIsEmptyRetry(String deviceModel, Exception ex) {
+        log.error("O serviço do banco de dados está fora do ar, com isso o retry retornará um throw: ", ex);
+        throw new ServiceUnavailable("Database service unavailable");
+    }
+
+    public Device verifyIfDeviceIsEmptyCircuitBreaker(String deviceModel, Exception ex) {
+        log.error("Circuit breaker aberto - Banco de dados indisponível");
+        throw new ServiceUnavailable("Database service unavailable");
     }
 
     @Transactional
