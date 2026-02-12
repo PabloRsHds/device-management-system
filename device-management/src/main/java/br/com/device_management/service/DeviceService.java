@@ -306,8 +306,8 @@ public class DeviceService {
 
     // ================================= Retorna todos os dispositivos ================================================
 
-    @Retry(name = "retry_for_all_devices", fallbackMethod = "retry_all_devices")
-    @CircuitBreaker(name = "circuitbreaker_for_get_all_devices", fallbackMethod = "circuitbreaker_all_devices")
+    @Retry(name = "retry_all_devices", fallbackMethod = "getAllDevicesRetry")
+    @CircuitBreaker(name = "circuitbreaker_all_devices", fallbackMethod = "getAllDevicesCircuitBreaker")
     public List<ResponseDeviceDto> getAllDevices(int page, int size) {
 
         var sampleTimer = this.timer.startTimer();
@@ -330,11 +330,11 @@ public class DeviceService {
     }
 
 
-    public List<ResponseDeviceDto> retry_all_devices(int page, int size, Exception ex) {
+    public List<ResponseDeviceDto> getAllDevicesRetry(int page, int size, Exception ex) {
         return List.of();
     }
 
-    public List<ResponseDeviceDto> circuitbreaker_all_devices(int page, int size, Exception ex) {
+    public List<ResponseDeviceDto> getAllDevicesCircuitBreaker(int page, int size, Exception ex) {
         return List.of();
     }
 

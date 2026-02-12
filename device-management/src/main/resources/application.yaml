@@ -47,7 +47,7 @@ resilience4j:
         max-attempts: 3
         wait-duration: 5s
 
-      retry_for_all_devices:
+      retry_all_devices:
         max-attempts: 3
         wait-duration: 5s
 
@@ -89,7 +89,7 @@ resilience4j:
         ignore-exceptions:
           - br.com.device_management.infra.exceptions.ServiceUnavailable
 
-      circuitbreaker_for_get_all_devices:
+      circuitbreaker_all_devices:
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
