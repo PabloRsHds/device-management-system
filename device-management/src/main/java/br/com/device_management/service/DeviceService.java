@@ -50,27 +50,32 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        log.info("Verificando se o dispositivo ja esta cadastrado");
-        this.verifyIfDeviceIsPresent(request.deviceModel());
+        try {
+            log.info("Verificando se o dispositivo ja esta cadastrado");
+            this.verifyIfDeviceIsPresent(request.deviceModel());
 
-        log.info("Salvando o dispositivo");
-        var deviceDto = this.save(request);
+            log.info("Salvando o dispositivo");
+            var deviceDto = this.save(request);
 
-        log.info("Enviando evento para o sensor");
-        this.sendEvent("device-management-for-sensor-test-topic",deviceDto);
+            log.info("Enviando evento para o sensor");
+            this.sendEvent("device-management-for-sensor-test-topic",deviceDto);
 
-        this.timer.stopRegisterTimer(sampleTimer);
-        return new ResponseDeviceDto(
-                deviceDto.name(),
-                deviceDto.type(),
-                deviceDto.description(),
-                deviceDto.deviceModel(),
-                deviceDto.manufacturer(),
-                deviceDto.location(),
-                deviceDto.type().getUnit(),
-                deviceDto.type().getMin(),
-                deviceDto.type().getMax()
-        );
+            return new ResponseDeviceDto(
+                    deviceDto.name(),
+                    deviceDto.type(),
+                    deviceDto.description(),
+                    deviceDto.deviceModel(),
+                    deviceDto.manufacturer(),
+                    deviceDto.location(),
+                    deviceDto.type().getUnit(),
+                    deviceDto.type().getMin(),
+                    deviceDto.type().getMax()
+            );
+
+        } finally {
+
+            this.timer.stopRegisterTimer(sampleTimer);
+        }
     }
 
     @Retry(name = "retry_device_is_present", fallbackMethod = "verifyIfDeviceIsPresentRetry")
