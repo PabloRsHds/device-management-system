@@ -51,7 +51,8 @@ public class SensorService {
         }
     }
 
-    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    @Retry(name = "retry_sensor_is_empty", fallbackMethod = "verifyIfSensorIsEmptyRetry")
+    @CircuitBreaker(name = "circuitbreaker_sensor_is_empty", fallbackMethod = "verifyIfSensorIsEmptyCircuitBreaker")
     public void verifyIfSensorIsEmpty(String deviceModel) {
 
         Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
@@ -59,6 +60,15 @@ public class SensorService {
         if (entity.isPresent()) {
             throw new SensorIsPresentException("This device already cadastred in database");
         }
+    }
+
+    public void verifyIfSensorIsEmptyRetry(String deviceModel, Exception ex) {
+        log.warn("Serviço de banco de dados indisponível, com isso não está sendo possível verificar o dispositivo");
+    }
+
+    public void verifyIfSensorIsEmptyCircuitBreaker(String deviceModel, Exception ex) {
+        log.warn("Serviço de banco de dados indisponível, error:", ex);
+        throw new ServiceUnavailableException("Database service is not available");
     }
 
     @Transactional
@@ -76,11 +86,6 @@ public class SensorService {
         newEntity.setMaxLimit(consumer.maxLimit());
         newEntity.setStatus(Status.DEACTIVATED);
         this.sensorRepository.save(newEntity);
-    }
-
-    public void circuitbreaker_for_database(String deviceModel, Exception ex) {
-        log.warn("Database service is not available, error:", ex);
-        throw new ServiceUnavailableException("Database service is not available");
     }
 
     // =============================================  UPDATE =========================================================

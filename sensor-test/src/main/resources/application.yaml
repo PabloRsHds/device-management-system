@@ -43,7 +43,7 @@ management:
 resilience4j:
   retry:
     instances:
-      retry_get_all_devices:
+      retry_sensor_is_empty:
         max-attempts: 3
         wait-duration: 5s
 
@@ -57,8 +57,10 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
 
     instances:
-      circuitbreaker_all_devices:
+      circuitbreaker_sensor_is_empty:
         base-config: default
+        ignore-exceptions:
+          - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
       circuitbreaker_for_database:
         base-config: default
