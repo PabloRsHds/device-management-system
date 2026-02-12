@@ -283,22 +283,24 @@ public class DeviceService {
 
     // =============================== Retorna o dispositivo com o modelo dele ========================================
 
-    @Retry(name = "retry_database", fallbackMethod = "retry_for_database")
-    @CircuitBreaker(name = "circuitbreaker_database", fallbackMethod = "circuitbreaker_for_database")
     public getDeviceWithDeviceModel getDeviceWithDeviceModel(String deviceModel) {
 
         var sampleTimer = this.timer.startTimer();
 
-        var device = this.verifyIfDeviceIsEmpty(deviceModel);
+        try {
 
-        this.timer.stopGetDeviceTimer(sampleTimer);
-        return new getDeviceWithDeviceModel(
-                device.getName(),
-                device.getDeviceModel(),
-                device.getManufacturer(),
-                device.getLocation(),
-                device.getDescription()
-        );
+            var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+            return new getDeviceWithDeviceModel(
+                    entity.getName(),
+                    entity.getDeviceModel(),
+                    entity.getManufacturer(),
+                    entity.getLocation(),
+                    entity.getDescription()
+            );
+
+        } finally {
+            this.timer.stopGetDeviceTimer(sampleTimer);
+        }
     }
     //=================================================================================================================
 
