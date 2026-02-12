@@ -312,29 +312,36 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        this.timer.stopGetDevicesTimer(sampleTimer);
-        return this.deviceRepository.findAllDevices(PageRequest.of(page, size))
-                .stream()
-                .map(device -> new ResponseDeviceDto(
-                        device.getName(),
-                        device.getType(),
-                        device.getDescription(),
-                        device.getDeviceModel(),
-                        device.getManufacturer(),
-                        device.getLocation(),
-                        device.getUnit(),
-                        device.getMinLimit(),
-                        device.getMaxLimit()
-                ))
-                .toList();
+        try {
+
+            return this.deviceRepository.findAllDevices(PageRequest.of(page, size))
+                    .stream()
+                    .map(device -> new ResponseDeviceDto(
+                            device.getName(),
+                            device.getType(),
+                            device.getDescription(),
+                            device.getDeviceModel(),
+                            device.getManufacturer(),
+                            device.getLocation(),
+                            device.getUnit(),
+                            device.getMinLimit(),
+                            device.getMaxLimit()
+                    ))
+                    .toList();
+
+        } finally {
+            this.timer.stopGetDevicesTimer(sampleTimer);
+        }
     }
 
 
     public List<ResponseDeviceDto> getAllDevicesRetry(int page, int size, Exception ex) {
+        log.error("O serviço do banco de dados está fora do ar, com isso o retry retornará um throw: {}", ex.getMessage());
         return List.of();
     }
 
     public List<ResponseDeviceDto> getAllDevicesCircuitBreaker(int page, int size, Exception ex) {
+        log.error("Circuit breaker aberto - Banco de dados indisponível para retornar todos os dispositivos.");
         return List.of();
     }
 

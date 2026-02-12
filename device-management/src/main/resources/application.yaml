@@ -101,8 +101,6 @@ resilience4j:
           - org.springframework.dao.DataAccessResourceFailureException
 
 
-
-
 server:
   port: 8082
 public:
