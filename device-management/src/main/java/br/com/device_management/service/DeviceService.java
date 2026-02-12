@@ -250,24 +250,28 @@ public class DeviceService {
 
         var sampleTimer = this.timer.startTimer();
 
-        log.info("Verifico se o device existe no banco de dados");
-        var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+        try {
+            log.info("Verifico se o device existe no banco de dados");
+            var entity = this.verifyIfDeviceIsEmpty(deviceModel);
 
-        this.timer.stopDeleteTimer(sampleTimer);
-        var responseDto = new ResponseDeviceDto(
-                entity.getName(),
-                entity.getType(),
-                entity.getDescription(),
-                entity.getDeviceModel(),
-                entity.getManufacturer(),
-                entity.getLocation(),
-                entity.getUnit(),
-                entity.getType().getMin(),
-                entity.getType().getMax()
-        );
+            var responseDto = new ResponseDeviceDto(
+                    entity.getName(),
+                    entity.getType(),
+                    entity.getDescription(),
+                    entity.getDeviceModel(),
+                    entity.getManufacturer(),
+                    entity.getLocation(),
+                    entity.getUnit(),
+                    entity.getType().getMin(),
+                    entity.getType().getMax()
+            );
 
-        this.delete(entity);
-        return responseDto;
+            this.delete(entity);
+            return responseDto;
+
+        } finally {
+            this.timer.stopDeleteTimer(sampleTimer);
+        }
     }
 
     @Transactional
