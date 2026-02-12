@@ -53,7 +53,7 @@ public class DeviceService {
         log.info("Verificando se o dispositivo ja esta cadastrado");
         this.verifyIfDeviceIsPresent(request.deviceModel());
 
-        log.info("Novo dispositivo salvo no banco de dados");
+        log.info("Salvando o dispositivo");
         var deviceDto = this.save(request);
 
         log.info("Enviando evento para o sensor");
@@ -73,23 +73,24 @@ public class DeviceService {
         );
     }
 
-    @Retry(name = "retry_database", fallbackMethod = "retry_for_database")
-    @CircuitBreaker(name = "circuitbreaker_database", fallbackMethod = "circuitbreaker_for_database")
+    @Retry(name = "retry_device_is_present", fallbackMethod = "verifyIfDeviceIsPresentRetry")
+    @CircuitBreaker(name = "circuitbreaker_device_is_present", fallbackMethod = "verifyIfDeviceIsPresentCircuitBreaker")
     public void verifyIfDeviceIsPresent(String deviceModel) {
 
         Optional<Device> device = this.deviceRepository.findByDeviceModel(deviceModel);
 
         if (device.isPresent()) {
+            log.info("Dispositivo já cadastrado");
             throw new DeviceIsPresent("This device model is already registered in the database");
         }
     }
 
-    public void retry_for_database(String deviceModel, Exception e) {
+    public void verifyIfDeviceIsPresentRetry(String deviceModel, Exception e) {
         log.error("Erro ao verificar se o dispositivo ja esta cadastrado", e);
         throw new ServiceUnavailable("Database service unavailable");
     }
 
-    public void circuitbreaker_for_database(String deviceModel, Exception e) {
+    public void verifyIfDeviceIsPresentCircuitBreaker(String deviceModel, Exception e) {
         log.error("Erro ao verificar se o dispositivo ja esta cadastrado", e);
         throw new ServiceUnavailable("Database service unavailable, please try again later");
     }
@@ -124,7 +125,7 @@ public class DeviceService {
         );
     }
 
-    @CircuitBreaker(name = "circuitbreaker_kafka", fallbackMethod = "circuitbreaker_for_kafka")
+    @CircuitBreaker(name = "circuitbreaker_kafka_send_event", fallbackMethod = "sendEventCircuitBreaker")
     public void sendEvent(String topic, DeviceDto dto) {
 
         this.kafkaTemplate.send(topic,
@@ -140,7 +141,7 @@ public class DeviceService {
                 ));
     }
 
-    public void circuitbreaker_for_kafka(String topic, DeviceDto dto, Exception e) {
+    public void sendEventCircuitBreaker(String topic, DeviceDto dto, Exception e) {
         log.error("Kafka service unavailable, error: ", e);
     }
 
