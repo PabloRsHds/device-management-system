@@ -34,7 +34,7 @@ public class SensorController {
 
     @GetMapping("/find-all-sensors-activated")
     public ResponseEntity<List<ResponseSensorDto>> findAllSensorsActivated(@RequestParam int page, @RequestParam int size) {
-        var response = this.sensorService.findAllSensorsActivated(page, size);
+        var response = this.sensorService.getAllSensorsActivated(page, size);
         return ResponseEntity.ok(response);
     }
 

@@ -37,7 +37,7 @@ public class SchedulingService {
 
 
     @Scheduled(fixedDelay = 2 * 60 * 1000)
-    @CircuitBreaker(name = "circuitbreaker-all-database", fallbackMethod = "circuitbreaker_for_all_database")
+    @CircuitBreaker(name = "circuitbreaker_scheduling", fallbackMethod = "schedulingCircuitBreaker")
     public void sensorTestService() {
 
         sensorRepository.findAll()
@@ -69,12 +69,12 @@ public class SchedulingService {
                 });
     }
 
-    public void circuitbreaker_for_all_database(Exception ex) {
+    public void schedulingCircuitBreaker(Exception ex) {
         log.warn("Database service is not available, error:", ex);
         this.metricsService.metricForScheduling();
     }
 
-    @CircuitBreaker(name = "circuitbreaker-kafka-producer", fallbackMethod = "circuitbreaker_kafka_producer")
+    @CircuitBreaker(name = "circuitbreaker_kafka_producer", fallbackMethod = "KafkaProducerCircuitBreaker")
     public void sendEvent(String topic, SensorForAnalysisEvent event) {
         kafkaTemplate.send(
                 topic,
@@ -82,7 +82,7 @@ public class SchedulingService {
         );
     }
 
-    public void circuitbreaker_kafka_producer(String topic, SensorForAnalysisEvent event, Exception ex) {
+    public void KafkaProducerCircuitBreaker(String topic, SensorForAnalysisEvent event, Exception ex) {
 
         log.error("Circuit breaker opened or error in consumer: {}", ex.getMessage(), ex);
         throw new ServiceUnavailableException("Service unavailable, message will be retried");

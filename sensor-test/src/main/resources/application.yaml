@@ -43,7 +43,15 @@ management:
 resilience4j:
   retry:
     instances:
-      retry_sensor_is_empty:
+      retry_sensor_is_empty: #OK
+        max-attempts: 3
+        wait-duration: 5s
+
+      retry_sensor_is_present: #OK
+        max-attempts: 3
+        wait-duration: 5s
+
+      retry_get_all_sensors: #OK
         max-attempts: 3
         wait-duration: 5s
 
@@ -57,17 +65,35 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
 
     instances:
-      circuitbreaker_sensor_is_empty:
+      circuitbreaker_sensor_is_empty: #OK
         base-config: default
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
         ignore-exceptions:
           - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
-      circuitbreaker_for_database:
+      circuitbreaker-sensor_is_present: #OK
         base-config: default
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
         ignore-exceptions:
           - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
-      circuitbreaker_kafka_producer:
+      circuitbreaker_get_all_sensors: #OK
+        base-config: default
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+
+      circuitbreaker_scheduling: #OK
+        base-config: default
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+
+      circuitbreaker_kafka_producer: #OK
         base-config: default
         record-exceptions:
           - org.springframework.kafka.KafkaException
@@ -75,7 +101,7 @@ resilience4j:
         ignore-exceptions:
           - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
-      circuitbreaker_kafka_consumer:
+      circuitbreaker_kafka_consumer: #OK
         base-config: default
         record-exceptions:
           - org.springframework.kafka.KafkaException

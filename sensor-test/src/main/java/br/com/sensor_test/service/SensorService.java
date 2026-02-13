@@ -104,7 +104,8 @@ public class SensorService {
     }
 
     // Metodo para verificar se o sensor é presente, se não ele retorna um erro.
-    @CircuitBreaker(name = "circuitbreaker-database", fallbackMethod = "circuitbreaker_for_database")
+    @Retry(name = "retry_sensor_is_present", fallbackMethod = "verifyIfSensorIsPresentRetry")
+    @CircuitBreaker(name = "circuitbreaker-sensor_is_present", fallbackMethod = "verifyIfSensorIsPresentCircuitBreaker")
     public Sensor verifyIfSensorIsPresent(String deviceModel) {
 
         Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
@@ -112,9 +113,21 @@ public class SensorService {
         if (entity.isEmpty()) {
             throw new SensorIsEmptyException("Sensor not found");
         }
-
         return entity.get();
     }
+
+    public Sensor verifyIfSensorIsPresentRetry(String deviceModel, Exception ex) {
+        log.warn("Serviço de banco de dados indisponível, não foi possível fazer a verificação do dispositivo: {}"
+                ,deviceModel);
+        throw new ServiceUnavailableException("Database service is not available");
+    }
+
+    public Sensor verifyIfSensorIsPresentCircuitBreaker(String deviceModel, Exception ex) {
+        log.warn("Circuit breaker aberto - Banco de dados está fora do ar");
+        throw new ServiceUnavailableException("Database service is not available");
+    }
+
+
 
     @Transactional
     public ResponseSensorDto update(Sensor entity, UpdateSensor request) {
@@ -175,9 +188,9 @@ public class SensorService {
 
     // ====================================== PEGA TODOS OS SENSORES =================================================
 
-    @Retry(name = "retry_get_all_devices", fallbackMethod = "retry_all_devices")
-    @CircuitBreaker(name = "circuitbreaker_all_devices", fallbackMethod = "circuitbreaker_devices")
-    public List<ResponseSensorDto> findAllSensorsActivated(int page, int size) {
+    @Retry(name = "retry_get_all_sensors", fallbackMethod = "getAllSensorsActivatedRetry")
+    @CircuitBreaker(name = "circuitbreaker_get_all_sensors", fallbackMethod = "getAllSensorsActivatedCircuitBreaker")
+    public List<ResponseSensorDto> getAllSensorsActivated(int page, int size) {
 
         var sampleTimer = this.metricsService.startTimer();
 
@@ -200,11 +213,11 @@ public class SensorService {
         }
     }
 
-    public List<ResponseSensorDto> retry_all_devices(int page, int size, Exception ex) {
+    public List<ResponseSensorDto> getAllSensorsActivatedRetry(int page, int size, Exception ex) {
         return List.of();
     }
 
-    public List<ResponseSensorDto> circuitbreaker_devices(int page, int size, Exception ex) {
+    public List<ResponseSensorDto> getAllSensorsActivatedCircuitBreaker(int page, int size, Exception ex) {
         return List.of();
     }
 

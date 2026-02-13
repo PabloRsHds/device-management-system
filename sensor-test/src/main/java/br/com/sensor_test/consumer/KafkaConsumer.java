@@ -22,7 +22,7 @@ public class KafkaConsumer {
             topics = "device-management-for-sensor-test-topic",
             groupId = "device-management-for-sensor-test-groupId",
             containerFactory = "kafkaListenerSensorTestFactory")
-    @CircuitBreaker(name = "circuitbreaker-kafka-consumer", fallbackMethod = "circuitbreaker_kafka_consumer")
+    @CircuitBreaker(name = "circuitbreaker_kafka_consumer", fallbackMethod = "kafkaConsumerCircuitBreaker")
     public void consumerIotGateway(ConsumerDeviceManagement consumer, Acknowledgment ack) {
 
         try {
@@ -33,7 +33,7 @@ public class KafkaConsumer {
         }
     }
 
-    public void circuitbreaker_kafka_consumer(ConsumerDeviceManagement consumer, Acknowledgment ack, Exception ex) {
+    public void kafkaConsumerCircuitBreaker(ConsumerDeviceManagement consumer, Acknowledgment ack, Exception ex) {
         log.error("Circuit breaker opened or error in consumer: {}", ex.getMessage(), ex);
 
     }
