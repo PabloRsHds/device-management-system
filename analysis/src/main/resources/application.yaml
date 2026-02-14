@@ -76,6 +76,8 @@ resilience4j:
         automatic-transition-from-open-to-half-open-enabled: true
         record-exceptions:
           - org.springframework.kafka.KafkaException
+        ignore-exceptions:
+          - br.com.analysis.infra.exceptions.ServiceUnavailableException
 server:
   port: 8084
 public:
