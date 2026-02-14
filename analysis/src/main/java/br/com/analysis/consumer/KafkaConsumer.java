@@ -27,7 +27,7 @@ public class KafkaConsumer {
             topics = "sensor-test-for-analysis-topic",
             groupId = "sensor-test-for-analysis-groupId",
             containerFactory = "kafkaListenerSensorTestFactory")
-    @CircuitBreaker(name = "circuitbreaker_kafka_consumer", fallbackMethod = "circuitbreaker_for_kafka_consumer")
+    @CircuitBreaker(name = "circuitbreaker_kafka_consumer", fallbackMethod = "kafkaConsumerCircuitBreaker")
     public void consumerIotGateway(ConsumerSensorTest consumer, Acknowledgment ack) {
 
         var sampleTimer = this.metricsService.startTimer();
@@ -41,7 +41,7 @@ public class KafkaConsumer {
         }
     }
 
-    public void circuitbreaker_for_kafka_consumer(ConsumerSensorTest consumer, Acknowledgment ack, Exception e) {
+    public void kafkaConsumerCircuitBreaker(ConsumerSensorTest consumer, Acknowledgment ack, Exception e) {
         log.warn("Circuit breaker for kafka: {}", e.getMessage());
         this.metricsService.failConsumerEvent();
     }

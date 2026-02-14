@@ -10,6 +10,7 @@ import br.com.analysis.metrics.MetricsService;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -177,9 +178,16 @@ public class AnalysisService {
         ));
     }
 
+    @Retry(name = "retry_kafka_producer", fallbackMethod = "sendEventKafkaRetry")
     @CircuitBreaker(name = "circuitbreaker_kafka_producer", fallbackMethod = "sendEventKafkaCircuitBreaker")
     public void sendEvent(String topic, AnalysisEventForNotification event) {
         this.kafkaTemplate.send(topic, event);
+    }
+
+    public void sendEventKafkaRetry(String topic, AnalysisEventForNotification event, Exception e) {
+        log.warn("Erro ao enviar evento para o Kafka, Kafka producer: {}", e.getMessage());
+        this.metricsService.failSendEvent();
+        throw new ServiceUnavailableException("Service Unavailable, please try again later");
     }
 
     public void sendEventKafkaCircuitBreaker(String topic, AnalysisEventForNotification event, Exception e) {
@@ -192,9 +200,9 @@ public class AnalysisService {
 
     // ====================================== FIND DEVICE FOR ANALYSIS ==============================================
 
-    public ResponseDeviceAnalysisDto findDeviceForAnalysis(String deviceModel) {
+    public ResponseDeviceAnalysisDto getDeviceForAnalysis(String deviceModel) {
 
-        var entity = this.findDeviceModel(deviceModel);
+        var entity = this.getDeviceWithModel(deviceModel);
 
         return new ResponseDeviceAnalysisDto(
                 entity.getName(),
@@ -212,8 +220,9 @@ public class AnalysisService {
     }
 
 
-    @CircuitBreaker(name = "circuitbreaker_database", fallbackMethod = "circuitbreaker_for_database")
-    public Analysis findDeviceModel(String deviceModel) {
+    @Retry(name = "retry_get_device_with_model", fallbackMethod = "getDeviceWithModelRetry")
+    @CircuitBreaker(name = "circuitbreaker_get_device_with_model", fallbackMethod = "getDeviceWithModelCircuitBreaker")
+    public Analysis getDeviceWithModel(String deviceModel) {
 
         Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
 
@@ -224,7 +233,13 @@ public class AnalysisService {
         return entity.get();
     }
 
-    public Analysis circuitbreaker_for_database(String deviceModel, Exception e) {
+    public Analysis getDeviceWithModelRetry(String deviceModel, Exception e) {
+        log.warn("Erro ao buscar dispositivo para análise, getDeviceModel: {}", e.getMessage());
+
+        throw new ServiceUnavailableException("Service Unavailable, please try again later");
+    }
+
+    public Analysis getDeviceWithModelCircuitBreaker(String deviceModel, Exception e) {
         log.warn("Circuit breaker for database: {}", e.getMessage());
 
         throw new ServiceUnavailableException("Service Unavailable, please try again later");
@@ -236,7 +251,7 @@ public class AnalysisService {
 
     public ResponseDeviceAnalysisDto updateAnalysis(String deviceModel, RequestUpdateAnalysis request) {
 
-        var entity = this.findDeviceModel(deviceModel);
+        var entity = this.getDeviceWithModel(deviceModel);
 
         return this.update(entity, request);
     }
@@ -285,7 +300,7 @@ public class AnalysisService {
 
     public ResponseDeviceAnalysisDto deleteAnalysis(String deviceModel) {
 
-        var entity = this.findDeviceModel(deviceModel);
+        var entity = this.getDeviceWithModel(deviceModel);
         return this.delete(entity);
     }
 

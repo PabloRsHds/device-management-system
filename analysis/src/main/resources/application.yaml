@@ -42,9 +42,28 @@ management:
       environment: local
 
 resilience4j:
+  retry:
+    instances:
+      retry_kafka_producer: #OK
+        max-attempts: 3
+        retry-exceptions:
+          - org.springframework.kafka.KafkaException
+        ignore-exceptions:
+          - br.com.analysis.infra.exceptions.ServiceUnavailableException
+
+      retry_get_device_with_model: #OK
+        max-attempts: 3
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+        ignore-exceptions:
+          - br.com.analysis.infra.exceptions.ServiceUnavailableException
+          - br.com.analysis.infra.exceptions.DeviceNotFoundException
+
+
   circuitbreaker:
     instances:
-      circuitbreaker_database:
+      circuitbreaker_get_device_with_model: #OK
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -56,8 +75,9 @@ resilience4j:
           - org.springframework.dao.DataAccessResourceFailureException
         ignore-exceptions:
           - br.com.analysis.infra.exceptions.DeviceNotFoundException
+          - br.com.analysis.infra.exceptions.ServiceUnavailableException
 
-      circuitbreaker_kafka_consumer:
+      circuitbreaker_kafka_consumer: #OK
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -67,7 +87,7 @@ resilience4j:
         record-exceptions:
           - org.springframework.kafka.KafkaException
 
-      circuitbreaker_kafka_producer:
+      circuitbreaker_kafka_producer: #OK
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50

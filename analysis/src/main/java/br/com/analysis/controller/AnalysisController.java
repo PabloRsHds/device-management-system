@@ -20,7 +20,7 @@ public class AnalysisController {
 
     @GetMapping("/get-device-for-model")
     public ResponseEntity<ResponseDeviceAnalysisDto> findDeviceForAnalysis(@RequestParam String deviceModel) {
-        var response = this.analysisService.findDeviceForAnalysis(deviceModel);
+        var response = this.analysisService.getDeviceForAnalysis(deviceModel);
         return ResponseEntity.ok(response);
     }
 
