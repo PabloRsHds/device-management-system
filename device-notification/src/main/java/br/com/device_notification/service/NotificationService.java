@@ -1,8 +1,8 @@
 package br.com.device_notification.service;
 
 import br.com.device_notification.dtos.ResponseNotifications;
-import br.com.device_notification.infra.exceptions.NotificationNotFoundEx;
-import br.com.device_notification.infra.exceptions.ServiceUnavailableEx;
+import br.com.device_notification.infra.exceptions.NotificationNotFound;
+import br.com.device_notification.infra.exceptions.ServiceUnavailable;
 import br.com.device_notification.metrics.MetricsService;
 import br.com.device_notification.repository.NotificationRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -34,8 +34,8 @@ public class NotificationService {
 
     // ======================================== All NOTIFICATIONS =====================================================
 
-    @Retry(name = "retry_notifications", fallbackMethod = "retry_notifications")
-    @CircuitBreaker(name = "circuitbreaker_notifications", fallbackMethod = "circuitbreaker_notifications")
+    @Retry(name = "retry_notifications", fallbackMethod = "allNotificationsRetry")
+    @CircuitBreaker(name = "circuitbreaker_notifications", fallbackMethod = "allNotificationsCircuitBreaker")
     public List<ResponseNotifications> allNotifications(int page, int size) {
 
         return this.notificationRepository.findAllByShowNotificationTrue(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
@@ -46,11 +46,11 @@ public class NotificationService {
                 .toList();
     }
 
-    public List<ResponseNotifications> retry_notifications(int page, int size, Exception ex) {
+    public List<ResponseNotifications> allNotificationsRetry(int page, int size, Exception ex) {
         return List.of();
     }
 
-    public List<ResponseNotifications> circuitbreaker_notifications(int page, int size, Exception ex) {
+    public List<ResponseNotifications> allNotificationsCircuitBreaker(int page, int size, Exception ex) {
 
         this.metricsService.circuitbreaker("circuitbreaker_notifications");
         return List.of();
@@ -61,8 +61,8 @@ public class NotificationService {
 
     // ================================ ALL NOTIFICATIONS OCCULTS =====================================================
 
-    @Retry(name = "retry_occult_notifications", fallbackMethod = "retry_occult_notifications")
-    @CircuitBreaker(name = "circuitbreaker_occult_notifications", fallbackMethod = "circuitbreaker_occult_notifications")
+    @Retry(name = "retry_occult_notifications", fallbackMethod = "allNotificationsOccultRetry")
+    @CircuitBreaker(name = "circuitbreaker_occult_notifications", fallbackMethod = "allNotificationsOccultCircuitBreaker")
     public List<ResponseNotifications> allNotificationsOccult(int page, int size) {
 
         return this.notificationRepository.findAllByShowNotificationFalse(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
@@ -73,11 +73,11 @@ public class NotificationService {
                 .toList();
     }
 
-    public List<ResponseNotifications> retry_occult_notifications(int page, int size, Exception ex) {
+    public List<ResponseNotifications> allNotificationsOccultRetry(int page, int size, Exception ex) {
         return List.of();
     }
 
-    public List<ResponseNotifications> circuitbreaker_occult_notifications(int page, int size, Exception ex) {
+    public List<ResponseNotifications> allNotificationsOccultCircuitBreaker(int page, int size, Exception ex) {
 
         this.metricsService.circuitbreaker("circuitbreaker_occult_notifications");
         return List.of();
@@ -88,28 +88,28 @@ public class NotificationService {
 
     // ================================================ VISUALIZAÇÃO ==================================================
 
-    @Retry(name = "retry_visualisation", fallbackMethod = "retry_visualisation")
-    @CircuitBreaker(name = "circuitbreaker_visualisation", fallbackMethod = "circuitbreaker_visualisation")
+    @Retry(name = "retry_visualisation", fallbackMethod = "visualisationRetry")
+    @CircuitBreaker(name = "circuitbreaker_visualisation", fallbackMethod = "visualisationCircuitBreaker")
     public void visualisation() {
         this.notificationRepository.markAllAsVisualised();
     }
 
-    public void retry_visualisation(Exception ex) {
+    public void visualisationRetry(Exception ex) {
         log.error("The database service is temporarily down");
     }
 
-    public void circuitbreaker_visualisation(Exception ex) {
+    public void visualisationCircuitBreaker(Exception ex) {
 
         this.metricsService.circuitbreaker("circuitbreaker_visualisation");
-        throw new ServiceUnavailableEx("The database service is temporarily down");
+        throw new ServiceUnavailable("The database service is temporarily down");
     }
 
     // ================================================================================================================
 
     // ======================================= OCULTAR NOTIFICAÇÕES ==================================================
 
-    @Retry(name = "retry_occult", fallbackMethod = "retry_occult")
-    @CircuitBreaker(name = "circuitbreaker_occult", fallbackMethod = "circuitbreaker_occult")
+    @Retry(name = "retry_occult", fallbackMethod = "occultRetry")
+    @CircuitBreaker(name = "circuitbreaker_occult", fallbackMethod = "occultCircuitBreaker")
     public void occultNotification(Long notificationId) {
         this.occult(notificationId);
     }
@@ -119,39 +119,39 @@ public class NotificationService {
         var notification = this.notificationRepository.findById(notificationId);
 
         if (notification.isEmpty()) {
-            throw new NotificationNotFoundEx("Notification not found");
+            throw new NotificationNotFound("Notification not found");
         }
 
         notification.get().setShowNotification(false);
         this.notificationRepository.save(notification.get());
     }
 
-    public void retry_occult(Long notificationId, Exception ex) {
+    public void occultRetry(Long notificationId, Exception ex) {
         log.error("Retry exhausted while occulting notification {}", notificationId, ex);
     }
 
-    public void circuitbreaker_occult(Long notificationId, Exception ex) {
+    public void occultCircuitBreaker(Long notificationId, Exception ex) {
 
         this.metricsService.circuitbreaker("circuitbreaker_occult");
-        throw new ServiceUnavailableEx("The database service is temporarily down");
+        throw new ServiceUnavailable("The database service is temporarily down");
     }
 
     // ===============================================================================================================
 
-    @Retry(name = "retry_count", fallbackMethod = "retry_count")
-    @CircuitBreaker(name = "circuitbreaker_count", fallbackMethod = "circuitbreaker_count")
+    @Retry(name = "retry_count", fallbackMethod = "countRetry")
+    @CircuitBreaker(name = "circuitbreaker_count", fallbackMethod = "countCircuitBreaker")
     public int countNotifications() {
         return this.notificationRepository.countByVisualisationFalse();
     }
 
-    public int retry_count(Exception ex) {
+    public int countRetry(Exception ex) {
         log.error("Error while counting notifications");
         return 0;
     }
 
-    public int circuitbreaker_count(Exception ex) {
+    public int countCircuitBreaker(Exception ex) {
 
         this.metricsService.circuitbreaker("circuitbreaker_count");
-        throw new ServiceUnavailableEx("The database service is temporarily down");
+        throw new ServiceUnavailable("The database service is temporarily down");
     }
 }

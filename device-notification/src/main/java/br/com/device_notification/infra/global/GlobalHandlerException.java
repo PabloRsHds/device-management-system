@@ -1,8 +1,8 @@
 package br.com.device_notification.infra.global;
 
 import br.com.device_notification.dtos.exception.ResponseExceptionDto;
-import br.com.device_notification.infra.exceptions.NotificationNotFoundEx;
-import br.com.device_notification.infra.exceptions.ServiceUnavailableEx;
+import br.com.device_notification.infra.exceptions.NotificationNotFound;
+import br.com.device_notification.infra.exceptions.ServiceUnavailable;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +16,8 @@ public class GlobalHandlerException {
 
     private final String serviceName = "device-notification";
 
-    @ExceptionHandler(ServiceUnavailableEx.class)
-    public ResponseEntity<ResponseExceptionDto> serviceUnavailable(ServiceUnavailableEx ex,
+    @ExceptionHandler(ServiceUnavailable.class)
+    public ResponseEntity<ResponseExceptionDto> serviceUnavailable(ServiceUnavailable ex,
                                                                    HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ResponseExceptionDto(
@@ -31,8 +31,8 @@ public class GlobalHandlerException {
                 ));
     }
 
-    @ExceptionHandler(NotificationNotFoundEx.class)
-    public ResponseEntity<ResponseExceptionDto> notificationNotFound(NotificationNotFoundEx ex,
+    @ExceptionHandler(NotificationNotFound.class)
+    public ResponseEntity<ResponseExceptionDto> notificationNotFound(NotificationNotFound ex,
                                                                      HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseExceptionDto(

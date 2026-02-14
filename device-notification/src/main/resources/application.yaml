@@ -44,35 +44,35 @@ management:
 resilience4j:
   retry:
     instances:
-      retry_notifications:
+      retry_notifications: #OK
         max-attempts: 3
         wait-duration: 5s
         retry-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
-      retry_occult_notifications:
+      retry_occult_notifications: #OK
         max-attempts: 3
         wait-duration: 5s
         retry-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
-      retry_visualisation:
+      retry_visualisation: #OK
         max-attempts: 3
         wait-duration: 5s
         retry-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
-      retry_occult:
+      retry_occult: #OK
         max-attempts: 3
         wait-duration: 5s
         retry-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
-      retry_count:
+      retry_count: #OK
         max-attempts: 3
         wait-duration: 5s
         retry-exceptions:
@@ -81,7 +81,7 @@ resilience4j:
 
   circuitbreaker:
     instances:
-      circuitbreaker_notifications:
+      circuitbreaker_notifications: #Ok
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -92,7 +92,7 @@ resilience4j:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
-      circuitbreaker_occult_notifications:
+      circuitbreaker_occult_notifications: #OK
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -103,18 +103,7 @@ resilience4j:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
-      circuitbreaker_visualisation:
-        sliding-window-size: 5
-        minimum-number-of-calls: 3
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 2
-        automatic-transition-from-open-to-half-open-enabled: true
-        record-exceptions:
-          - org.springframework.dao.DataAccessException
-          - org.springframework.dao.DataAccessResourceFailureException
-
-      circuitbreaker_occult:
+      circuitbreaker_visualisation: #OK
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -125,9 +114,9 @@ resilience4j:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
         ignore-exceptions:
-          - br.com.device_notification.infra.exceptions.NotificationNotFoundEx
+          - br.com.device_notification.infra.exceptions.ServiceUnavailable
 
-      circuitbreaker_count:
+      circuitbreaker_occult: #OK
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -137,6 +126,21 @@ resilience4j:
         record-exceptions:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
+        ignore-exceptions:
+          - br.com.device_notification.infra.exceptions.ServiceUnavailable
+
+      circuitbreaker_count: #OK
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - org.springframework.dao.DataAccessException
+          - org.springframework.dao.DataAccessResourceFailureException
+        ignore-exceptions:
+          - br.com.device_notification.infra.exceptions.ServiceUnavailable
 
 public:
   key: classpath:public-key
