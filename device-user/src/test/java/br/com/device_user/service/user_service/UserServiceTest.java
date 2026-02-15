@@ -44,7 +44,6 @@ class UserServiceTest {
         user.setCreatedAt(Instant.now().toString());
 
         Mockito.when(this.userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        Mockito.when(this.userRepository.findByUserId(userId)).thenReturn(Optional.of(user));
 
         Timer.Sample sample = Mockito.mock(Timer.Sample.class);
         Mockito.when(this.userMetrics.startTimer()).thenReturn(sample);

@@ -25,7 +25,7 @@ Sistema de gerenciamento de dispositivos IoT com arquitetura de microserviços, 
 
 ```mermaid
 graph TB
-    A[Frontend Angular] --> B[API Gateway - Planejado]
+    A[Frontend Angular] --> B[API Gateway - Planejado] //
     A --> C[Device Management - Port 8082]
     A --> D[Auth Service - Planejado]
 
