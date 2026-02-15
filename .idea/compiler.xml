@@ -10,7 +10,7 @@
         <module name="device-login" />
         <module name="device-management" />
       </profile>
-      <profile name="Annotation profile for device-notification" enabled="true">
+      <profile name="Annotation profile for device-user" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
