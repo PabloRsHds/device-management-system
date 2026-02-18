@@ -37,22 +37,6 @@ public class UserService {
         // Tento retornar o usuário pelo seu e-mail.
         Optional<User> entity_email = this.userRepository.findByEmail(email);
 
-        // Tento retornar o usuário pelo seu Id.
-        Optional<User> entity_userId = this.userRepository.findByUserId(userId);
-
-        if (entity_email.isEmpty() && entity_userId.isEmpty()) {
-
-            log.info("Usuário não encontrado | email={} | userId={}", email, userId);
-
-            this.userMetrics.recordUserIsPresent("false");
-
-            log.debug("Parando o timer porque o usuário não foi encontrado!");
-            this.userMetrics.stopUserResponseFailedTimer(sampleTimer);
-
-            // Retorno null para o microserviço de login tratar, aí ele retorna um erro para o usuário.
-            return null;
-        }
-
         if (entity_email.isPresent()) {
 
             log.info("Usuário encontrado pelo e-mail!");
@@ -65,6 +49,22 @@ public class UserService {
                     user.getPassword(),
                     user.getRole().toString()
             );
+        }
+
+        // Tento retornar o usuário pelo seu Id.
+        Optional<User> entity_userId = this.userRepository.findByUserId(userId);
+
+        if (entity_userId.isEmpty()) {
+
+            log.info("Usuário não encontrado | email={} | userId={}", email, userId);
+
+            this.userMetrics.recordUserIsPresent("false");
+
+            log.debug("Parando o timer porque o usuário não foi encontrado!");
+            this.userMetrics.stopUserResponseFailedTimer(sampleTimer);
+
+            // Retorno null para o microserviço de login tratar, aí ele retorna um erro para o usuário.
+            return null;
         }
 
         log.info("Usuário encontrado pelo Id!");

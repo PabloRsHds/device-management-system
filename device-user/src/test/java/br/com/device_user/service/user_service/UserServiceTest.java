@@ -1,6 +1,7 @@
 package br.com.device_user.service.user_service;
 
 import br.com.device_user.enums.Role;
+import br.com.device_user.infra.exceptions.ServiceUnavailableException;
 import br.com.device_user.metrics.UserMetrics;
 import br.com.device_user.model.User;
 import br.com.device_user.repository.UserRepository;
@@ -9,13 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -43,10 +44,10 @@ class UserServiceTest {
         user.setRole(Role.USER);
         user.setCreatedAt(Instant.now().toString());
 
-        Mockito.when(this.userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(this.userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        Timer.Sample sample = Mockito.mock(Timer.Sample.class);
-        Mockito.when(this.userMetrics.startTimer()).thenReturn(sample);
+        Timer.Sample sample = mock(Timer.Sample.class);
+        when(this.userMetrics.startTimer()).thenReturn(sample);
 
         var response = this.userService.getResponseUserWithEmailOrUserId(email, userId);
 
@@ -55,8 +56,42 @@ class UserServiceTest {
         assertEquals("123456789Rr@", response.password());
         assertEquals("USER", response.role());
 
-        Mockito.verify(this.userMetrics).recordUserIsPresent("true");
-        Mockito.verify(this.userMetrics).stopUserResponseSuccessTimer(sample);
+        verify(this.userRepository).findByEmail(email);
+        verify(this.userRepository, never()).findByUserId(userId);
+        verify(this.userMetrics).recordUserIsPresent("true");
+        verify(this.userMetrics).stopUserResponseSuccessTimer(sample);
+    }
+
+    @Test
+    public void shouldReturnUserWhenFoundByUserId() {
+
+        var email = "teste@gmail.com";
+        var userId = "123";
+
+        var user = new User();
+        user.setUserId(userId);
+        user.setName("Rodrigo");
+        user.setEmail(email);
+        user.setPassword("123456789Rr@");
+        user.setRole(Role.USER);
+        user.setCreatedAt(Instant.now().toString());
+
+        when(this.userRepository.findByUserId(userId)).thenReturn(Optional.of(user));
+
+        Timer.Sample sample = mock(Timer.Sample.class);
+        when(this.userMetrics.startTimer()).thenReturn(sample);
+
+        var response = this.userService.getResponseUserWithEmailOrUserId(email, userId);
+
+        assertNotNull(response);
+        assertEquals(userId, response.userId());
+        assertEquals(user.getPassword(), response.password());
+        assertEquals(user.getRole().toString(), response.role());
+
+        verify(this.userRepository).findByEmail(email);
+        verify(this.userRepository).findByUserId(userId);
+        verify(this.userMetrics).recordUserIsPresent("true");
+        verify(this.userMetrics).stopUserResponseSuccessTimer(sample);
     }
 
     @Test
@@ -66,14 +101,14 @@ class UserServiceTest {
         var email = "notfound@gmail.com";
         var userId = "1235";
 
-        Mockito.when(this.userRepository.findByEmail(email))
+        when(this.userRepository.findByEmail(email))
                 .thenReturn(Optional.empty());
 
-        Mockito.when(this.userRepository.findByUserId(userId))
+        when(this.userRepository.findByUserId(userId))
                 .thenReturn(Optional.empty());
 
-        Timer.Sample sample = Mockito.mock(Timer.Sample.class);
-        Mockito.when(this.userMetrics.startTimer()).thenReturn(sample);
+        Timer.Sample sample = mock(Timer.Sample.class);
+        when(this.userMetrics.startTimer()).thenReturn(sample);
 
         // Act
         var response = this.userService.getResponseUserWithEmailOrUserId(email, userId);
@@ -82,7 +117,34 @@ class UserServiceTest {
         assertNull(response);
 
         // Verify
-        Mockito.verify(this.userMetrics).recordUserIsPresent("false");
-        Mockito.verify(this.userMetrics).stopUserResponseFailedTimer(sample);
+        verify(this.userRepository).findByEmail(email);
+        verify(this.userRepository).findByUserId(userId);
+        verify(this.userMetrics).recordUserIsPresent("false");
+        verify(this.userMetrics).stopUserResponseFailedTimer(sample);
+    }
+
+    @Test
+    public void shouldThrowServiceUnavailableWhenRetryFallbackIsCalled(){
+
+        var email = "test@gmail.com";
+        var userId = "123";
+
+        var exception = assertThrows(ServiceUnavailableException.class, () ->
+                userService.userRetryFallback(email, userId, new RuntimeException())
+        );
+
+        assertEquals("Database temporarily unavailable after retries", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowServiceUnavailableWhenCircuitBreakerIsCalled() {
+
+        var email = "test@gmail.com";
+        var userId = "123";
+
+        var exception = assertThrows(ServiceUnavailableException.class, () ->
+                userService.databaseOfflineFallBack(email, userId, new Exception()));
+
+        assertEquals("Database service temporarily unavailable - Circuit Breaker is OPEN",exception.getMessage());
     }
 }

@@ -2,8 +2,10 @@ package br.com.device_user.metrics;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class UserMetrics {
 
@@ -27,6 +29,9 @@ public class UserMetrics {
 
     // Métricas de contagem
     public void recordUserIsPresent(String trueOrFalse){
+
+        log.info("Usuário está presente: {}", trueOrFalse);
+
         this.meterRegistry.counter(
                 "user_lookup_total",
                         "service",this.serviceName,
