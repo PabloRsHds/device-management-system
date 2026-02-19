@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -130,7 +131,8 @@ class UserServiceTest {
         var userId = "123";
 
         var exception = assertThrows(ServiceUnavailableException.class, () ->
-                userService.userRetryFallback(email, userId, new RuntimeException())
+                userService.userRetryFallback(email, userId,
+                        new DataAccessException("Database temporarily unavailable after retries") {})
         );
 
         assertEquals("Database temporarily unavailable after retries", exception.getMessage());
@@ -143,7 +145,8 @@ class UserServiceTest {
         var userId = "123";
 
         var exception = assertThrows(ServiceUnavailableException.class, () ->
-                userService.databaseOfflineFallBack(email, userId, new Exception()));
+                userService.databaseOfflineFallBack(email, userId,
+                        new DataAccessException("Database service temporarily unavailable - Circuit Breaker is OPEN") {}));
 
         assertEquals("Database service temporarily unavailable - Circuit Breaker is OPEN",exception.getMessage());
     }
