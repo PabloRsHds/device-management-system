@@ -23,38 +23,43 @@ class LoginServiceTest {
     @Mock
     private UserClient userClient;
 
-    @InjectMocks
-    private LoginService loginService;
-
     @Mock
     private LoginMetrics loginMetrics;
 
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @InjectMocks
+    private LoginService loginService;
+
     @Test
     public void userNotFound() {
 
-        var email = "notFound@gmail.com";
-        var password = "99218841Pp@";
+        var email = "test@gmail.com";
+        var password = "3211123123";
         var sample = mock(Timer.Sample.class);
 
-        when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(null);
+        when(this.userClient.getResponseUserWithEmailOrUserId(email, null))
+                .thenReturn(null);
 
         assertThrows(InvalidCredentialsException.class,
                 () -> this.loginService.verifyUser(email, password, sample));
 
-        verify(this.loginMetrics).stopFailedLoginTimer(sample);
+        verify(this.loginMetrics, never()).startTimer();
     }
 
     @Test
     public void userFoundButThePasswordIsIncorrect() {
 
-        var email = "found@gmail.com";
-        var password = "123456789";
+        var email = "test@gmail.com";
+
+        var userId = "321";
+        var password = "12345678";
+        var role = "USER";
+
         var sample = mock(Timer.Sample.class);
 
-        var response = new ResponseUserForLogin("321", "99218841Pp@", "USER");
+        var response = new ResponseUserForLogin(userId, password, role);
 
         when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(response);
         when(this.passwordEncoder.matches(password, response.password())).thenReturn(false);
@@ -62,22 +67,27 @@ class LoginServiceTest {
         assertThrows(InvalidCredentialsException.class,
                 () -> this.loginService.verifyUser(email, password, sample));
 
-        verify(this.loginMetrics).stopFailedLoginTimer(sample);
+        verify(this.loginMetrics, never()).startTimer();
     }
 
     @Test
     public void userFound() {
 
-        var email = "teste@gmail.com";
-        var password = "123456789";
+        var email = "test@gmail.com";
+
+        var password = "12345678";
+        var userId = "123";
+        var role = "USER";
+
         var sample = mock(Timer.Sample.class);
-        var response = new ResponseUserForLogin("321", "99218841Pp@", "USER");
+        var response = new ResponseUserForLogin(userId, password, role);
 
         when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(response);
         when(this.passwordEncoder.matches(password, response.password())).thenReturn(true);
 
-        var result = this.loginService.verifyUser(email, password, sample);
+        var success = this.loginService.verifyUser(email, password, sample);
 
-        assertNotNull(result);
+        assertNotNull(success);
+        verify(this.loginMetrics, never()).startTimer();
     }
 }

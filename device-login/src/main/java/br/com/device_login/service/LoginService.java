@@ -86,8 +86,7 @@ public class LoginService {
             throw new InvalidCredentialsException("Email or Password is incorrect");
         }
 
-        log.debug("Usuário verificado com sucesso, retorno suas informações para assim gerar seu token: {}", user.userId());
-
+        log.info("Usuário verificado com sucesso, retorno suas informações para assim gerar seu token");
         return user;
     }
 
