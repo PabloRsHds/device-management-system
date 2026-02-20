@@ -64,4 +64,20 @@ class LoginServiceTest {
 
         verify(this.loginMetrics).stopFailedLoginTimer(sample);
     }
+
+    @Test
+    public void userFound() {
+
+        var email = "teste@gmail.com";
+        var password = "123456789";
+        var sample = mock(Timer.Sample.class);
+        var response = new ResponseUserForLogin("321", "99218841Pp@", "USER");
+
+        when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(response);
+        when(this.passwordEncoder.matches(password, response.password())).thenReturn(true);
+
+        var result = this.loginService.verifyUser(email, password, sample);
+
+        assertNotNull(result);
+    }
 }
