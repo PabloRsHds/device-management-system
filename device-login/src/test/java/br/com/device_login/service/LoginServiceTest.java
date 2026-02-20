@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,11 +30,14 @@ class LoginServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private JwtEncoder jwtEncoder;
+
     @InjectMocks
     private LoginService loginService;
 
     @Test
-    public void userNotFound() {
+    public void shouldThrowExceptionWhenUserNotFound() {
 
         var email = "test@gmail.com";
         var password = "3211123123";
@@ -45,11 +49,16 @@ class LoginServiceTest {
         assertThrows(InvalidCredentialsException.class,
                 () -> this.loginService.verifyUser(email, password, sample));
 
-        verify(this.loginMetrics, never()).startTimer();
+        verify(this.userClient).getResponseUserWithEmailOrUserId(email, null);
+        verify(this.loginMetrics).userNotFound();
+        verify(this.loginMetrics).stopFailedLoginTimer(sample);
+
+        verifyNoInteractions(this.passwordEncoder);
+        verifyNoInteractions(this.jwtEncoder);
     }
 
     @Test
-    public void userFoundButThePasswordIsIncorrect() {
+    public void shouldThrowExceptionWhenPasswordIsIncorrect() {
 
         var email = "test@gmail.com";
 
@@ -67,15 +76,21 @@ class LoginServiceTest {
         assertThrows(InvalidCredentialsException.class,
                 () -> this.loginService.verifyUser(email, password, sample));
 
-        verify(this.loginMetrics, never()).startTimer();
+        verify(this.userClient).getResponseUserWithEmailOrUserId(email, null);
+        verify(this.passwordEncoder).matches(password, response.password());
+        verify(this.loginMetrics).invalidCredentials();
+        verify(this.loginMetrics).stopFailedLoginTimer(sample);
+
+        verifyNoInteractions(this.jwtEncoder);
     }
 
     @Test
-    public void userFound() {
+    public void shouldReturnUserWhenEmailExists() {
 
         var email = "test@gmail.com";
 
         var password = "12345678";
+        var encodePassword = "12345678";
         var userId = "123";
         var role = "USER";
 
@@ -83,11 +98,42 @@ class LoginServiceTest {
         var response = new ResponseUserForLogin(userId, password, role);
 
         when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(response);
-        when(this.passwordEncoder.matches(password, response.password())).thenReturn(true);
+        when(this.passwordEncoder.matches(password, encodePassword)).thenReturn(true);
 
         var success = this.loginService.verifyUser(email, password, sample);
 
         assertNotNull(success);
         verify(this.loginMetrics, never()).startTimer();
+    }
+
+    @Test
+    public void shouldGenerateAccessAndRefreshTokens() {
+
+        var userId = "123";
+        var role = "USER";
+
+        var jwtMock = mock(Jwt.class);
+        when(jwtMock.getTokenValue()).thenReturn("mocked-token");
+        when(this.jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwtMock);
+
+        var response = loginService.generateTokens(userId, role);
+
+        assertNotNull(response);
+        assertEquals("mocked-token", response.accessToken());
+        assertEquals("mocked-token", response.refreshToken());
+    }
+
+    @Test
+    public void shouldNotGenerateAccessAndRefreshTokens() {
+
+        var userId = "123";
+        var role = "USER";
+
+        var jwtMock = mock(Jwt.class);
+        when(jwtMock.getTokenValue()).thenReturn(null);
+        when(this.jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwtMock);
+
+        assertThrows(JwtEncodingException.class,
+                () -> this.loginService.generateTokens(userId, role));
     }
 }

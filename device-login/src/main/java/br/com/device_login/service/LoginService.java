@@ -14,10 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -118,7 +115,12 @@ public class LoginService {
         var accessToken = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
         var accessRefreshToken = this.jwtEncoder.encode(JwtEncoderParameters.from(claimsRefresh)).getTokenValue();
 
-        log.debug("Tokens gerados com sucesso!");
+        if (accessToken == null || accessRefreshToken == null) {
+            log.info("Não foi possível gerar os tokens, devido a um erro inesperado");
+            throw new JwtEncodingException("Não foi possível gerar os tokens");
+        }
+
+        log.info("Tokens gerados com sucesso!");
         return new ResponseTokens(accessToken, accessRefreshToken);
     }
 
