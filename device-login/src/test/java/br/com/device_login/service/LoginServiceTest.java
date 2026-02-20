@@ -63,21 +63,22 @@ class LoginServiceTest {
         var email = "test@gmail.com";
 
         var userId = "321";
-        var password = "12345678";
+        var rawPassword = "12345678";
+        var encodePassword = "99218841";
         var role = "USER";
 
         var sample = mock(Timer.Sample.class);
 
-        var response = new ResponseUserForLogin(userId, password, role);
+        var response = new ResponseUserForLogin(userId, encodePassword, role);
 
         when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(response);
-        when(this.passwordEncoder.matches(password, response.password())).thenReturn(false);
+        when(this.passwordEncoder.matches(rawPassword, encodePassword)).thenReturn(false);
 
         assertThrows(InvalidCredentialsException.class,
-                () -> this.loginService.verifyUser(email, password, sample));
+                () -> this.loginService.verifyUser(email, rawPassword, sample));
 
         verify(this.userClient).getResponseUserWithEmailOrUserId(email, null);
-        verify(this.passwordEncoder).matches(password, response.password());
+        verify(this.passwordEncoder).matches(rawPassword, encodePassword);
         verify(this.loginMetrics).invalidCredentials();
         verify(this.loginMetrics).stopFailedLoginTimer(sample);
 
@@ -89,21 +90,29 @@ class LoginServiceTest {
 
         var email = "test@gmail.com";
 
-        var password = "12345678";
+        var rawPassword = "12345678";
         var encodePassword = "12345678";
         var userId = "123";
         var role = "USER";
 
         var sample = mock(Timer.Sample.class);
-        var response = new ResponseUserForLogin(userId, password, role);
+        var response = new ResponseUserForLogin(userId, encodePassword, role);
 
         when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(response);
-        when(this.passwordEncoder.matches(password, encodePassword)).thenReturn(true);
+        when(this.passwordEncoder.matches(rawPassword, encodePassword)).thenReturn(true);
 
-        var success = this.loginService.verifyUser(email, password, sample);
+        var success = this.loginService.verifyUser(email, rawPassword, sample);
 
         assertNotNull(success);
-        verify(this.loginMetrics, never()).startTimer();
+        assertEquals(userId, success.userId());
+        assertEquals(encodePassword, success.password());
+        assertEquals(role, success.role());
+
+        verify(this.userClient).getResponseUserWithEmailOrUserId(email, null);
+        verify(this.passwordEncoder).matches(rawPassword, encodePassword);
+
+        verifyNoInteractions(this.loginMetrics);
+        verifyNoInteractions(this.jwtEncoder);
     }
 
     @Test
@@ -112,15 +121,24 @@ class LoginServiceTest {
         var userId = "123";
         var role = "USER";
 
-        var jwtMock = mock(Jwt.class);
-        when(jwtMock.getTokenValue()).thenReturn("mocked-token");
-        when(this.jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwtMock);
+        var accessJwt = mock(Jwt.class);
+        var refreshJwt = mock(Jwt.class);
+
+        when(accessJwt.getTokenValue()).thenReturn("access-token");
+        when(refreshJwt.getTokenValue()).thenReturn("refresh-token");
+
+        when(this.jwtEncoder.encode(any(JwtEncoderParameters.class)))
+                .thenReturn(accessJwt, refreshJwt);
 
         var response = loginService.generateTokens(userId, role);
 
         assertNotNull(response);
-        assertEquals("mocked-token", response.accessToken());
-        assertEquals("mocked-token", response.refreshToken());
+        assertEquals("access-token", response.accessToken());
+        assertEquals("refresh-token", response.refreshToken());
+
+        verifyNoInteractions(this.userClient);
+        verifyNoInteractions(this.passwordEncoder);
+        verifyNoInteractions(this.loginMetrics);
     }
 
     @Test
@@ -129,11 +147,19 @@ class LoginServiceTest {
         var userId = "123";
         var role = "USER";
 
-        var jwtMock = mock(Jwt.class);
-        when(jwtMock.getTokenValue()).thenReturn(null);
-        when(this.jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwtMock);
+        var accessToken = mock(Jwt.class);
+        var refreshToken = mock(Jwt.class);
+
+        when(accessToken.getTokenValue()).thenReturn(null);
+        when(refreshToken.getTokenValue()).thenReturn(null);
+
+        when(this.jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(accessToken, refreshToken);
 
         assertThrows(JwtEncodingException.class,
                 () -> this.loginService.generateTokens(userId, role));
+
+        verifyNoInteractions(this.userClient);
+        verifyNoInteractions(this.passwordEncoder);
+        verifyNoInteractions(this.loginMetrics);
     }
 }
