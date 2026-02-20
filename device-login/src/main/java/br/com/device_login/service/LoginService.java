@@ -156,7 +156,7 @@ public class LoginService {
         if (refreshToken.getExpiresAt() == null ||
                 Instant.now().isAfter(refreshToken.getExpiresAt())) {
 
-            log.debug("Refresh token expirado ou inválido!");
+            log.info("Refresh token expirado ou inválido!");
             this.loginMetrics.failedRefreshTokens();
             this.loginMetrics.stopFailedRefreshTokensTimer(timeSample);
             throw new InvalidCredentialsException("Invalid or expired refresh token");
@@ -165,7 +165,7 @@ public class LoginService {
         // 2. Subjects devem bater
         if (!refreshToken.getSubject().equals(accessToken.getSubject())) {
 
-            log.debug("Subjects não batem!");
+            log.info("Subjects não batem!");
             this.loginMetrics.failedRefreshTokens();
             this.loginMetrics.stopFailedRefreshTokensTimer(timeSample);
             throw new InvalidCredentialsException("Invalid refresh token");

@@ -1,6 +1,8 @@
 package br.com.device_login.service;
 
 import br.com.device_login.dtos.loginDto.ResponseUserForLogin;
+import br.com.device_login.dtos.tokenDto.RequestTokensDto;
+import br.com.device_login.dtos.tokenDto.ResponseTokens;
 import br.com.device_login.infra.exceptions.InvalidCredentialsException;
 import br.com.device_login.metrics.login.LoginMetrics;
 import br.com.device_login.microservice.UserClient;
@@ -13,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.*;
+
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,6 +36,9 @@ class LoginServiceTest {
 
     @Mock
     private JwtEncoder jwtEncoder;
+
+    @Mock
+    private JwtDecoder jwtDecoder;
 
     @InjectMocks
     private LoginService loginService;
@@ -161,5 +168,29 @@ class LoginServiceTest {
         verifyNoInteractions(this.userClient);
         verifyNoInteractions(this.passwordEncoder);
         verifyNoInteractions(this.loginMetrics);
+    }
+
+    @Test
+    public void shouldThrowBecauseRefreshTokenIsExpired() {
+
+        var sample = mock(Timer.Sample.class);
+        var accessToken = mock(Jwt.class);
+        var refreshToken = mock(Jwt.class);
+
+        when(this.loginMetrics.startTimer()).thenReturn(sample);
+        when(this.jwtDecoder.decode("access-token")).thenReturn(accessToken);
+        when(this.jwtDecoder.decode("refresh-token")).thenReturn(refreshToken);
+
+        when(refreshToken.getExpiresAt()).thenReturn(null);
+
+        assertThrows(InvalidCredentialsException.class,
+                () -> this.loginService.refreshTokens(new RequestTokensDto("access-token", "refresh-token")));
+
+        verify(this.loginMetrics).failedRefreshTokens();
+        verify(this.loginMetrics).stopFailedRefreshTokensTimer(sample);
+
+        verifyNoInteractions(this.passwordEncoder);
+        verifyNoInteractions(this.userClient);
+        verifyNoInteractions(this.jwtEncoder);
     }
 }
