@@ -193,4 +193,30 @@ class LoginServiceTest {
         verifyNoInteractions(this.userClient);
         verifyNoInteractions(this.jwtEncoder);
     }
+
+    @Test
+    public void shouldThrowBecauseSubjectIsInvalid() {
+
+        var sample = mock(Timer.Sample.class);
+        var accessToken = mock(Jwt.class);
+        var refreshToken = mock(Jwt.class);
+
+        when(this.loginMetrics.startTimer()).thenReturn(sample);
+        when(this.jwtDecoder.decode("access-token")).thenReturn(accessToken);
+        when(this.jwtDecoder.decode("refresh-token")).thenReturn(refreshToken);
+        when(refreshToken.getExpiresAt()).thenReturn(Instant.now().plusSeconds(60));
+
+        when(accessToken.getSubject()).thenReturn("user-1");
+        when(refreshToken.getSubject()).thenReturn("user-2");
+
+        assertThrows(InvalidCredentialsException.class,
+                () -> this.loginService.refreshTokens(new RequestTokensDto("access-token", "refresh-token")));
+
+        verify(this.loginMetrics).failedRefreshTokens();
+        verify(this.loginMetrics).stopFailedRefreshTokensTimer(sample);
+
+        verifyNoInteractions(this.passwordEncoder);
+        verifyNoInteractions(this.userClient);
+        verifyNoInteractions(this.jwtEncoder);
+    }
 }
