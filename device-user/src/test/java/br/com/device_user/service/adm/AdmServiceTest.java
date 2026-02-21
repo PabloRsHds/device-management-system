@@ -32,7 +32,7 @@ class AdmServiceTest {
     private AdmService admService;
 
     @Test
-    public void createAdminUser() throws Exception {
+    void createAdminUser() throws Exception {
 
         // Arrange
         String email = "pablo@gmail.com";
@@ -53,7 +53,7 @@ class AdmServiceTest {
     }
 
     @Test
-    public void AdmIsPresent() throws Exception {
+    void AdmIsPresent() throws Exception {
 
         var email = "pablo@gmail.com";
 

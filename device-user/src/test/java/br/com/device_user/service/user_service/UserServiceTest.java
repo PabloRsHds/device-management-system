@@ -32,7 +32,7 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void shouldReturnUserWhenFoundByEmail() {
+    void shouldReturnUserWhenFoundByEmail() {
 
         var email = "teste@gmail.com";
         var userId = "123";
@@ -64,7 +64,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnUserWhenFoundByUserId() {
+    void shouldReturnUserWhenFoundByUserId() {
 
         var email = "teste@gmail.com";
         var userId = "123";
@@ -96,7 +96,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnNullWhenUserNotFound() {
+    void shouldReturnNullWhenUserNotFound() {
 
         // Arrange
         var email = "notfound@gmail.com";
@@ -125,7 +125,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void shouldThrowServiceUnavailableWhenRetryFallbackIsCalled(){
+    void shouldThrowServiceUnavailableWhenRetryFallbackIsCalled(){
 
         var email = "test@gmail.com";
         var userId = "123";
@@ -140,7 +140,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void shouldThrowServiceUnavailableWhenCircuitBreakerIsCalled() {
+    void shouldThrowServiceUnavailableWhenCircuitBreakerIsCalled() {
 
         var email = "test@gmail.com";
         var userId = "123";
