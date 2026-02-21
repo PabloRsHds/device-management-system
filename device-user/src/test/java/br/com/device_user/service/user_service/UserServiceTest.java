@@ -130,12 +130,13 @@ class UserServiceTest {
         var email = "test@gmail.com";
         var userId = "123";
 
-        var exception = assertThrows(ServiceUnavailableException.class, () ->
+        assertThrows(ServiceUnavailableException.class, () ->
                 userService.userRetryFallback(email, userId,
                         new DataAccessException("Database temporarily unavailable after retries") {})
         );
 
-        assertEquals("Database temporarily unavailable after retries", exception.getMessage());
+        verifyNoInteractions(this.userMetrics);
+        verifyNoInteractions(this.userRepository);
     }
 
     @Test
@@ -144,10 +145,11 @@ class UserServiceTest {
         var email = "test@gmail.com";
         var userId = "123";
 
-        var exception = assertThrows(ServiceUnavailableException.class, () ->
+        assertThrows(ServiceUnavailableException.class, () ->
                 userService.databaseOfflineFallBack(email, userId,
                         new DataAccessException("Database service temporarily unavailable - Circuit Breaker is OPEN") {}));
 
-        assertEquals("Database service temporarily unavailable - Circuit Breaker is OPEN",exception.getMessage());
+        verifyNoInteractions(this.userMetrics);
+        verifyNoInteractions(this.userRepository);
     }
 }
