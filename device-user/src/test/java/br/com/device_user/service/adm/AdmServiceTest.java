@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,6 +51,22 @@ class AdmServiceTest {
         user.setPassword(encodedPassword);
 
         assertNotNull(user);
+    }
+
+    @Test
+    void shouldReturnThrowBecauseDatabaseOff() throws Exception{
+
+        when(this.userRepository.findByEmail("pablo@gmail.com"))
+                .thenReturn(Optional.empty());
+
+        when(this.passwordEncoder.encode("123456789Rr@"))
+                .thenReturn("encode");
+
+        when(this.userRepository.save(any(User.class)))
+                .thenThrow(new DataAccessException("Database is down") {});
+
+        assertThrows(DataAccessException.class,
+                () -> this.admService.run());
     }
 
     @Test
