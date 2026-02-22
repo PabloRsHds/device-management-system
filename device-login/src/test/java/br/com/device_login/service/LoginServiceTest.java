@@ -44,7 +44,7 @@ class LoginServiceTest {
     private LoginService loginService;
 
     @Test
-    public void shouldThrowExceptionWhenUserNotFound() {
+    void shouldThrowExceptionWhenUserNotFound() {
 
         var email = "test@gmail.com";
         var password = "3211123123";
@@ -65,7 +65,7 @@ class LoginServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenPasswordIsIncorrect() {
+    void shouldThrowExceptionWhenPasswordIsIncorrect() {
 
         var email = "test@gmail.com";
 
@@ -93,7 +93,7 @@ class LoginServiceTest {
     }
 
     @Test
-    public void shouldReturnUserWhenEmailExists() {
+    void shouldReturnUserWhenEmailExists() {
 
         var email = "test@gmail.com";
 
@@ -123,7 +123,7 @@ class LoginServiceTest {
     }
 
     @Test
-    public void shouldGenerateAccessAndRefreshTokens() {
+    void shouldGenerateAccessAndRefreshTokens() {
 
         var userId = "123";
         var role = "USER";
@@ -149,7 +149,7 @@ class LoginServiceTest {
     }
 
     @Test
-    public void shouldNotGenerateAccessAndRefreshTokens() {
+    void shouldNotGenerateAccessAndRefreshTokens() {
 
         var userId = "123";
         var role = "USER";
@@ -171,7 +171,7 @@ class LoginServiceTest {
     }
 
     @Test
-    public void shouldThrowBecauseRefreshTokenIsExpired() {
+    void shouldThrowBecauseRefreshTokenIsExpired() {
 
         var sample = mock(Timer.Sample.class);
         var accessToken = mock(Jwt.class);
@@ -195,7 +195,7 @@ class LoginServiceTest {
     }
 
     @Test
-    public void shouldThrowBecauseSubjectIsInvalid() {
+    void shouldThrowBecauseSubjectIsInvalid() {
 
         var sample = mock(Timer.Sample.class);
         var accessToken = mock(Jwt.class);

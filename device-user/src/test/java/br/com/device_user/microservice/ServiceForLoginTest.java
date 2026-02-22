@@ -27,7 +27,7 @@ class ServiceForLoginTest {
     private UserService userService;
 
     @MockitoBean
-    private MetricsForExceptions metricsForExceptions; // 👈 ESSENCIAL
+    private MetricsForExceptions metricsForExceptions;
 
     @Test
     void shouldReturn200WhenUserExists() throws Exception {
