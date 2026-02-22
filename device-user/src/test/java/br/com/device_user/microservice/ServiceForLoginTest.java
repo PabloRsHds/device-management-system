@@ -2,6 +2,7 @@ package br.com.device_user.microservice;
 
 import br.com.device_user.dtos.login.ResponseUserForLogin;
 import br.com.device_user.metrics.MetricsForExceptions;
+import br.com.device_user.metrics.UserMetrics;
 import br.com.device_user.service.user_service.UserService;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,6 +31,9 @@ class ServiceForLoginTest {
     @MockitoBean
     private MetricsForExceptions metricsForExceptions;
 
+    @MockitoBean
+    private UserMetrics userMetrics;
+
     @Test
     void shouldReturn200WhenUserExists() throws Exception {
 
@@ -38,7 +43,7 @@ class ServiceForLoginTest {
                 "USER"
         );
 
-        when(userService.getResponseUserWithEmailOrUserId(
+        when(this.userService.getResponseUserWithEmailOrUserId(
                 "teste@gmail.com",
                 "123"
         )).thenReturn(response);
@@ -48,5 +53,19 @@ class ServiceForLoginTest {
                         .param("userId", "123"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value("123"));
+    }
+
+    @Test
+    void shouldReturnNullWhenUserNotExist() throws Exception{
+
+        when(this.userService.getResponseUserWithEmailOrUserId(
+                "teste@gmail.com",
+                "123")).thenReturn(null);
+
+        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
+                .param("email", "teste@gmail.com")
+                .param("userId", "123"));
+
+        assertNull(null);
     }
 }
