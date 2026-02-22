@@ -2,7 +2,9 @@ package br.com.device_login.controller;
 
 
 import br.com.device_login.dtos.loginDto.RequestLoginDto;
+import br.com.device_login.dtos.tokenDto.RequestTokensDto;
 import br.com.device_login.dtos.tokenDto.ResponseTokens;
+import br.com.device_login.infra.exceptions.InvalidCredentialsException;
 import br.com.device_login.metrics.exception.MetricsForExceptions;
 import br.com.device_login.service.LoginService;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,42 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturn401WhenUserLogInIsFailed() throws Exception{
+
+        when(this.loginService.login(any()))
+                .thenThrow(new InvalidCredentialsException("Email or password is incorrect"));
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "teste@gmail.com",
+                  "password": "99218841Pp@"
+                }
+            """))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldReturn200WhenGeneratedNewTokens() throws Exception{
+
+        var response = new ResponseTokens("access-token", "refresh-token");
+
+        when(this.loginService.refreshTokens(any(RequestTokensDto.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(post("/api/refresh-tokens")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "accessToken": "123",
+                            "refreshToken": "321"
+                        }
+                        """))
                 .andExpect(status().isOk());
     }
 }
