@@ -38,10 +38,10 @@ class GlobalHandlerExceptionTest {
     @Test
     void shouldReturn503AndFormattedErrorBody() throws Exception {
 
-        when(userService.getResponseUserWithEmailOrUserId(any(), any()))
+        when(this.userService.getResponseUserWithEmailOrUserId(any(), any()))
                 .thenThrow(new ServiceUnavailableException("Database down"));
 
-        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
+        this.mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
                         .param("email", "teste@gmail.com")
                         .param("userId", "123"))
                 .andExpect(status().isServiceUnavailable())
@@ -53,5 +53,6 @@ class GlobalHandlerExceptionTest {
                         .value("/microservice/verify-if-email-already-cadastred"));
 
         verify(metricsForExceptions).recordErrors(any(ExceptionMetricDto.class));
+        verify(this.userService).getResponseUserWithEmailOrUserId(any(), any());
     }
 }

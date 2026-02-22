@@ -14,6 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -53,6 +54,8 @@ class ServiceForLoginTest {
                         .param("userId", "123"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value("123"));
+
+        verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
     }
 
     @Test
@@ -67,5 +70,6 @@ class ServiceForLoginTest {
                 .param("userId", "123"));
 
         assertNull(null);
+        verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
     }
 }
