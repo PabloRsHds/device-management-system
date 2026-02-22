@@ -4,6 +4,7 @@ import br.com.device_user.model.User;
 import br.com.device_user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -12,8 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,22 +31,23 @@ class AdmServiceTest {
     @Test
     void createAdminUser() throws Exception {
 
-        // Arrange
         String email = "pablo@gmail.com";
         String rawPassword = "123456789Rr@";
         String encodedPassword = "encodedPassword123";
 
-        // Configura os mocks
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
 
         admService.run();
 
-        var user = new User();
-        user.setEmail(email);
-        user.setPassword(encodedPassword);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
-        assertNotNull(user);
+        verify(userRepository).save(userCaptor.capture());
+
+        User savedUser = userCaptor.getValue();
+
+        assertEquals(email, savedUser.getEmail());
+        assertEquals(encodedPassword, savedUser.getPassword());
     }
 
     @Test
@@ -63,6 +64,10 @@ class AdmServiceTest {
 
         assertThrows(DataAccessException.class,
                 () -> this.admService.run());
+
+        verify(this.userRepository).findByEmail("pablo@gmail.com");
+        verify(this.passwordEncoder).encode("123456789Rr@");
+        verify(this.userRepository).save(any(User.class));
     }
 
     @Test

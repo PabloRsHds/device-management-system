@@ -4,20 +4,18 @@ import br.com.device_user.dtos.login.ResponseUserForLogin;
 import br.com.device_user.metrics.MetricsForExceptions;
 import br.com.device_user.metrics.UserMetrics;
 import br.com.device_user.service.user_service.UserService;
-
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ServiceForLogin.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -69,7 +67,6 @@ class ServiceForLoginTest {
                 .param("email", "teste@gmail.com")
                 .param("userId", "123"));
 
-        assertNull(null);
         verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
     }
 }
