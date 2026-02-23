@@ -93,5 +93,23 @@ public class ValidationsTest {
                         .value("Invalid email format. Exemple lara@gmail.com"));
     }
 
+    // PASSWORD
+
+    @Test
+    void shouldReturn400WhenPasswordIsEmpty() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "email": "pablo@gmail.com",
+                          "password": ""
+                        }
+                    """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("The password field cannot be blank"));
+    }
+
 
 }
