@@ -45,5 +45,21 @@ public class ValidationsTest {
                 .andExpect(jsonPath("$.message").value("The email field cannot be blank"));
     }
 
+    @Test
+    void shouldReturn400WhenEmailHaveSizeInvalid() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "email": "a@gmail.com",
+                          "password": "99218841Pp@"
+                        }
+                    """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("The E-mail must have at least 11 characters, and a maximum of 60 characters"));
+    }
+
 
 }
