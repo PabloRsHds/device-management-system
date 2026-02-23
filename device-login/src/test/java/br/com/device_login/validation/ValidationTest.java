@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(LoginController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class ValidationsTest {
+public class ValidationTest {
 
     @Autowired
     private MockMvc mockMvc;
