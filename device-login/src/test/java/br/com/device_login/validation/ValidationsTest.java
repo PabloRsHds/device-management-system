@@ -77,5 +77,21 @@ public class ValidationsTest {
                         .value("@ is required"));
     }
 
+    @Test
+    void shouldReturn400WhenTheEmailDoesNotHaveTheCorrectFormat() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "email": "pablo@gmailcom",
+                          "password": "99218841Pp@"
+                        }
+                    """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("Invalid email format. Exemple lara@gmail.com"));
+    }
+
 
 }
