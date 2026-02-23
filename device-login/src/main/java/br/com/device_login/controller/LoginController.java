@@ -4,6 +4,7 @@ import br.com.device_login.dtos.loginDto.RequestLoginDto;
 import br.com.device_login.dtos.tokenDto.RequestTokensDto;
 import br.com.device_login.dtos.tokenDto.ResponseTokens;
 import br.com.device_login.service.LoginService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    private ResponseEntity<ResponseTokens> login(@RequestBody RequestLoginDto request) {
+    private ResponseEntity<ResponseTokens> login(@Valid @RequestBody RequestLoginDto request) {
        var tokens = this.loginService.login(request);
        return ResponseEntity.ok().body(tokens);
     }

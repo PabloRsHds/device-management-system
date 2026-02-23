@@ -2,12 +2,10 @@ package br.com.device_login.service;
 
 import br.com.device_login.dtos.loginDto.ResponseUserForLogin;
 import br.com.device_login.dtos.tokenDto.RequestTokensDto;
-import br.com.device_login.dtos.tokenDto.ResponseTokens;
 import br.com.device_login.infra.exceptions.InvalidCredentialsException;
 import br.com.device_login.metrics.login.LoginMetrics;
 import br.com.device_login.microservice.UserClient;
 import io.micrometer.core.instrument.Timer;
-import org.bouncycastle.pqc.crypto.util.PQCOtherInfoGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -62,6 +60,7 @@ class LoginServiceTest {
 
         verifyNoInteractions(this.passwordEncoder);
         verifyNoInteractions(this.jwtEncoder);
+        verifyNoInteractions(this.jwtDecoder);
     }
 
     @Test
@@ -90,6 +89,7 @@ class LoginServiceTest {
         verify(this.loginMetrics).stopFailedLoginTimer(sample);
 
         verifyNoInteractions(this.jwtEncoder);
+        verifyNoInteractions(this.jwtDecoder);
     }
 
     @Test
@@ -120,6 +120,7 @@ class LoginServiceTest {
 
         verifyNoInteractions(this.loginMetrics);
         verifyNoInteractions(this.jwtEncoder);
+        verifyNoInteractions(this.jwtDecoder);
     }
 
     @Test
@@ -137,7 +138,7 @@ class LoginServiceTest {
         when(this.jwtEncoder.encode(any(JwtEncoderParameters.class)))
                 .thenReturn(accessJwt, refreshJwt);
 
-        var response = loginService.generateTokens(userId, role);
+        var response = this.loginService.generateTokens(userId, role);
 
         assertNotNull(response);
         assertEquals("access-token", response.accessToken());
@@ -146,10 +147,11 @@ class LoginServiceTest {
         verifyNoInteractions(this.userClient);
         verifyNoInteractions(this.passwordEncoder);
         verifyNoInteractions(this.loginMetrics);
+        verifyNoInteractions(this.jwtDecoder);
     }
 
     @Test
-    void shouldNotGenerateAccessAndRefreshTokens() {
+    void shouldReturnThrowBecauseFailedGenerateNewTokens() {
 
         var userId = "123";
         var role = "USER";
@@ -168,6 +170,7 @@ class LoginServiceTest {
         verifyNoInteractions(this.userClient);
         verifyNoInteractions(this.passwordEncoder);
         verifyNoInteractions(this.loginMetrics);
+        verifyNoInteractions(this.jwtDecoder);
     }
 
     @Test

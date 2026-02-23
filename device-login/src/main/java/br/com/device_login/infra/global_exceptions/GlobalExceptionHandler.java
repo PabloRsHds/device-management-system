@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -81,10 +82,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseExceptionDto> handleValidationExceptions(MethodArgumentNotValidException ex,
                                                                           HttpServletRequest request) {
 
+        var message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(FieldError::getDefaultMessage)
+                .orElse("Validation error");
+
         this.metricsForExceptions.recordErrors(new RequestExceptionDto(
                         HttpStatus.BAD_REQUEST.toString(),
                         "validation_error",
-                        ex.getMessage(),
+                        message,
                         request.getRequestURI())
         );
 
@@ -96,7 +104,7 @@ public class GlobalExceptionHandler {
                         "DEVICE-LOGIN",
                         "USER-DEVICE",
                         this.serviceName,
-                        ex.getMessage(),
+                        message,
                         request.getRequestURI()
                 ));
     }
