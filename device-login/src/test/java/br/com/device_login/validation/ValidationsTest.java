@@ -111,5 +111,22 @@ public class ValidationsTest {
                         .value("The password field cannot be blank"));
     }
 
+    @Test
+    void shouldReturn400WhenPasswordHaveSizeInvalid() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "email": "pablo@gmail.com",
+                          "password": "1234567"
+                        }
+                    """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("The password must be between 8 and 30 characters"));
+    }
+
+
 
 }
