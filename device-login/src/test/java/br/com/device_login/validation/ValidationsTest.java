@@ -127,6 +127,19 @@ public class ValidationsTest {
                         .value("The password must be between 8 and 30 characters"));
     }
 
+    @Test
+    void shouldReturn400WhenPasswordHaveFormatInvalid() throws Exception{
 
-
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "email": "pablo@gmail.com",
+                          "password": "12345678"
+                        }
+                    """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol (no spaces)"));
+    }
 }
