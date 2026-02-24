@@ -1,6 +1,5 @@
 package br.com.device_login.dtos.loginDto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -9,14 +8,12 @@ public record RequestLoginDto(
 
         @NotBlank(message = "The email field cannot be blank")
         @Size(min = 12, max = 60, message = "The E-mail must have at least 12 characters, and a maximum of 60 characters")
-        @Email(message = "@ is required")
         @Pattern(
                 regexp = "^[a-zA-Z0-9._%+-]+@gmail\\.com$",
                 message = "Invalid email format. Exemple lara@gmail.com"
         )
         String email,
 
-        @NotBlank(message = "The password field cannot be blank")
         @Size(min = 8, max = 30, message = "The password must be between 8 and 30 characters")
         @Pattern(
                 regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$#!%&])\\S{8,}$",

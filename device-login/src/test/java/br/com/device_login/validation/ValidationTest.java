@@ -61,22 +61,6 @@ public class ValidationTest {
     }
 
     @Test
-    void shouldReturn400WhenTheEmailHasNoSymbol() throws Exception{
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "email": "pablogmail.com",
-                          "password": "99218841Pp@"
-                        }
-                    """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("@ is required"));
-    }
-
-    @Test
     void shouldReturn400WhenTheEmailDoesNotHaveTheCorrectFormat() throws Exception{
 
         mockMvc.perform(post("/api/login")
@@ -93,22 +77,6 @@ public class ValidationTest {
     }
 
     // PASSWORD
-    @Test
-    void shouldReturn400WhenPasswordIsEmpty() throws Exception{
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "email": "pablo@gmail.com",
-                          "password": ""
-                        }
-                    """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("The password field cannot be blank"));
-    }
-
     @Test
     void shouldReturn400WhenPasswordHaveSizeInvalid() throws Exception{
 

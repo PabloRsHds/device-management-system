@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Objects;
 
 @Service
 public class LoginService {
@@ -163,7 +164,7 @@ public class LoginService {
         }
 
         // 2. Subjects devem bater
-        if (!refreshToken.getSubject().equals(accessToken.getSubject())) {
+        if (!Objects.equals(refreshToken.getSubject(), accessToken.getSubject())) {
 
             log.info("Subjects não batem!");
             this.loginMetrics.failedRefreshTokens();
