@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 public record RequestLoginDto(
 
         @NotBlank(message = "The email field cannot be blank")
-        @Size(min = 12, max = 60, message = "The E-mail must have at least 11 characters, and a maximum of 60 characters")
+        @Size(min = 12, max = 60, message = "The E-mail must have at least 12 characters, and a maximum of 60 characters")
         @Email(message = "@ is required")
         @Pattern(
                 regexp = "^[a-zA-Z0-9._%+-]+@gmail\\.com$",

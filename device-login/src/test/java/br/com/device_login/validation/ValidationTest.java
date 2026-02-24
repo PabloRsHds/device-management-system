@@ -29,7 +29,6 @@ public class ValidationTest {
     private MetricsForExceptions metricsForExceptions;
 
     //EMAIL
-
     @Test
     void shouldReturn400WhenEmailIsEmpty() throws Exception{
 
@@ -58,7 +57,7 @@ public class ValidationTest {
                     """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message")
-                        .value("The E-mail must have at least 11 characters, and a maximum of 60 characters"));
+                        .value("The E-mail must have at least 12 characters, and a maximum of 60 characters"));
     }
 
     @Test
@@ -94,7 +93,6 @@ public class ValidationTest {
     }
 
     // PASSWORD
-
     @Test
     void shouldReturn400WhenPasswordIsEmpty() throws Exception{
 

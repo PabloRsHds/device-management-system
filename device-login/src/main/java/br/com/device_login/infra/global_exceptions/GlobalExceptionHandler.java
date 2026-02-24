@@ -5,6 +5,7 @@ import br.com.device_login.dtos.exceptionDto.ResponseExceptionDto;
 import br.com.device_login.infra.exceptions.InvalidCredentialsException;
 import br.com.device_login.infra.exceptions.ServiceUnavailableException;
 import br.com.device_login.metrics.exception.MetricsForExceptions;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -82,12 +83,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseExceptionDto> handleValidationExceptions(MethodArgumentNotValidException ex,
                                                                           HttpServletRequest request) {
 
-        var message = ex.getBindingResult()
+        String message = ex.getBindingResult()
                 .getFieldErrors()
-                .stream()
-                .findFirst()
-                .map(FieldError::getDefaultMessage)
-                .orElse("Validation error");
+                .getFirst()
+                .getDefaultMessage();
+
 
         this.metricsForExceptions.recordErrors(new RequestExceptionDto(
                         HttpStatus.BAD_REQUEST.toString(),
@@ -105,6 +105,31 @@ public class GlobalExceptionHandler {
                         "USER-DEVICE",
                         this.serviceName,
                         message,
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ResponseExceptionDto> handleFeignException(RuntimeException ex,
+                                                                                  HttpServletRequest request) {
+
+        this.metricsForExceptions.recordErrors(new RequestExceptionDto(
+                HttpStatus.SERVICE_UNAVAILABLE.toString(),
+                "service_unavailable",
+                ex.getMessage(),
+                request.getRequestURI())
+        );
+
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
+                new ResponseExceptionDto(
+                        Instant.now().toString(),
+                        HttpStatus.SERVICE_UNAVAILABLE.value(),
+                        "Service unavailable",
+                        "DEVICE-LOGIN",
+                        "USER-DEVICE",
+                        this.serviceName,
+                        ex.getMessage(),
                         request.getRequestURI()
                 ));
     }
