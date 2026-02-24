@@ -169,4 +169,21 @@ class LoginIntegrationTest {
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims))
                 .getTokenValue();
     }
+
+    @Test
+    void shouldReturnUnauthorizedWhenSubjectsAreDifferent() throws Exception {
+
+        var accessToken = this.loginService.generateTokens("123", "USER").accessToken();
+        var refreshToken = this.loginService.generateTokens("456", "USER").refreshToken();
+
+        mockMvc.perform(post("/api/refresh-tokens")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+            {
+                "accessToken" : "%s",
+                "refreshToken" : "%s"
+            }
+            """.formatted(accessToken, refreshToken)))
+                .andExpect(status().isUnauthorized());
+    }
 }
