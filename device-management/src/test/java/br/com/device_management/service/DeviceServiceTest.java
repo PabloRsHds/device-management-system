@@ -248,4 +248,15 @@ class DeviceServiceTest {
     void shouldReturnSuccessWhenDeleteDevice() {
         this.deviceService.delete(new Device());
     }
+
+    @Test
+    void shouldReturnThrowWhenDeleteDevice() {
+
+        doThrow(new DataAccessException("Database is down") {})
+                .when(this.deviceRepository)
+                .delete(any(Device.class));
+
+        assertThrows(ServiceUnavailable.class,
+                () -> this.deviceService.delete(new Device()));
+    }
 }
