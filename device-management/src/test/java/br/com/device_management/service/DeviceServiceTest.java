@@ -254,6 +254,9 @@ class DeviceServiceTest {
     @Test
     void shouldReturnSuccessWhenDeleteDevice() {
         this.deviceService.delete(new Device());
+
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.timerMetrics);
     }
 
     @Test
