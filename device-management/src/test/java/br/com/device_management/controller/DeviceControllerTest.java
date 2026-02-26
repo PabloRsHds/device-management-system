@@ -93,13 +93,31 @@ class DeviceControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenTheFieldNameTheSizeIsIncorrect() throws Exception {
+    void shouldReturn400WhenTheFieldNameTheSizeIsIncorrectMin() throws Exception {
 
         this.mockMvc.perform(post("/api/register-device")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {
                                 "name": "A",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "manufacturer",
+                                "location": "location"
+                            }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenTheFieldNameTheSizeIsIncorrectMax() throws Exception {
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                                 "type": "TEMPERATURE_SENSOR",
                                 "description": "description",
                                 "deviceModel": "deviceModel",

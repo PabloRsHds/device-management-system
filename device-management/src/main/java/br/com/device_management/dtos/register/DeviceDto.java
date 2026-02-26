@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 public record DeviceDto(
 
         @NotBlank(message = "The name field cannot be blank")
-        @Size(min = 2, max = 50, message = "The name field must have between 2 and 50 characters")
+        @Size(min = 2, max = 30, message = "The name field must have between 2 and 50 characters")
         String name,
 
         @NotNull(message = "The type field cannot be null")
