@@ -308,6 +308,7 @@ class DeviceServiceTest {
 
         assertNotNull(response);
         verify(this.timerMetrics).stopGetDeviceTimer(sample);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     // Retorna todos os dispositivos
