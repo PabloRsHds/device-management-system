@@ -298,5 +298,23 @@ class DeviceServiceTest {
         verify(this.timerMetrics).stopGetDeviceTimer(sample);
     }
 
+    // Retorna todos os dispositivos
+    @Test
+    void shouldReturnListResponseDeviceDtoWhenGetAllDevicesService() {
+
+        var sample = mock(Timer.Sample.class);
+
+        when(this.timerMetrics.startTimer())
+                .thenReturn(sample);
+
+        when(this.deviceRepository.findAllDevices(any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        var response = this.deviceService.getAllDevices(0, 1);
+
+        assertNotNull(response);
+        verify(this.timerMetrics).stopGetDevicesTimer(sample);
+    }
+
 
 }
