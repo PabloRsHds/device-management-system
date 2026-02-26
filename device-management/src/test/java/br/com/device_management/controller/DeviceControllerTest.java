@@ -73,4 +73,24 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.location").value(response.location()));
 
     }
+
+    @Test
+    void shouldReturn400WhenTheFieldNameIsBlank() throws Exception {
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "manufacturer",
+                                "location": "location"
+                            }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+
 }
