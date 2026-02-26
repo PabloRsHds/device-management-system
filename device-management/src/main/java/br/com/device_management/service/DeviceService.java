@@ -16,6 +16,7 @@ import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -250,12 +251,14 @@ public class DeviceService {
 
     public ResponseDeviceDto deleteDevice(String deviceModel) {
 
+        log.info("iniciando o timer");
         var sampleTimer = this.timer.startTimer();
 
         try {
             log.info("Verifico se o device existe no banco de dados");
             var entity = this.verifyIfDeviceIsEmpty(deviceModel);
 
+            log.info("Usuário achado no banco de dados, salvando um responseDto com os dados do dispositivo");
             var responseDto = new ResponseDeviceDto(
                     entity.getName(),
                     entity.getType(),
@@ -272,13 +275,21 @@ public class DeviceService {
             return responseDto;
 
         } finally {
+            log.info("parando o timer");
             this.timer.stopDeleteTimer(sampleTimer);
         }
     }
 
     @Transactional
     public void delete(Device entity) {
-        this.deviceRepository.delete(entity);
+        try {
+            log.info("Dispositivo apagado com sucesso");
+            this.deviceRepository.delete(entity);
+
+        } catch (DataAccessException ex) {
+            log.info("Database serviço indisponível");
+            throw new ServiceUnavailable("Database is down");
+        }
     }
 
     // ================================================================================================================
