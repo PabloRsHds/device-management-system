@@ -316,5 +316,12 @@ class DeviceServiceTest {
         verify(this.timerMetrics).stopGetDevicesTimer(sample);
     }
 
+    @Test
+    void shouldReturnListOfWhenGetAllDevicesRetry() {
+
+        var response = this.deviceService.getAllDevicesRetry(1, 2, new DataAccessException("") {});
+        assertNotNull(response);
+    }
+
 
 }
