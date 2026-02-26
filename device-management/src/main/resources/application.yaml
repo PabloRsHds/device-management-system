@@ -42,14 +42,32 @@ resilience4j:
       retry_device_is_present:
         max-attempts: 3
         wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - br.com.device_management.infra.exceptions.ServiceUnavailable
 
       retry_device_is_empty:
         max-attempts: 3
         wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - br.com.device_management.infra.exceptions.ServiceUnavailable
 
       retry_all_devices:
         max-attempts: 3
         wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.dao.DataAccessException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - br.com.device_management.infra.exceptions.ServiceUnavailable
 
   circuitbreaker:
     instances:

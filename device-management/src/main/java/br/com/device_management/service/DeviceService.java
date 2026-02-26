@@ -229,6 +229,8 @@ public class DeviceService {
         if (dto.newDescription() != null) {
             entity.setDescription(dto.newDescription());
         }
+
+        log.info("Atualização de dispositivo, feita com sucesso");
         this.deviceRepository.save(entity);
 
         return new DeviceDto(
