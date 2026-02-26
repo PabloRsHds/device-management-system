@@ -13,6 +13,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.w3c.dom.Text;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -113,18 +114,20 @@ class DeviceControllerTest {
     @Test
     void shouldReturn400WhenTheFieldNameTheSizeIsIncorrectMax() throws Exception {
 
+        var name = "a".repeat(31);
+
         this.mockMvc.perform(post("/api/register-device")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {
-                                "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                "name": "%s",
                                 "type": "TEMPERATURE_SENSOR",
                                 "description": "description",
                                 "deviceModel": "deviceModel",
                                 "manufacturer": "manufacturer",
                                 "location": "location"
                             }
-                        """))
+                        """.formatted(name)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -161,6 +164,26 @@ class DeviceControllerTest {
                                 "location": "location"
                             }
                         """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn400WhenTheFieldDescriptionTheSizeIsIncorrectMax() throws Exception {
+
+        var description = "a".repeat(201);
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "Temperature",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "%s",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "manufacturer",
+                                "location": "location"
+                            }
+                        """.formatted(description)))
                 .andExpect(status().isBadRequest());
     }
 }
