@@ -327,6 +327,7 @@ class DeviceServiceTest {
 
         assertNotNull(response);
         verify(this.timerMetrics).stopGetDevicesTimer(sample);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
