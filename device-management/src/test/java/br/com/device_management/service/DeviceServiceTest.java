@@ -334,7 +334,11 @@ class DeviceServiceTest {
     void shouldReturnListOfWhenGetAllDevicesRetry() {
 
         var response = this.deviceService.getAllDevicesRetry(1, 2, new DataAccessException("") {});
+
         assertNotNull(response);
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.timerMetrics);
+        verifyNoInteractions(this.deviceRepository);
     }
 
     @Test
