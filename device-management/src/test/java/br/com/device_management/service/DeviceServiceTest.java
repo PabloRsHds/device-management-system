@@ -323,5 +323,10 @@ class DeviceServiceTest {
         assertNotNull(response);
     }
 
+    @Test
+    void shouldReturnListOfWhenGetAllDevicesCircuitBreaker() {
 
+        var response = this.deviceService.getAllDevicesCircuitBreaker(1, 2, new DataAccessException("") {});
+        assertNotNull(response);
+    }
 }
