@@ -186,4 +186,22 @@ class DeviceControllerTest {
                         """.formatted(description)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturn400WhenTheFieldDeviceModelIsBlank() throws Exception {
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "Temperature",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "",
+                                "manufacturer": "manufacturer",
+                                "location": "location"
+                            }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 }
