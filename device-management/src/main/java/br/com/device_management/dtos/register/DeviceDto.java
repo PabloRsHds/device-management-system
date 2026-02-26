@@ -19,7 +19,7 @@ public record DeviceDto(
         String description,
 
         @NotBlank(message = "The device model field cannot be blank")
-        @Size(min = 1, max = 50, message = "The device model field must have between 1 and 50 characters")
+        @Size(min = 2, max = 30, message = "The device model field must have between 1 and 50 characters")
         String deviceModel,
 
         @NotBlank(message = "The manufacturer field cannot be blank")
