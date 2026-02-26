@@ -346,5 +346,8 @@ class DeviceServiceTest {
 
         var response = this.deviceService.getAllDevicesCircuitBreaker(1, 2, new DataAccessException("") {});
         assertNotNull(response);
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.timerMetrics);
+        verifyNoInteractions(this.deviceRepository);
     }
 }
