@@ -185,5 +185,17 @@ class DeviceServiceTest {
         verifyNoInteractions(this.timerMetrics);
     }
 
+    @Test
+    void shouldReturnThrowBecauseDeviceIsEmptyCircuitBreaker() {
+
+        assertThrows(ServiceUnavailable.class,
+                () -> this.deviceService.verifyIfDeviceIsEmptyCircuitBreaker(
+                        "", new DataAccessException("") {}));
+
+        verifyNoInteractions(this.deviceRepository);
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.timerMetrics);
+    }
+
 
 }
