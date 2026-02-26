@@ -163,5 +163,15 @@ class DeviceServiceTest {
         verify(this.deviceRepository).findByDeviceModel("model");
     }
 
+    @Test
+    void shouldReturnThrowBecauseDeviceIsEmpty() {
+
+        when(this.deviceRepository.findByDeviceModel("model"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(DeviceIsEmpty.class,
+                () -> this.deviceService.verifyIfDeviceIsEmpty("model"));
+    }
+
 
 }
