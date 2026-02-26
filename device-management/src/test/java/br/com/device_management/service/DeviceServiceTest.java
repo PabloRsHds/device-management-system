@@ -174,6 +174,10 @@ class DeviceServiceTest {
 
         assertThrows(DeviceIsEmpty.class,
                 () -> this.deviceService.verifyIfDeviceIsEmpty("model"));
+
+        verify(this.deviceRepository).findByDeviceModel("model");
+        verifyNoInteractions(this.timerMetrics);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
