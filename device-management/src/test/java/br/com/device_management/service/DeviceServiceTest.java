@@ -173,5 +173,17 @@ class DeviceServiceTest {
                 () -> this.deviceService.verifyIfDeviceIsEmpty("model"));
     }
 
+    @Test
+    void shouldReturnThrowBecauseDeviceIsEmptyRetry() {
+
+        assertThrows(ServiceUnavailable.class,
+                () -> this.deviceService.verifyIfDeviceIsEmptyRetry(
+                        "", new DataAccessException("") {}));
+
+        verifyNoInteractions(this.deviceRepository);
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.timerMetrics);
+    }
+
 
 }
