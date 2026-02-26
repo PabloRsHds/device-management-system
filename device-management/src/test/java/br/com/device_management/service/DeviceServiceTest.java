@@ -18,12 +18,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -278,4 +280,23 @@ class DeviceServiceTest {
         assertNotNull(response);
         verify(this.timerMetrics).stopDeleteTimer(sample);
     }
+
+    // Pego o dispositivo através de seu modelo
+    @Test
+    void shouldReturnGetDeviceWithDeviceModelWhenGetDeviceWithDeviceModelService() {
+
+        var sample = mock(Timer.Sample.class);
+
+        when(this.timerMetrics.startTimer())
+                .thenReturn(sample);
+
+        when(this.deviceRepository.findByDeviceModel("model"))
+                .thenReturn(Optional.of(new Device()));
+        var response = this.deviceService.getDeviceWithDeviceModel("model");
+
+        assertNotNull(response);
+        verify(this.timerMetrics).stopGetDeviceTimer(sample);
+    }
+
+
 }
