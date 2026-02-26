@@ -268,6 +268,9 @@ class DeviceServiceTest {
 
         assertThrows(ServiceUnavailable.class,
                 () -> this.deviceService.delete(new Device()));
+
+        verifyNoInteractions(this.timerMetrics);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
