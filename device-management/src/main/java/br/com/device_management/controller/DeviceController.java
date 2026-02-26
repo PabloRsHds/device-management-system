@@ -5,6 +5,7 @@ import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.dtos.getDeviceWithDeviceModel;
 import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.service.DeviceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class DeviceController {
     }
 
     @PostMapping("/register-device")
-    public ResponseEntity<ResponseDeviceDto> registerDevice(@RequestBody DeviceDto request) {
+    public ResponseEntity<ResponseDeviceDto> registerDevice(@Valid @RequestBody DeviceDto request) {
         var response = this.deviceService.registerDevice(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
