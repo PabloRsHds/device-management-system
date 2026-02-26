@@ -290,6 +290,7 @@ class DeviceServiceTest {
 
         assertNotNull(response);
         verify(this.timerMetrics).stopDeleteTimer(sample);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     // Pego o dispositivo através de seu modelo
