@@ -197,5 +197,21 @@ class DeviceServiceTest {
         verifyNoInteractions(this.timerMetrics);
     }
 
+    @Test
+    void shouldReturnDeviceDtoWhenUpdateDevice() {
+
+        var response = this.deviceService.saveUpdate(new Device(),
+                new UpdateDeviceDto(
+                        "",
+                        "",
+                        "",
+                        "",
+                        "") );
+
+        assertNotNull(response);
+        verifyNoInteractions(this.timerMetrics);
+        verifyNoInteractions(this.kafkaTemplate);
+    }
+
 
 }
