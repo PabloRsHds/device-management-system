@@ -162,6 +162,8 @@ class DeviceServiceTest {
 
         assertNotNull(response);
         verify(this.deviceRepository).findByDeviceModel("model");
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.timerMetrics);
     }
 
     @Test
