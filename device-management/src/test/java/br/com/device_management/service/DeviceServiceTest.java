@@ -259,4 +259,23 @@ class DeviceServiceTest {
         assertThrows(ServiceUnavailable.class,
                 () -> this.deviceService.delete(new Device()));
     }
+
+    @Test
+    void shouldReturnResponseDeviceDtoWhenDeleteService() {
+
+        var sample = mock(Timer.Sample.class);
+        var device = mock(Device.class);
+
+        when(this.timerMetrics.startTimer())
+                .thenReturn(sample);
+
+        when(device.getType()).thenReturn(Type.ACCELEROMETER);
+        when(this.deviceRepository.findByDeviceModel("model"))
+                .thenReturn(Optional.of(device));
+
+        var response = this.deviceService.deleteDevice("model");
+
+        assertNotNull(response);
+        verify(this.timerMetrics).stopDeleteTimer(sample);
+    }
 }
