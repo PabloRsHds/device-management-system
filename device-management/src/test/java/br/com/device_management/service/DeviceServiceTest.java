@@ -213,5 +213,32 @@ class DeviceServiceTest {
         verifyNoInteractions(this.kafkaTemplate);
     }
 
+    @Test
+    void shouldReturnResponseDeviceDtoWhenUpdateDevice() {
 
+        var sample = mock(Timer.Sample.class);
+        var device = new Device();
+        device.setType(Type.TEMPERATURE_SENSOR);
+        var updateDevice = new UpdateDeviceDto(
+                "",
+                "model",
+                "",
+                "",
+                "");
+
+        when(this.timerMetrics.startTimer())
+                .thenReturn(sample);
+
+        when(this.deviceRepository.findByDeviceModel("model"))
+                .thenReturn(Optional.of(device));
+
+        when(this.deviceRepository.save(device))
+                .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        var response = this.deviceService.updateDevice("model", updateDevice);
+
+        assertNotNull(response);
+        verify(this.timerMetrics).stopUpdateTimer(sample);
+        verifyNoInteractions(this.kafkaTemplate);
+    }
 }
