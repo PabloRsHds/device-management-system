@@ -530,4 +530,21 @@ class DeviceControllerTest {
                         """))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturn400WhenTheFieldNewManufacturerTheSizeIsIncorrectMin() throws Exception{
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "newName" : "name",
+                            "newDeviceModel" : "deviceModel",
+                            "newManufacturer" : "a",
+                            "newLocation" : "location",
+                            "newDescription" : "description"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 }
