@@ -364,5 +364,17 @@ class DeviceControllerTest {
     @Test
     void shouldReturn200WhenUpdateDevice() throws Exception{
 
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "newName" : "newName",
+                            "newDeviceModel" : "newDeviceModel",
+                            "newManufacturer" : "newManufacturer",
+                            "newLocation": "newLocation",
+                            "newDescription" : "newDescription"
+                        }
+                        """))
+                .andExpect(status().isOk());
     }
 }
