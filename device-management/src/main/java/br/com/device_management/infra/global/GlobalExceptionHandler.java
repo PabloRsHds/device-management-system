@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 
         this.metrics.recordErrors(new RequestExceptionDto(
                 HttpStatus.BAD_REQUEST.toString(),
-                "Invalid or expired credentials",
+                "Validation error",
                 ex.getMessage(),
                 request.getRequestURI())
         );
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseExceptionDto(
                 Instant.now().toString(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Invalid or expired credentials",
+                "Validation error",
                 "DEVICE-MANAGEMENT",
                 this.serviceName,
                 ex.getMessage(),
