@@ -364,6 +364,5 @@ class DeviceControllerTest {
     @Test
     void shouldReturn200WhenUpdateDevice() throws Exception{
 
-        System.out.println("");
     }
 }
