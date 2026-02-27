@@ -265,4 +265,22 @@ class DeviceControllerTest {
                         """))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturn400WhenTheFieldManufacturerTheSizeIsIncorrectMin() throws Exception {
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "name",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "a",
+                                "location": "location"
+                            }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 }
