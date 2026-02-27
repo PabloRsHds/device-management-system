@@ -402,4 +402,24 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.minLimit").value(response.type().getMin()))
                 .andExpect(jsonPath("$.maxLimit").value(response.type().getMax()));
     }
+
+    // NEW NAME VALIDATION
+    @Test
+    void shouldReturn400BecauseTheFieldNewNameIsBlank() throws Exception{
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "newName" : "",
+                            "newDeviceModel" : "deviceModel",
+                            "newManufacturer" : "manufacturer",
+                            "newLocation" : "location",
+                            "newDescription" : "description"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+
 }
