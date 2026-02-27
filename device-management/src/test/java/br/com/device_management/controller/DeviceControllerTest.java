@@ -483,8 +483,8 @@ class DeviceControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                         {
-                            "newName" : "a",
-                            "newDeviceModel" : "deviceModel",
+                            "newName" : "name",
+                            "newDeviceModel" : "a",
                             "newManufacturer" : "manufacturer",
                             "newLocation" : "location",
                             "newDescription" : "description"
@@ -496,19 +496,38 @@ class DeviceControllerTest {
     @Test
     void shouldReturn400WhenTheFieldNewDeviceModelTheSizeIsIncorrectMax() throws Exception{
 
-        var newName = "a".repeat(31);
+        var newDeviceModel = "a".repeat(31);
 
         this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                         {
-                            "newName" : "%s",
-                            "newDeviceModel" : "deviceModel",
+                            "newName" : "name",
+                            "newDeviceModel" : "%s",
                             "newManufacturer" : "manufacturer",
                             "newLocation" : "location",
                             "newDescription" : "description"
                         }
-                        """.formatted(newName)))
+                        """.formatted(newDeviceModel)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // NEW MANUFACTURER VALIDATION
+
+    @Test
+    void shouldReturn400BecauseTheFieldNewManufacturerIsBlank() throws Exception {
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "newName" : "name",
+                            "newDeviceModel" : "deviceModel",
+                            "newManufacturer" : "",
+                            "newLocation" : "location",
+                            "newDescription" : "description"
+                        }
+                        """))
                 .andExpect(status().isBadRequest());
     }
 }
