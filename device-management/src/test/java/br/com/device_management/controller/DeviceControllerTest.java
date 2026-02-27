@@ -283,4 +283,24 @@ class DeviceControllerTest {
                         """))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturn400WhenTheFieldManufacturerTheSizeIsIncorrectMax() throws Exception {
+
+        var deviceModel = "a".repeat(31);
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "name",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "%s",
+                                "location": "location"
+                            }
+                        """.formatted(deviceModel)))
+                .andExpect(status().isBadRequest());
+    }
 }
