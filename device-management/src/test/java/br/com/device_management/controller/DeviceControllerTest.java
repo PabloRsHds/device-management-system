@@ -19,8 +19,7 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -641,5 +640,39 @@ class DeviceControllerTest {
                         }
                         """.formatted(newDescription)))
                 .andExpect(status().isBadRequest());
+    }
+
+    // ============================================= DELETE =========================================================
+
+    @Test
+    void shouldReturn200WhenDeleteDeviceIsSuccess() throws Exception{
+
+        var response = new ResponseDeviceDto(
+                "name",
+                Type.TEMPERATURE_SENSOR,
+                "description",
+                "deviceModel",
+                "manufacturer",
+                "location",
+                Type.TEMPERATURE_SENSOR.getUnit(),
+                Type.TEMPERATURE_SENSOR.getMin(),
+                Type.TEMPERATURE_SENSOR.getMax()
+        );
+
+        when(this.deviceService.deleteDevice("deviceModel"))
+                .thenReturn(response);
+
+        this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.name()))
+                .andExpect(jsonPath("$.type").value(response.type().name()))
+                .andExpect(jsonPath("$.description").value(response.description()))
+                .andExpect(jsonPath("$.deviceModel").value(response.deviceModel()))
+                .andExpect(jsonPath("$.manufacturer").value(response.manufacturer()))
+                .andExpect(jsonPath("$.location").value(response.location()))
+                .andExpect(jsonPath("$.unit").value(response.unit().name()))
+                .andExpect(jsonPath("$.minLimit").value(response.type().getMin()))
+                .andExpect(jsonPath("$.maxLimit").value(response.type().getMax()));
     }
 }
