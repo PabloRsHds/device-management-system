@@ -456,4 +456,23 @@ class DeviceControllerTest {
                         """.formatted(newName)))
                 .andExpect(status().isBadRequest());
     }
+
+    //
+
+    @Test
+    void shouldReturn400BecauseTheFieldNewDeviceModelIsBlank() throws Exception {
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "newName" : "name",
+                            "newDeviceModel" : "",
+                            "newManufacturer" : "manufacturer",
+                            "newLocation" : "location",
+                            "newDescription" : "description"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 }
