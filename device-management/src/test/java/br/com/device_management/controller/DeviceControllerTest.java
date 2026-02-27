@@ -75,6 +75,7 @@ class DeviceControllerTest {
 
     }
 
+    // NAME VALIDATION
     @Test
     void shouldReturn400WhenTheFieldNameIsBlank() throws Exception {
 
@@ -131,6 +132,7 @@ class DeviceControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    // TYPE VALIDATION
     @Test
     void shouldReturn400WhenTheFieldTypeIsBlank() throws Exception {
 
@@ -149,6 +151,7 @@ class DeviceControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    // DESCRIPTION VALIDATION
     @Test
     void shouldReturn400WhenTheFieldDescriptionIsBlank() throws Exception {
 
@@ -187,6 +190,7 @@ class DeviceControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    // DEVICE MODEL VALIDATION
     @Test
     void shouldReturn400WhenTheFieldDeviceModelIsBlank() throws Exception {
 
@@ -240,6 +244,25 @@ class DeviceControllerTest {
                                 "location": "location"
                             }
                         """.formatted(deviceModel)))
+                .andExpect(status().isBadRequest());
+    }
+
+    //MANUFACTURER
+    @Test
+    void shouldReturn400WhenTheFieldManufacturerIsBlank() throws Exception {
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "Temperature",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "",
+                                "location": "location"
+                            }
+                        """))
                 .andExpect(status().isBadRequest());
     }
 }
