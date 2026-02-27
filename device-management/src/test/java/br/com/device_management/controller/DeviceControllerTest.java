@@ -3,7 +3,6 @@ package br.com.device_management.controller;
 import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.enums.Type;
-import br.com.device_management.infra.global.GlobalExceptionHandler;
 import br.com.device_management.metrics.excepiton.MetricsForExceptions;
 import br.com.device_management.service.DeviceService;
 import org.junit.jupiter.api.Test;
@@ -13,12 +12,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.w3c.dom.Text;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,7 +33,7 @@ class DeviceControllerTest {
     private MetricsForExceptions metricsForExceptions;
 
     @Test
-    void shouldReturn200WhenRegisterIsSuccess() throws Exception {
+    void shouldReturn201WhenRegisterIsSuccess() throws Exception {
 
         var response = new ResponseDeviceDto(
                 "temperaturer100",
