@@ -297,7 +297,14 @@ class DeviceControllerTest {
                                 "location": "location"
                             }
                         """.formatted(deviceModel)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists());;
     }
 
     //MANUFACTURER
