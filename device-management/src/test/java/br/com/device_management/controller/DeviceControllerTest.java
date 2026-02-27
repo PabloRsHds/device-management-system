@@ -303,4 +303,23 @@ class DeviceControllerTest {
                         """.formatted(deviceModel)))
                 .andExpect(status().isBadRequest());
     }
+
+    // LOCATION VALIDATION
+    @Test
+    void shouldReturn400WhenTheFieldLocationIsBlank() throws Exception {
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "Temperature",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "manufacturer",
+                                "location": ""
+                            }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 }
