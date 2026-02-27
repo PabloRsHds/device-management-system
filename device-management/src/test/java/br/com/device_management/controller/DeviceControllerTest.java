@@ -365,6 +365,41 @@ class DeviceControllerTest {
     @Test
     void shouldReturn200WhenUpdateDevice() throws Exception{
 
-        sout
+        var response = new ResponseDeviceDto(
+                "name",
+                Type.TEMPERATURE_SENSOR,
+                "description",
+                "deviceModel",
+                "manufacturer",
+                "location",
+                Type.TEMPERATURE_SENSOR.getUnit(),
+                Type.TEMPERATURE_SENSOR.getMin(),
+                Type.TEMPERATURE_SENSOR.getMax()
+        );
+
+        when(this.deviceService.updateDevice(eq("deviceModel"), any(UpdateDeviceDto.class)))
+                .thenReturn(response);
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "newName" : "name",
+                            "newDeviceModel" : "deviceModel",
+                            "newManufacturer" : "manufacturer",
+                            "newLocation" : "location",
+                            "newDescription" : "description"
+                        }
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.name()))
+                .andExpect(jsonPath("$.type").value(response.type().name()))
+                .andExpect(jsonPath("$.description").value(response.description()))
+                .andExpect(jsonPath("$.deviceModel").value(response.deviceModel()))
+                .andExpect(jsonPath("$.manufacturer").value(response.manufacturer()))
+                .andExpect(jsonPath("$.location").value(response.location()))
+                .andExpect(jsonPath("$.unit").value(response.unit().name()))
+                .andExpect(jsonPath("$.minLimit").value(response.type().getMin()))
+                .andExpect(jsonPath("$.maxLimit").value(response.type().getMax()));
     }
 }
