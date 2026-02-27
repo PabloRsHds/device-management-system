@@ -624,5 +624,22 @@ class DeviceControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldReturn400WhenTheFieldNewDescriptionTheSizeIsIncorrectMax() throws Exception{
 
+        var newDescription = "a".repeat(201);
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "newName" : "name",
+                            "newDeviceModel" : "deviceModel",
+                            "newManufacturer" : "manufacturer",
+                            "newLocation" : "%s",
+                            "newDescription" : "description"
+                        }
+                        """.formatted(newDescription)))
+                .andExpect(status().isBadRequest());
+    }
 }
