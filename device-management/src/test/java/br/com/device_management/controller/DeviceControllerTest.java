@@ -1,6 +1,7 @@
 package br.com.device_management.controller;
 
 import br.com.device_management.dtos.ResponseDeviceDto;
+import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.enums.Type;
 import br.com.device_management.metrics.excepiton.MetricsForExceptions;
@@ -15,7 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,6 +46,8 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.path").exists());
     }
+
+    // ===================================== REGISTER ================================================================
 
     @Test
     void shouldReturn201WhenRegisterIsSuccess() throws Exception {
@@ -350,5 +355,15 @@ class DeviceControllerTest {
                             }
                         """.formatted(location)))
                 .andExpect(status().isBadRequest());
+    }
+
+    // ================================================================================================================
+
+    // ================================================== UPDATE ======================================================
+
+    @Test
+    void shouldReturn200WhenUpdateDevice() throws Exception{
+
+        System.out.println("");
     }
 }
