@@ -31,7 +31,7 @@ public class DeviceController {
     }
 
     @PatchMapping("/update-device/{deviceModel:.+}")
-    public ResponseEntity<ResponseDeviceDto> updateDevice(@PathVariable String deviceModel,@RequestBody UpdateDeviceDto request) {
+    public ResponseEntity<ResponseDeviceDto> updateDevice(@PathVariable String deviceModel,@Valid @RequestBody UpdateDeviceDto request) {
         var response = this.deviceService.updateDevice(deviceModel,request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
