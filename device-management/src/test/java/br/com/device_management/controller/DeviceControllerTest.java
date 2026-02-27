@@ -566,4 +566,25 @@ class DeviceControllerTest {
                         """.formatted(newManufacturer)))
                 .andExpect(status().isBadRequest());
     }
+
+    // NEW LOCATION VALIDATION
+
+    @Test
+    void shouldReturn400BecauseTheFieldNewLocationIsBlank() throws Exception {
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "newName" : "name",
+                            "newDeviceModel" : "deviceModel",
+                            "newManufacturer" : "manufacturer",
+                            "newLocation" : "",
+                            "newDescription" : "description"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+
 }
