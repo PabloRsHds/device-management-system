@@ -12,6 +12,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -31,6 +32,17 @@ class DeviceControllerTest {
 
     @MockitoBean
     private MetricsForExceptions metricsForExceptions;
+
+    private ResultActions expectDefaultErrorStructure(ResultActions result) throws Exception {
+        return result
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists());
+    }
 
     @Test
     void shouldReturn201WhenRegisterIsSuccess() throws Exception {
@@ -88,14 +100,7 @@ class DeviceControllerTest {
                                 "location": "location"
                             }
                         """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").exists())
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.source").exists())
-                .andExpect(jsonPath("$.service").exists())
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.path").exists());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
