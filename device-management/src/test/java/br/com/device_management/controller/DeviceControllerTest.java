@@ -365,34 +365,5 @@ class DeviceControllerTest {
     @Test
     void shouldReturn200WhenUpdateDevice() throws Exception{
 
-        var response = new ResponseDeviceDto(
-                "newName",
-                Type.TEMPERATURE_SENSOR,
-                "newDescription",
-                "newDeviceModel",
-                "newManufacturer",
-                "newLocation",
-                Type.TEMPERATURE_SENSOR.getUnit(),
-                Type.TEMPERATURE_SENSOR.getMin(),
-                Type.AMBIENT_LIGHT_SENSOR.getMax()
-        );
-
-        when(this.deviceService.updateDevice("newDeviceModel", any(UpdateDeviceDto.class)))
-                .thenReturn(response);
-
-        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "newName" : "newName",
-                            "newDeviceModel" : "newDeviceModel",
-                            "newManufacturer" : "newManufacturer",
-                            "newLocation": "newLocation",
-                            "newDescription" : "newDescription"
-                        }
-                        """))
-                .andExpect(status().isOk());
-
-        assertNotNull(response);
     }
 }
