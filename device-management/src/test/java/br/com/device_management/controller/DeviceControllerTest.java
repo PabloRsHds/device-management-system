@@ -365,5 +365,6 @@ class DeviceControllerTest {
     @Test
     void shouldReturn200WhenUpdateDevice() throws Exception{
 
+        sout
     }
 }
