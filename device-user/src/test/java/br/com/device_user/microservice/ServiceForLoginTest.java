@@ -1,6 +1,7 @@
 package br.com.device_user.microservice;
 
 import br.com.device_user.dtos.login.ResponseUserForLogin;
+import br.com.device_user.infra.exceptions.ServiceUnavailableException;
 import br.com.device_user.metrics.MetricsForExceptions;
 import br.com.device_user.metrics.UserMetrics;
 import br.com.device_user.service.user_service.UserService;
@@ -54,6 +55,20 @@ class ServiceForLoginTest {
                 .andExpect(jsonPath("$.userId").value("123"));
 
         verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
+    }
+
+    @Test
+    void shouldReturn503WhenGetResponseUserWithEmailOrUserId() throws Exception {
+
+        when(this.userService.getResponseUserWithEmailOrUserId(
+                "teste@gmail.com",
+                "123"
+        )).thenThrow(ServiceUnavailableException.class);
+
+        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
+                        .param("email", "teste@gmail.com")
+                        .param("userId", "123"))
+                .andExpect(status().isServiceUnavailable());
     }
 
     @Test
