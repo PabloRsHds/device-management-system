@@ -58,6 +58,14 @@ class ServiceForLoginTest {
     }
 
     @Test
+    void shouldReturnThrowWhenRequestParameter() throws Exception{
+
+        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
+                        .param("email", "teste@gmail.com"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void shouldReturn503WhenGetResponseUserWithEmailOrUserId() throws Exception {
 
         when(this.userService.getResponseUserWithEmailOrUserId(
