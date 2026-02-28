@@ -68,7 +68,12 @@ class ServiceForLoginTest {
         mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
                         .param("email", "teste@gmail.com")
                         .param("userId", "123"))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.service").exists());
+
+        verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
     }
 
     @Test
@@ -80,7 +85,8 @@ class ServiceForLoginTest {
 
         mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
                 .param("email", "teste@gmail.com")
-                .param("userId", "123"));
+                .param("userId", "123"))
+                .andExpect(status().isOk());
 
         verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
     }
