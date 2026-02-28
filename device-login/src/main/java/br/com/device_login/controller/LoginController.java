@@ -24,13 +24,13 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    private ResponseEntity<ResponseTokens> login(@Valid @RequestBody RequestLoginDto request) {
+    public ResponseEntity<ResponseTokens> login(@Valid @RequestBody RequestLoginDto request) {
        var tokens = this.loginService.login(request);
        return ResponseEntity.ok().body(tokens);
     }
 
     @PostMapping("/refresh-tokens")
-    private ResponseEntity<ResponseTokens> refreshTokens(@RequestBody RequestTokensDto request) {
+    public ResponseEntity<ResponseTokens> refreshTokens(@RequestBody RequestTokensDto request) {
         var tokens = this.loginService.refreshTokens(request);
         return ResponseEntity.ok().body(tokens);
     }
