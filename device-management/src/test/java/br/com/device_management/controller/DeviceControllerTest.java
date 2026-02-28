@@ -422,7 +422,25 @@ class DeviceControllerTest {
                 .andExpect(status().isServiceUnavailable());
     }
 
+    @Test
+    void shouldReturn400WhenUpdateDeviceIsFailed() throws Exception {
 
+        when(this.deviceService.updateDevice(eq("deviceModel"), any(UpdateDeviceDto.class)))
+                .thenThrow(DeviceIsEmpty.class);
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "newName" : "name",
+                            "newDeviceModel" : "deviceModel",
+                            "newManufacturer" : "manufacturer",
+                            "newLocation" : "location",
+                            "newDescription" : "description"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 
     // NEW NAME VALIDATION
     @Test
