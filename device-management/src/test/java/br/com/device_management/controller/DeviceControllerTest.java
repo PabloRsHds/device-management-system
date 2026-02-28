@@ -846,4 +846,15 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.location").value(response.location()))
                 .andExpect(jsonPath("$.description").value(response.description()));
     }
+
+    @Test
+    void shouldReturn503WhenGetDeviceWithDeviceModelIsFailed() throws Exception{
+
+        when(this.deviceService.getDeviceWithDeviceModel("deviceModel"))
+                .thenThrow(ServiceUnavailable.class);
+
+        this.mockMvc.perform(get("/api/find-by-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isServiceUnavailable());
+    }
 }
