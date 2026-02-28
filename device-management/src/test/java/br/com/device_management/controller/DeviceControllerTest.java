@@ -4,6 +4,7 @@ import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.enums.Type;
+import br.com.device_management.infra.exceptions.ServiceUnavailable;
 import br.com.device_management.metrics.excepiton.MetricsForExceptions;
 import br.com.device_management.service.DeviceService;
 import org.junit.jupiter.api.Test;
@@ -674,5 +675,16 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.unit").value(response.unit().name()))
                 .andExpect(jsonPath("$.minLimit").value(response.type().getMin()))
                 .andExpect(jsonPath("$.maxLimit").value(response.type().getMax()));
+    }
+
+    @Test
+    void shouldReturn401WhenDeleteDeviceIsFailed() throws Exception{
+
+        when(this.deviceService.deleteDevice("deviceModel"))
+                .thenThrow(ServiceUnavailable.class);
+
+        this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isServiceUnavailable());
     }
 }
