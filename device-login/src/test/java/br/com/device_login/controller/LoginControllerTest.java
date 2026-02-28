@@ -84,6 +84,22 @@ class LoginControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldReturn400WhenFieldEmailTheSizeIsIncorrectMax() throws Exception{
+
+        var max = "a".repeat(61);
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "%s",
+                  "password": "99218841Pp@"
+                }
+            """.formatted(max)))
+                .andExpect(status().isBadRequest());
+    }
+
 
 
     @Test
