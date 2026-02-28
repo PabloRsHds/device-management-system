@@ -19,6 +19,6 @@ class GlobalExceptionHandlerTest {
     @Test
     void shouldReturn400MethodArgumentNotValidException() {
 
-        this.mockMvc.perform()
+
     }
 }
