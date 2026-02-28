@@ -5,6 +5,7 @@ import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.enums.Type;
 import br.com.device_management.infra.exceptions.DeviceIsEmpty;
+import br.com.device_management.infra.exceptions.DeviceIsPresent;
 import br.com.device_management.infra.exceptions.ServiceUnavailable;
 import br.com.device_management.metrics.excepiton.MetricsForExceptions;
 import br.com.device_management.service.DeviceService;
@@ -87,6 +88,27 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.deviceModel").value(response.deviceModel()))
                 .andExpect(jsonPath("$.manufacturer").value(response.manufacturer()))
                 .andExpect(jsonPath("$.location").value(response.location()));
+    }
+
+    @Test
+    void shouldReturn503WhenRegisterIsFailed() throws Exception {
+
+        when(this.deviceService.registerDevice(any(DeviceDto.class)))
+                .thenThrow(ServiceUnavailable.class);
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "temperaturer100",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "manufacturer",
+                                "location": "location"
+                            }
+                        """))
+                .andExpect(status().isServiceUnavailable());
     }
 
     // NAME VALIDATION

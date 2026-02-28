@@ -75,15 +75,15 @@ public class GlobalExceptionHandler {
                                                                                HttpServletRequest request) {
 
         this.metrics.recordErrors(new RequestExceptionDto(
-                HttpStatus.BAD_REQUEST.toString(),
+                HttpStatus.CONFLICT.toString(),
                 "Device not found",
                 ex.getMessage(),
                 request.getRequestURI())
         );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseExceptionDto(
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseExceptionDto(
                 Instant.now().toString(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.CONFLICT.value(),
                 "Device not found",
                 "DEVICE-MANAGEMENT",
                 this.serviceName,
@@ -97,7 +97,7 @@ public class GlobalExceptionHandler {
                                                                                HttpServletRequest request) {
 
         this.metrics.recordErrors(new RequestExceptionDto(
-                HttpStatus.BAD_REQUEST.toString(),
+                HttpStatus.CONFLICT.toString(),
                 "Device already cadastred",
                 ex.getMessage(),
                 request.getRequestURI())
