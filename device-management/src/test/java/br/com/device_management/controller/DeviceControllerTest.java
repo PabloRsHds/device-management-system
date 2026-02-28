@@ -491,7 +491,7 @@ class DeviceControllerTest {
 
     // NEW NAME VALIDATION
     @Test
-    void shouldReturn400BecauseTheFieldNewNameIsBlank() throws Exception{
+    void shouldReturn400WhenTheFieldNewNameIsBlank() throws Exception{
 
         this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -546,7 +546,7 @@ class DeviceControllerTest {
     // NEW DEVICE MODEL VALIDATION
 
     @Test
-    void shouldReturn400BecauseTheFieldNewDeviceModelIsBlank() throws Exception {
+    void shouldReturn400WhenTheFieldNewDeviceModelIsBlank() throws Exception {
 
         this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -601,7 +601,7 @@ class DeviceControllerTest {
     // NEW MANUFACTURER VALIDATION
 
     @Test
-    void shouldReturn400BecauseTheFieldNewManufacturerIsBlank() throws Exception {
+    void shouldReturn400WhenTheFieldNewManufacturerIsBlank() throws Exception {
 
         this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -655,7 +655,7 @@ class DeviceControllerTest {
 
     // NEW LOCATION VALIDATION
     @Test
-    void shouldReturn400BecauseTheFieldNewLocationIsBlank() throws Exception {
+    void shouldReturn400WhenTheFieldNewLocationIsBlank() throws Exception {
 
         this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -693,7 +693,7 @@ class DeviceControllerTest {
     // NEW DESCRIPTION VALIDATION
 
     @Test
-    void shouldReturn400BecauseTheFieldNewDescriptionIsBlank() throws Exception {
+    void shouldReturn400WhenTheFieldNewDescriptionIsBlank() throws Exception {
 
         this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -760,6 +760,17 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.unit").value(response.unit().name()))
                 .andExpect(jsonPath("$.minLimit").value(response.type().getMin()))
                 .andExpect(jsonPath("$.maxLimit").value(response.type().getMax()));
+    }
+
+    @Test
+    void shouldReturn409WhenDeleteDeviceIsFailed() throws Exception{
+
+        when(this.deviceService.deleteDevice("deviceModel"))
+                .thenThrow(DeviceIsEmpty.class);
+
+        this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
     @Test
