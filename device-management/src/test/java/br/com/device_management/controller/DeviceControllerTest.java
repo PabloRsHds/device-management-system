@@ -857,4 +857,15 @@ class DeviceControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isServiceUnavailable());
     }
+
+    @Test
+    void shouldReturn409WhenGetDeviceWithDeviceModelIsFailed() throws Exception{
+
+        when(this.deviceService.getDeviceWithDeviceModel("deviceModel"))
+                .thenThrow(DeviceIsEmpty.class);
+
+        this.mockMvc.perform(get("/api/find-by-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
 }
