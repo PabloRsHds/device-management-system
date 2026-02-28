@@ -52,7 +52,9 @@ class ServiceForLoginTest {
                         .param("email", "teste@gmail.com")
                         .param("userId", "123"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value("123"));
+                .andExpect(jsonPath("$.userId").value("123"))
+                .andExpect(jsonPath("$.password").value("123456789Rr@"))
+                .andExpect(jsonPath("$.role").value("USER"));
 
         verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
     }
