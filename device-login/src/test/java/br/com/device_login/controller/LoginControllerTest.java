@@ -57,10 +57,26 @@ class LoginControllerTest {
     }
 
     @Test
+    void shouldReturn400WhenFieldEmailIsBlank() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "",
+                  "password": "99218841Pp@"
+                }
+            """))
+                .andExpect(status().isBadRequest());
+    }
+
+
+
+    @Test
     void shouldReturn401WhenUserLogInIsFailed() throws Exception{
 
         when(this.loginService.login(any()))
-                .thenThrow(new InvalidCredentialsException("Email or password is incorrect"));
+                .thenThrow(InvalidCredentialsException.class);
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -78,7 +94,7 @@ class LoginControllerTest {
     void shouldReturn503WhenMicroserviceUserIsDown() throws Exception{
 
         when(this.loginService.login(any()))
-                .thenThrow(new ServiceUnavailableException("Microservice user is DOWN"));
+                .thenThrow(ServiceUnavailableException.class);
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -117,7 +133,7 @@ class LoginControllerTest {
     void shouldReturn401WhenFailedGeneratedNewTokens() throws Exception{
 
         when(this.loginService.refreshTokens(any(RequestTokensDto.class)))
-                .thenThrow(new InvalidCredentialsException("Failed generated new tokens"));
+                .thenThrow(InvalidCredentialsException.class);
 
         mockMvc.perform(post("/api/refresh-tokens")
                         .contentType(MediaType.APPLICATION_JSON)
