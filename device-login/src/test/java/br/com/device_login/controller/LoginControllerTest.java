@@ -144,7 +144,19 @@ class LoginControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldReturn400WhenFieldPasswordThePatternIsIncorrect() throws Exception{
 
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "pablo@gmail.com",
+                  "password": "123456789"
+                }
+            """))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     void shouldReturn401WhenUserLogInIsFailed() throws Exception{
