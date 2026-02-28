@@ -2,6 +2,7 @@ package br.com.device_management.controller;
 
 import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.UpdateDeviceDto;
+import br.com.device_management.dtos.getDeviceWithDeviceModel;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.enums.Type;
 import br.com.device_management.infra.exceptions.DeviceIsEmpty;
@@ -816,5 +817,33 @@ class DeviceControllerTest {
                         .param("page","0")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    // ================================================================================================================
+
+    // ============================================ GET DEVICE WITH MODEL =============================================
+
+    @Test
+    void shouldReturn200WhenGetDeviceWithDeviceModelIsSuccess() throws Exception{
+
+        var response = new getDeviceWithDeviceModel(
+                "name",
+                "deviceModel",
+                "manufacturer",
+                "location",
+                "description"
+        );
+
+        when(this.deviceService.getDeviceWithDeviceModel("deviceModel"))
+                .thenReturn(response);
+
+        this.mockMvc.perform(get("/api/find-by-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.name()))
+                .andExpect(jsonPath("$.deviceModel").value(response.deviceModel()))
+                .andExpect(jsonPath("$.manufacturer").value(response.manufacturer()))
+                .andExpect(jsonPath("$.location").value(response.location()))
+                .andExpect(jsonPath("$.description").value(response.description()));
     }
 }
