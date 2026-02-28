@@ -4,6 +4,7 @@ import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.enums.Type;
+import br.com.device_management.infra.exceptions.DeviceIsEmpty;
 import br.com.device_management.infra.exceptions.ServiceUnavailable;
 import br.com.device_management.metrics.excepiton.MetricsForExceptions;
 import br.com.device_management.service.DeviceService;
@@ -16,7 +17,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -87,7 +87,6 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.deviceModel").value(response.deviceModel()))
                 .andExpect(jsonPath("$.manufacturer").value(response.manufacturer()))
                 .andExpect(jsonPath("$.location").value(response.location()));
-
     }
 
     // NAME VALIDATION
@@ -403,6 +402,28 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.maxLimit").value(response.type().getMax()));
     }
 
+    @Test
+    void shouldReturn503WhenUpdateDeviceIsFailed() throws Exception {
+
+        when(this.deviceService.updateDevice(eq("deviceModel"), any(UpdateDeviceDto.class)))
+                .thenThrow(ServiceUnavailable.class);
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "newName" : "name",
+                            "newDeviceModel" : "deviceModel",
+                            "newManufacturer" : "manufacturer",
+                            "newLocation" : "location",
+                            "newDescription" : "description"
+                        }
+                        """))
+                .andExpect(status().isServiceUnavailable());
+    }
+
+
+
     // NEW NAME VALIDATION
     @Test
     void shouldReturn400BecauseTheFieldNewNameIsBlank() throws Exception{
@@ -678,7 +699,7 @@ class DeviceControllerTest {
     }
 
     @Test
-    void shouldReturn401WhenDeleteDeviceIsFailed() throws Exception{
+    void shouldReturn503WhenDeleteDeviceIsFailed() throws Exception{
 
         when(this.deviceService.deleteDevice("deviceModel"))
                 .thenThrow(ServiceUnavailable.class);
