@@ -808,4 +808,13 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$[0].minLimit").value(response.type().getMin()))
                 .andExpect(jsonPath("$[0].maxLimit").value(response.type().getMax()));
     }
+
+    @Test
+    void shouldReturn400WhenAllDevicesIsFailed() throws Exception{
+
+        this.mockMvc.perform(get("/api/all-devices")
+                        .param("page","0")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }
