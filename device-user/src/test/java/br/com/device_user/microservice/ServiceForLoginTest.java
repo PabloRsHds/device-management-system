@@ -58,10 +58,18 @@ class ServiceForLoginTest {
     }
 
     @Test
-    void shouldReturnThrowWhenRequestParameter() throws Exception{
+    void shouldReturnThrowWhenRequestParameterUserId() throws Exception{
 
         mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
                         .param("email", "teste@gmail.com"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnThrowWhenRequestParameterEmail() throws Exception{
+
+        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
+                        .param("userId", "123"))
                 .andExpect(status().isBadRequest());
     }
 
