@@ -2,11 +2,9 @@ package br.com.device_login.infra.global_exceptions;
 
 import br.com.device_login.controller.LoginController;
 import br.com.device_login.dtos.loginDto.RequestLoginDto;
-import br.com.device_login.dtos.tokenDto.ResponseTokens;
 import br.com.device_login.infra.exceptions.InvalidCredentialsException;
 import br.com.device_login.infra.exceptions.ServiceUnavailableException;
 import br.com.device_login.metrics.exception.MetricsForExceptions;
-import br.com.device_login.service.LoginService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,8 +12,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -83,6 +79,29 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.target").value("USER-DEVICE"))
                 .andExpect(jsonPath("$.service").value("device-login"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
+    }
+
+    @Test
+    void shouldReturn400MethodArgumentNotValidException() throws Exception {
+
+        this.mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "email":"teste@gmail.com",
+                            "password":"99218841Pp"
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
+                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
+                .andExpect(jsonPath("$.service").value("device-login"))
+                .andExpect(jsonPath("$.message")
+                        .value("Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol (no spaces)"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
     }
 }
