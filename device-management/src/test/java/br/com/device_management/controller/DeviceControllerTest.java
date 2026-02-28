@@ -18,6 +18,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -767,5 +770,42 @@ class DeviceControllerTest {
         this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isServiceUnavailable());
+    }
+
+    // =====================================  ALL DEVICES ============================================================
+
+    @Test
+    void shouldReturn200WhenAllDevicesIsSuccess() throws Exception{
+
+        var response = new ResponseDeviceDto(
+                "name",
+                Type.TEMPERATURE_SENSOR,
+                "description",
+                "deviceModel",
+                "manufacturer",
+                "location",
+                Type.TEMPERATURE_SENSOR.getUnit(),
+                Type.TEMPERATURE_SENSOR.getMin(),
+                Type.TEMPERATURE_SENSOR.getMax()
+        );
+
+        when(this.deviceService.getAllDevices(0, 1))
+                .thenReturn(List.of(response));
+
+        this.mockMvc.perform(get("/api/all-devices")
+                        .param("page","0")
+                        .param("size","1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name").value(response.name()))
+                .andExpect(jsonPath("$[0].type").value(response.type().name()))
+                .andExpect(jsonPath("$[0].description").value(response.description()))
+                .andExpect(jsonPath("$[0].deviceModel").value(response.deviceModel()))
+                .andExpect(jsonPath("$[0].manufacturer").value(response.manufacturer()))
+                .andExpect(jsonPath("$[0].location").value(response.location()))
+                .andExpect(jsonPath("$[0].unit").value(response.unit().name()))
+                .andExpect(jsonPath("$[0].minLimit").value(response.type().getMin()))
+                .andExpect(jsonPath("$[0].maxLimit").value(response.type().getMax()));
     }
 }
