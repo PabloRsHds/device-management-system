@@ -111,6 +111,27 @@ class DeviceControllerTest {
                 .andExpect(status().isServiceUnavailable());
     }
 
+    @Test
+    void shouldReturn409WhenRegisterIsFailed() throws Exception {
+
+        when(this.deviceService.registerDevice(any(DeviceDto.class)))
+                .thenThrow(DeviceIsPresent.class);
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "name": "temperaturer100",
+                                "type": "TEMPERATURE_SENSOR",
+                                "description": "description",
+                                "deviceModel": "deviceModel",
+                                "manufacturer": "manufacturer",
+                                "location": "location"
+                            }
+                        """))
+                .andExpect(status().isConflict());
+    }
+
     // NAME VALIDATION
     @Test
     void shouldReturn400WhenTheFieldNameIsBlank() throws Exception {
