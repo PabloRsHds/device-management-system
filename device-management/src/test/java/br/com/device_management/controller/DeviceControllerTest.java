@@ -466,7 +466,7 @@ class DeviceControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenUpdateDeviceIsFailed() throws Exception {
+    void shouldReturn409WhenUpdateDeviceIsFailed() throws Exception {
 
         when(this.deviceService.updateDevice(eq("deviceModel"), any(UpdateDeviceDto.class)))
                 .thenThrow(DeviceIsEmpty.class);
@@ -482,7 +482,7 @@ class DeviceControllerTest {
                             "newDescription" : "description"
                         }
                         """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
     // NEW NAME VALIDATION
@@ -650,7 +650,6 @@ class DeviceControllerTest {
     }
 
     // NEW LOCATION VALIDATION
-
     @Test
     void shouldReturn400BecauseTheFieldNewLocationIsBlank() throws Exception {
 
