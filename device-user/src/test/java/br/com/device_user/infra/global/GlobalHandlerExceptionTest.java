@@ -29,7 +29,7 @@ class GlobalHandlerExceptionTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private UserService userService;
+    private ServiceForLogin serviceForLogin;
 
     @MockitoBean
     private MetricsForExceptions metricsForExceptions;
@@ -37,7 +37,7 @@ class GlobalHandlerExceptionTest {
     @Test
     void shouldReturn503AndFormattedErrorBody() throws Exception {
 
-        when(this.userService.getResponseUserWithEmailOrUserId(any(), any()))
+        when(this.serviceForLogin.getUserForLoginWithEmailOrUserId(any(), any()))
                 .thenThrow(new ServiceUnavailableException("Database down"));
 
         this.mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
@@ -52,6 +52,6 @@ class GlobalHandlerExceptionTest {
                         .value("/microservice/verify-if-email-already-cadastred"));
 
         verify(metricsForExceptions).recordErrors(any(ExceptionMetricDto.class));
-        verify(this.userService).getResponseUserWithEmailOrUserId(any(), any());
+        verify(this.serviceForLogin).getUserForLoginWithEmailOrUserId(any(), any());
     }
 }
