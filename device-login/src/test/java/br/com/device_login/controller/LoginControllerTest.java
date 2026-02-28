@@ -114,6 +114,20 @@ class LoginControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldReturn400WhenFieldPasswordTheSizeIsIncorrectMin() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "pablo@gmail.com",
+                  "password": "A"
+                }
+            """))
+                .andExpect(status().isBadRequest());
+    }
+
 
 
     @Test
