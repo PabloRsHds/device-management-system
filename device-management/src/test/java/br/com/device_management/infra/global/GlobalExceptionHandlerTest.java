@@ -54,8 +54,34 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
                 .andExpect(jsonPath("$.service").value("device-management"))
                 .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.path").value("/api/register-device"));;
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
     }
 
+    @Test
+    void shouldReturn503MethodServiceUnavailable() throws Exception{
 
+        when(this.deviceController.registerDevice(any(DeviceDto.class)))
+                .thenThrow(new ServiceUnavailable("Service unavailable, try again later"));
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name": "name",
+                            "type": "TEMPERATURE_SENSOR",
+                            "description": "description",
+                            "deviceModel": "deviceModel",
+                            "manufacturer": "manufacturer",
+                            "location": "location"
+                        }
+                        """))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
 }
