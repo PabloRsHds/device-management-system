@@ -81,15 +81,20 @@ class ServiceForLoginTest {
         when(this.userService.getResponseUserWithEmailOrUserId(
                 "teste@gmail.com",
                 "123"
-        )).thenThrow(ServiceUnavailableException.class);
+        )).thenThrow(new ServiceUnavailableException("Service unavailable, try later again"));
 
         mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
                         .param("email", "teste@gmail.com")
                         .param("userId", "123"))
                 .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.status").exists())
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.service").exists());
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-USER"))
+                .andExpect(jsonPath("$.target").value("DATABASE"))
+                .andExpect(jsonPath("$.service").value("device-user"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
+                .andExpect(jsonPath("$.path").value("/microservice/verify-if-email-already-cadastred"));
 
         verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
     }

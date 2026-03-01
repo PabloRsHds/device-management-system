@@ -15,7 +15,7 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalHandlerException {
 
-    private final String serviceName = "device_user";
+    private final String serviceName = "device-user";
     private final MetricsForExceptions metricsForExceptions;
 
     public GlobalHandlerException(MetricsForExceptions metricsForExceptions) {
@@ -36,7 +36,7 @@ public class GlobalHandlerException {
             new ResponseExceptionDto(
                     Instant.now().toString(),
                     HttpStatus.SERVICE_UNAVAILABLE.value(),
-                    "service unavailable",
+                    "Service unavailable",
                     "DEVICE-USER",
                     "DATABASE",
                     this.serviceName,
