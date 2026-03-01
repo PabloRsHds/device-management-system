@@ -45,8 +45,8 @@ class GlobalHandlerExceptionTest {
                         .param("userId", "123"))
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.status").value(503))
-                .andExpect(jsonPath("$.error").value("service unavailable"))
-                .andExpect(jsonPath("$.service").value("device_user"))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.service").value("device-user"))
                 .andExpect(jsonPath("$.message").value("Database down"))
                 .andExpect(jsonPath("$.path")
                         .value("/microservice/verify-if-email-already-cadastred"));
