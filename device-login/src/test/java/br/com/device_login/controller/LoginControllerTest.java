@@ -109,12 +109,13 @@ class LoginControllerTest {
             """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").value(503))
-                .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
-                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
-                .andExpect(jsonPath("$.path").value("/api/register-device"));
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
+                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
+                .andExpect(jsonPath("$.service").value("device-login"))
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     @Test
