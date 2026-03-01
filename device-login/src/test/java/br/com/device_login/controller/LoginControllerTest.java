@@ -41,9 +41,14 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.error").exists())
                 .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.target").exists())
                 .andExpect(jsonPath("$.service").exists())
                 .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.path").exists());
+                .andExpect(jsonPath("$.path").exists())
+
+                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
+                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
+                .andExpect(jsonPath("$.service").value("device-login"));
     }
 
     // =============================================== TEST LOGIN =====================================================
@@ -89,7 +94,7 @@ class LoginControllerTest {
     void shouldReturn503WhenMicroserviceUserIsDown() throws Exception{
 
         when(this.loginService.login(any()))
-                .thenThrow(ServiceUnavailableException.class);
+                .thenThrow(new ServiceUnavailableException("Service unavailable, try later again"));
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -99,7 +104,11 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
+                .andExpect(jsonPath("$.path").value("/api/login"));;
     }
     // ===============================================================================================================
 
@@ -117,7 +126,10 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     @Test
@@ -131,7 +143,10 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     @Test
@@ -147,7 +162,10 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """.formatted(max)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     @Test
@@ -161,7 +179,10 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     // PASSWORD
@@ -176,7 +197,10 @@ class LoginControllerTest {
                   "password": "A"
                 }
             """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     @Test
@@ -192,7 +216,10 @@ class LoginControllerTest {
                   "password": "%s"
                 }
             """.formatted(password)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     @Test
@@ -206,7 +233,10 @@ class LoginControllerTest {
                   "password": "123456789"
                 }
             """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation incorrect"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     // ===================================== REFRESH TOKENS TEST ======================================================
