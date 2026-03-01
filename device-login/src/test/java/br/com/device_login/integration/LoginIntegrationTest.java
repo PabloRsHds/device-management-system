@@ -94,7 +94,10 @@ class LoginIntegrationTest {
                   "password": "99218841Pp@"
                 }
                 """))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
 
         verify(this.userClient).getResponseUserWithEmailOrUserId("teste@gmail.com", null);
     }
@@ -115,7 +118,10 @@ class LoginIntegrationTest {
                   "password": "99218841Pp@"
                 }
                 """))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
 
         verify(this.userClient).getResponseUserWithEmailOrUserId("teste@gmail.com", null);
     }
@@ -134,7 +140,10 @@ class LoginIntegrationTest {
                   "password": "99218841Pp@"
                 }
                 """))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
 
         verify(this.userClient).getResponseUserWithEmailOrUserId(any(), any());
     }
@@ -183,7 +192,10 @@ class LoginIntegrationTest {
                 "refreshToken" : "%s"
             }
             """.formatted(accessToken, refreshToken)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
+                .andExpect(jsonPath("$.path").value("/api/refresh-tokens"));
     }
 
     private String generateExpiredRefreshToken(String subject, String role) {
@@ -212,6 +224,9 @@ class LoginIntegrationTest {
                 "refreshToken" : "%s"
             }
             """.formatted(accessToken, refreshToken)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
+                .andExpect(jsonPath("$.path").value("/api/refresh-tokens"));
     }
 }
