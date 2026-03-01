@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -71,6 +72,8 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("access-token"))
                 .andExpect(jsonPath("$.refreshToken").value("refresh-token"));
+
+        verify(this.loginService).login(any(RequestLoginDto.class));
     }
 
     @Test
@@ -92,6 +95,8 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
                 .andExpect(jsonPath("$.message").value("User unauthorized"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
+
+        verify(this.loginService).login(any());
     }
 
     @Test
@@ -113,6 +118,8 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
+
+        verify(this.loginService).login(any());
     }
     // ===============================================================================================================
 
@@ -263,6 +270,8 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("access-token"))
                 .andExpect(jsonPath("$.refreshToken").value("refresh-token"));
+
+        verify(this.loginService).refreshTokens(any(RequestTokensDto.class));
     }
 
     @Test
@@ -284,5 +293,7 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
                 .andExpect(jsonPath("$.message").value("Invalid or expired refresh token"))
                 .andExpect(jsonPath("$.path").value("/api/refresh-tokens"));
+
+        verify(this.loginService).refreshTokens(any(RequestTokensDto.class));
     }
 }
