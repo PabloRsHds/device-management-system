@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.Instant;
 
@@ -41,6 +42,22 @@ class LoginIntegrationTest {
 
     @Autowired
     private JwtEncoder jwtEncoder;
+
+    private ResultActions expectDefaultErrorStructure(ResultActions result) throws Exception {
+        return result
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.target").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists())
+
+                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
+                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
+                .andExpect(jsonPath("$.service").value("device-login"));
+    }
 
     @Test
     void shouldLoginSuccessfully() throws Exception {
