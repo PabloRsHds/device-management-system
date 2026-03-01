@@ -7,7 +7,6 @@ import br.com.device_management.infra.exceptions.DeviceIsEmpty;
 import br.com.device_management.infra.exceptions.DeviceIsPresent;
 import br.com.device_management.infra.exceptions.ServiceUnavailable;
 import br.com.device_management.metrics.excepiton.MetricsForExceptions;
-import br.com.device_management.service.DeviceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -88,6 +87,33 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.service").value("device-management"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
                 .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    @Test
+    void shouldReturn409DeviceIsEmpty() throws Exception{
+
+        when(this.deviceController.updateDevice(eq("deviceModel"),any(UpdateDeviceDto.class)))
+                .thenThrow(new DeviceIsEmpty("This device model is not registered in the database"));
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "newName": "name",
+                            "newDeviceModel": "deviceModel",
+                            "newManufacturer": "manufacturer",
+                            "newLocation": "location",
+                            "newDescription": "description"
+                        }
+                        """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Device not found"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("This device model is not registered in the database"))
+                .andExpect(jsonPath("$.path").value("/api/update-device/deviceModel"));
     }
 
     @Test
