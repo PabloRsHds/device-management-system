@@ -1,7 +1,10 @@
 package br.com.device_management.infra.global;
 
 import br.com.device_management.controller.DeviceController;
+import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.dtos.register.DeviceDto;
+import br.com.device_management.infra.exceptions.DeviceIsEmpty;
+import br.com.device_management.infra.exceptions.DeviceIsPresent;
 import br.com.device_management.infra.exceptions.ServiceUnavailable;
 import br.com.device_management.metrics.excepiton.MetricsForExceptions;
 import br.com.device_management.service.DeviceService;
@@ -14,7 +17,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -82,6 +87,34 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
                 .andExpect(jsonPath("$.service").value("device-management"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    @Test
+    void shouldReturn409DeviceIsPresent() throws Exception{
+
+        when(this.deviceController.registerDevice(any(DeviceDto.class)))
+                .thenThrow(new DeviceIsPresent("This device model is already registered in the database"));
+
+        this.mockMvc.perform(post("/api/register-device")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name": "name",
+                            "type": "TEMPERATURE_SENSOR",
+                            "description": "description",
+                            "deviceModel": "deviceModel",
+                            "manufacturer": "manufacturer",
+                            "location": "location"
+                        }
+                        """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Device already cadastred"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("This device model is already registered in the database"))
                 .andExpect(jsonPath("$.path").value("/api/register-device"));
     }
 }
