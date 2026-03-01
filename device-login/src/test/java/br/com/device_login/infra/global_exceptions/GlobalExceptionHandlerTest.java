@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -68,6 +69,8 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
                 .andExpect(jsonPath("$.message").value("Email or Password is incorrect"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
+
+        verify(this.loginController).login(any(RequestLoginDto.class));
     }
 
     @Test
@@ -89,6 +92,8 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
+
+        verify(this.loginController).login(any(RequestLoginDto.class));
     }
 
     @Test
@@ -129,5 +134,7 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
+
+        verify(this.loginController).login(any(RequestLoginDto.class));
     }
 }
