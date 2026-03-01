@@ -77,7 +77,7 @@ class LoginControllerTest {
     void shouldReturn401WhenUserLogInIsFailed() throws Exception{
 
         when(this.loginService.login(any()))
-                .thenThrow(InvalidCredentialsException.class);
+                .thenThrow(new InvalidCredentialsException("User unauthorized"));
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -87,7 +87,11 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
+                .andExpect(jsonPath("$.message").value("User unauthorized"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     @Test
@@ -108,7 +112,7 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.status").value(503))
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
-                .andExpect(jsonPath("$.path").value("/api/login"));;
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
     // ===============================================================================================================
 
