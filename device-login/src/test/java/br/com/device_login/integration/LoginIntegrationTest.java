@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -58,6 +59,8 @@ class LoginIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists())
                 .andExpect(jsonPath("$.refreshToken").exists());
+
+        verify(this.userClient).getResponseUserWithEmailOrUserId("teste@gmail.com", null);
     }
 
     @Test
@@ -75,6 +78,8 @@ class LoginIntegrationTest {
                 }
                 """))
                 .andExpect(status().isUnauthorized());
+
+        verify(this.userClient).getResponseUserWithEmailOrUserId("teste@gmail.com", null);
     }
 
     @Test
@@ -94,6 +99,8 @@ class LoginIntegrationTest {
                 }
                 """))
                 .andExpect(status().isUnauthorized());
+
+        verify(this.userClient).getResponseUserWithEmailOrUserId("teste@gmail.com", null);
     }
 
     @Test
@@ -111,6 +118,8 @@ class LoginIntegrationTest {
                 }
                 """))
                 .andExpect(status().isServiceUnavailable());
+
+        verify(this.userClient).getResponseUserWithEmailOrUserId(any(), any());
     }
 
     // REFRESH TOKEN
@@ -139,6 +148,8 @@ class LoginIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists())
                 .andExpect(jsonPath("$.refreshToken").exists());
+
+        verify(this.userClient).getResponseUserWithEmailOrUserId(null, "123");
     }
 
     @Test
