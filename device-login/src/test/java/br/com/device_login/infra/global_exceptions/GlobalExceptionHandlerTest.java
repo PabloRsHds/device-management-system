@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -32,6 +33,22 @@ class GlobalExceptionHandlerTest {
     @MockitoBean
     private MetricsForExceptions metricsForExceptions;
 
+    private ResultActions expectDefaultErrorStructure(ResultActions result) throws Exception {
+        return result
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.target").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists())
+
+                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
+                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
+                .andExpect(jsonPath("$.service").value("device-login"));
+    }
+
     @Test
     void shouldReturn401InvalidCredentialsException() throws Exception {
 
@@ -47,12 +64,8 @@ class GlobalExceptionHandlerTest {
                         }
                         """))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.timesTamp").exists())
                 .andExpect(jsonPath("$.status").value(401))
                 .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
-                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
-                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
-                .andExpect(jsonPath("$.service").value("device-login"))
                 .andExpect(jsonPath("$.message").value("Email or Password is incorrect"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
     }
@@ -72,12 +85,8 @@ class GlobalExceptionHandlerTest {
                         }
                         """))
                 .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.timesTamp").exists())
                 .andExpect(jsonPath("$.status").value(503))
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
-                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
-                .andExpect(jsonPath("$.service").value("device-login"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
     }
@@ -94,12 +103,8 @@ class GlobalExceptionHandlerTest {
                         }
                         """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Validation incorrect"))
-                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
-                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
-                .andExpect(jsonPath("$.service").value("device-login"))
                 .andExpect(jsonPath("$.message")
                         .value("Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol (no spaces)"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
@@ -120,12 +125,8 @@ class GlobalExceptionHandlerTest {
                         }
                         """))
                 .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.timesTamp").exists())
                 .andExpect(jsonPath("$.status").value(503))
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
-                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
-                .andExpect(jsonPath("$.service").value("device-login"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
     }
