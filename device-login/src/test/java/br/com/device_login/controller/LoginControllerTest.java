@@ -269,7 +269,7 @@ class LoginControllerTest {
     void shouldReturn401WhenFailedGeneratedNewTokens() throws Exception{
 
         when(this.loginService.refreshTokens(any(RequestTokensDto.class)))
-                .thenThrow(InvalidCredentialsException.class);
+                .thenThrow(new InvalidCredentialsException("Invalid or expired refresh token"));
 
         mockMvc.perform(post("/api/refresh-tokens")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -279,6 +279,10 @@ class LoginControllerTest {
                             "refreshToken": "321"
                         }
                         """))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
+                .andExpect(jsonPath("$.message").value("Invalid or expired refresh token"))
+                .andExpect(jsonPath("$.path").value("/api/refresh-tokens"));
     }
 }
