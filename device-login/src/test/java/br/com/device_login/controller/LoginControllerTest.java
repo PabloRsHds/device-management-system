@@ -1,6 +1,5 @@
 package br.com.device_login.controller;
 
-
 import br.com.device_login.dtos.loginDto.RequestLoginDto;
 import br.com.device_login.dtos.tokenDto.RequestTokensDto;
 import br.com.device_login.dtos.tokenDto.ResponseTokens;
@@ -35,6 +34,7 @@ class LoginControllerTest {
     @MockitoBean
     private MetricsForExceptions metricsForExceptions;
 
+    // =============================================== TEST LOGIN =====================================================
     @Test
     void shouldReturn200WhenUserLogInWithSuccess() throws Exception {
 
@@ -54,108 +54,6 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("access-token"))
                 .andExpect(jsonPath("$.refreshToken").value("refresh-token"));
-    }
-
-    @Test
-    void shouldReturn400WhenFieldEmailIsBlank() throws Exception{
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                {
-                  "email": "",
-                  "password": "99218841Pp@"
-                }
-            """))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenFieldEmailTheSizeIsIncorrectMin() throws Exception{
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                {
-                  "email": "A",
-                  "password": "99218841Pp@"
-                }
-            """))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenFieldEmailTheSizeIsIncorrectMax() throws Exception{
-
-        var max = "a".repeat(61);
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                {
-                  "email": "%s",
-                  "password": "99218841Pp@"
-                }
-            """.formatted(max)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenFieldEmailThePatternIsIncorrect() throws Exception{
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                {
-                  "email": "pablo@gmailcom",
-                  "password": "99218841Pp@"
-                }
-            """))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenFieldPasswordTheSizeIsIncorrectMin() throws Exception{
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                {
-                  "email": "pablo@gmail.com",
-                  "password": "A"
-                }
-            """))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenFieldPasswordTheSizeIsIncorrectMax() throws Exception{
-
-        var password = "a".repeat(31);
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                {
-                  "email": "pablo@gmail.com",
-                  "password": "%s"
-                }
-            """.formatted(password)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturn400WhenFieldPasswordThePatternIsIncorrect() throws Exception{
-
-        mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                {
-                  "email": "pablo@gmail.com",
-                  "password": "123456789"
-                }
-            """))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -193,7 +91,164 @@ class LoginControllerTest {
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.status").value(503));
     }
+    // ===============================================================================================================
 
+    // ======================================== VALIDATIONS TEST =====================================================
+
+    // EMAIL VALIDATION
+    @Test
+    void shouldReturn400WhenFieldEmailIsBlank() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "",
+                  "password": "99218841Pp@"
+                }
+            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    @Test
+    void shouldReturn400WhenFieldEmailTheSizeIsIncorrectMin() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "A",
+                  "password": "99218841Pp@"
+                }
+            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    @Test
+    void shouldReturn400WhenFieldEmailTheSizeIsIncorrectMax() throws Exception{
+
+        var max = "a".repeat(61);
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "%s",
+                  "password": "99218841Pp@"
+                }
+            """.formatted(max)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    @Test
+    void shouldReturn400WhenFieldEmailThePatternIsIncorrect() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "pablo@gmailcom",
+                  "password": "99218841Pp@"
+                }
+            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    // PASSWORD
+    @Test
+    void shouldReturn400WhenFieldPasswordTheSizeIsIncorrectMin() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "pablo@gmail.com",
+                  "password": "A"
+                }
+            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    @Test
+    void shouldReturn400WhenFieldPasswordTheSizeIsIncorrectMax() throws Exception{
+
+        var password = "a".repeat(31);
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "pablo@gmail.com",
+                  "password": "%s"
+                }
+            """.formatted(password)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    @Test
+    void shouldReturn400WhenFieldPasswordThePatternIsIncorrect() throws Exception{
+
+        mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                  "email": "pablo@gmail.com",
+                  "password": "123456789"
+                }
+            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
+    }
+
+    // ===================================== REFRESH TOKENS TEST ======================================================
     @Test
     void shouldReturn200WhenGeneratedNewTokens() throws Exception{
 
