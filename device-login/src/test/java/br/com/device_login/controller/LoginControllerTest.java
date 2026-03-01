@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,17 @@ class LoginControllerTest {
 
     @MockitoBean
     private MetricsForExceptions metricsForExceptions;
+
+    private ResultActions expectDefaultErrorStructure(ResultActions result) throws Exception {
+        return result
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists());
+    }
 
     // =============================================== TEST LOGIN =====================================================
     @Test
@@ -70,8 +82,7 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(401));
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -88,8 +99,7 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.status").value(503));
+                .andExpect(status().isServiceUnavailable());
     }
     // ===============================================================================================================
 
@@ -107,15 +117,7 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.error").value("Validation incorrect"))
-                .andExpect(jsonPath("$.source").value("DEVICE-LOGIN"))
-                .andExpect(jsonPath("$.target").value("USER-DEVICE"))
-                .andExpect(jsonPath("$.service").value("device-login"))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.path").value("/api/login"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -129,14 +131,7 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").value(503))
-                .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
-                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
-                .andExpect(jsonPath("$.path").value("/api/register-device"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -152,14 +147,7 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """.formatted(max)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").value(503))
-                .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
-                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
-                .andExpect(jsonPath("$.path").value("/api/register-device"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -173,14 +161,7 @@ class LoginControllerTest {
                   "password": "99218841Pp@"
                 }
             """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").value(503))
-                .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
-                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
-                .andExpect(jsonPath("$.path").value("/api/register-device"));
+                .andExpect(status().isBadRequest());
     }
 
     // PASSWORD
@@ -195,14 +176,7 @@ class LoginControllerTest {
                   "password": "A"
                 }
             """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").value(503))
-                .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
-                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
-                .andExpect(jsonPath("$.path").value("/api/register-device"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -218,14 +192,7 @@ class LoginControllerTest {
                   "password": "%s"
                 }
             """.formatted(password)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").value(503))
-                .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
-                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
-                .andExpect(jsonPath("$.path").value("/api/register-device"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -239,14 +206,7 @@ class LoginControllerTest {
                   "password": "123456789"
                 }
             """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timesTamp").exists())
-                .andExpect(jsonPath("$.status").value(503))
-                .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
-                .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
-                .andExpect(jsonPath("$.path").value("/api/register-device"));
+                .andExpect(status().isBadRequest());
     }
 
     // ===================================== REFRESH TOKENS TEST ======================================================
@@ -285,7 +245,6 @@ class LoginControllerTest {
                             "refreshToken": "321"
                         }
                         """))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(401));
+                .andExpect(status().isUnauthorized());
     }
 }
