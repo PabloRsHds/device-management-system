@@ -18,6 +18,7 @@ public class Device {
     @Enumerated(EnumType.STRING)
     private Type type;
     private String description;
+    @Column(unique = true)
     private String deviceModel;
     private String manufacturer;
     private String location;
