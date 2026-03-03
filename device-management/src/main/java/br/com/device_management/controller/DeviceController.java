@@ -1,12 +1,11 @@
 package br.com.device_management.controller;
 
 import br.com.device_management.dtos.ResponseDeviceDto;
-import br.com.device_management.dtos.register.DeviceDto;
-import br.com.device_management.dtos.getDeviceWithDeviceModel;
 import br.com.device_management.dtos.UpdateDeviceDto;
+import br.com.device_management.dtos.getDeviceWithDeviceModel;
+import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.service.DeviceService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ public class DeviceController {
 
     private final DeviceService deviceService;
 
-    @Autowired
     public DeviceController(DeviceService deviceService) {
         this.deviceService = deviceService;
     }

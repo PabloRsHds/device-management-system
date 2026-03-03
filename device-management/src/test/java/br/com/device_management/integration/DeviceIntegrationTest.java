@@ -1,7 +1,7 @@
 package br.com.device_management.integration;
 
 import br.com.device_management.dtos.DeviceManagementEventForSensor;
-import br.com.device_management.dtos.register.DeviceDto;
+import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.enums.Type;
 import br.com.device_management.model.Device;
 import br.com.device_management.repository.DeviceRepository;
@@ -17,10 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,7 +42,7 @@ public class DeviceIntegrationTest {
 
     // =========================================== REGISTER DEVICE ====================================================
     @Test
-    void shouldReturnRegisterDeviceSuccessfully() throws Exception {
+    void shouldReturn200RegisterDeviceSuccessfully() throws Exception {
 
         mockMvc.perform(post("/api/register-device")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -97,4 +94,32 @@ public class DeviceIntegrationTest {
                 .andExpect(status().isConflict());
     }
     // ================================================================================================================
+
+    // ================================================ UPDATE DEVICE =================================================
+
+    @Test
+    void shouldReturn200UpdateDeviceSuccessfully() throws Exception {
+
+        var device = new Device();
+        device.setName("name");
+        device.setType(Type.TEMPERATURE_SENSOR);
+        device.setDescription("description");
+        device.setDeviceModel("deviceModel");
+        device.setManufacturer("manufacturer");
+        device.setLocation("location");
+        this.deviceRepository.save(device);
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                    {
+                        "newName" : "name",
+                        "newDeviceModel" : "deviceModel",
+                        "newManufacturer" : "manufacturer",
+                        "newLocation" : "location",
+                        "newDescription" : "description"
+                    }
+                    """))
+                .andExpect(status().isOk());
+    }
 }
