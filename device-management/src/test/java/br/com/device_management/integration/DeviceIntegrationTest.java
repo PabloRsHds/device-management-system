@@ -17,8 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -138,5 +137,25 @@ public class DeviceIntegrationTest {
                     }
                     """))
                 .andExpect(status().isConflict());
+    }
+
+    // ===============================================================================================================
+
+    // ============================================== DELETE DEVICE ==================================================
+
+    @Test
+    void shouldReturn200DeleteDeviceSuccessfully() throws Exception{
+
+        var device = new Device();
+        device.setName("name");
+        device.setType(Type.TEMPERATURE_SENSOR);
+        device.setDescription("description");
+        device.setDeviceModel("deviceModel");
+        device.setManufacturer("manufacturer");
+        device.setLocation("location");
+        this.deviceRepository.save(device);
+
+        this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
     }
 }
