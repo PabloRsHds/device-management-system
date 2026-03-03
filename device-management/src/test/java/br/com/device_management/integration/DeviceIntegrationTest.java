@@ -122,4 +122,21 @@ public class DeviceIntegrationTest {
                     """))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void shouldReturn400UpdateDeviceFailed() throws Exception {
+
+        this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                    {
+                        "newName" : "name",
+                        "newDeviceModel" : "deviceModel",
+                        "newManufacturer" : "manufacturer",
+                        "newLocation" : "location",
+                        "newDescription" : "description"
+                    }
+                    """))
+                .andExpect(status().isConflict());
+    }
 }
