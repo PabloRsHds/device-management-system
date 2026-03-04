@@ -182,5 +182,21 @@ public class DeviceIntegrationTest {
 
     // ===============================================================================================================
 
-    // =============================================== GET ALL DEVICES ===============================================
+    // =================================== GET DEVICE WITH DEVICE MODEL ==============================================
+
+    @Test
+    void shouldReturn200GetDeviceWithDeviceModelSuccessfully() throws Exception{
+
+        var device = new Device();
+        device.setName("name");
+        device.setType(Type.TEMPERATURE_SENSOR);
+        device.setDescription("description");
+        device.setDeviceModel("deviceModel");
+        device.setManufacturer("manufacturer");
+        device.setLocation("location");
+        this.deviceRepository.save(device);
+
+        this.mockMvc.perform(get("/api/find-by-device/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
+    }
 }
