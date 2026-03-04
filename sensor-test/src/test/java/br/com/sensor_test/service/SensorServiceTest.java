@@ -226,6 +226,8 @@ class SensorServiceTest {
                 .thenReturn(Optional.of(sensor));
 
         this.sensorService.changeStatus("deviceModel");
+        verify(this.sensorRepository).findByDeviceModel("deviceModel");
+        verifyNoInteractions(this.metricsService);
     }
 
     @Test
