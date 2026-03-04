@@ -181,4 +181,10 @@ class SensorServiceTest {
         verify(this.metricsService).startTimer();
         verify(this.sensorRepository).findByDeviceModel("deviceModel");
     }
+
+    @Test
+    void shouldReturnVoidDelete() {
+
+        this.sensorService.delete(new Sensor());
+    }
 }
