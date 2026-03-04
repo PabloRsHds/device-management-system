@@ -123,7 +123,7 @@ public class DeviceIntegrationTest {
     }
 
     @Test
-    void shouldReturn400UpdateDeviceFailed() throws Exception {
+    void shouldReturn409UpdateDeviceFailed() throws Exception {
 
         this.mockMvc.perform(patch("/api/update-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -157,5 +157,13 @@ public class DeviceIntegrationTest {
 
         this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturn409DeleteDeviceSuccessfully() throws Exception{
+
+        this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel"))
+                .andExpect(status().isConflict()
+                );
     }
 }
