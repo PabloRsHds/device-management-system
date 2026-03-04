@@ -272,7 +272,10 @@ class DeviceControllerTest {
                                 "location": "location"
                             }
                         """.formatted(description)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation error"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
     }
 
     // DEVICE MODEL VALIDATION
