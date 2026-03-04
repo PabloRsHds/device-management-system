@@ -228,5 +228,16 @@ class SensorServiceTest {
         this.sensorService.changeStatus("deviceModel");
     }
 
+    @Test
+    void shouldReturnResponseSensorDtoWhenChange() {
 
+        var sensor = mock(Sensor.class);
+
+        when(sensor.getStatus()).thenReturn(Status.ACTIVATED);
+
+        var response = this.sensorService.change(sensor);
+
+        assertNotNull(response);
+        verifyNoInteractions(this.metricsService);
+    }
 }
