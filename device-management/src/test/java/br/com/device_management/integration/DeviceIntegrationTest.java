@@ -166,4 +166,17 @@ public class DeviceIntegrationTest {
                 .andExpect(status().isConflict()
                 );
     }
+
+    // ===============================================================================================================
+
+    // =============================================== GET ALL DEVICES ===============================================
+
+    @Test
+    void shouldReturn200AllDevices() throws Exception{
+
+        this.mockMvc.perform(get("/api/all-devices")
+                        .param("page", "0")
+                        .param("size", "2"))
+                .andExpect(status().isOk());
+    }
 }
