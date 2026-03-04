@@ -137,4 +137,19 @@ class SensorServiceTest {
         verify(this.sensorRepository).findByDeviceModel("deviceModel");
         verifyNoInteractions(this.metricsService);
     }
+
+    @Test
+    void shouldReturnThrowWhenVerifyIfSensorIsPresent() {
+
+        when(this.sensorRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(SensorIsEmptyException.class,
+                () -> this.sensorService.verifyIfSensorIsPresent("deviceModel"));
+
+        verify(this.sensorRepository).findByDeviceModel("deviceModel");
+        verifyNoInteractions(this.metricsService);
+    }
+
+
 }
