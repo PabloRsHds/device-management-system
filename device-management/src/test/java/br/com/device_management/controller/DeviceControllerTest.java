@@ -968,7 +968,10 @@ class DeviceControllerTest {
 
         this.mockMvc.perform(get("/api/find-by-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/find-by-device/deviceModel"));
     }
 
     @Test
