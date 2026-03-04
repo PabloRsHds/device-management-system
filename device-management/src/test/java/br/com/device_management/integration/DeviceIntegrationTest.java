@@ -155,8 +155,8 @@ public class DeviceIntegrationTest {
                     """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
-                .andExpect(jsonPath("$.path").value("/api/login"));
+                .andExpect(jsonPath("$.error").value("Device not found"))
+                .andExpect(jsonPath("$.path").value("/api/update-device/deviceModel"));
     }
 
     // ===============================================================================================================
@@ -180,11 +180,13 @@ public class DeviceIntegrationTest {
     }
 
     @Test
-    void shouldReturn409DeleteDeviceSuccessfully() throws Exception{
+    void shouldReturn409DeleteDeviceFailed() throws Exception{
 
         this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel"))
-                .andExpect(status().isConflict()
-                );
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Device not found"))
+                .andExpect(jsonPath("$.path").value("/api/delete-device/deviceModel"));
     }
 
     // ===============================================================================================================
