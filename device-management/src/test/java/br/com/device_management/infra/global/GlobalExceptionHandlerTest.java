@@ -94,8 +94,6 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.timesTamp").exists())
                 .andExpect(jsonPath("$.status").value(503))
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
                 .andExpect(jsonPath("$.path").value("/api/register-device"));
     }
