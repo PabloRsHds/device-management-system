@@ -273,5 +273,12 @@ class SensorServiceTest {
         verifyNoInteractions(this.metricsService);
     }
 
+    @Test
+    void shouldReturnThrowWhenGetStatus() {
 
+        assertThrows(SensorIsEmptyException.class,
+                () -> this.sensorService.getStatus("deviceModel"));
+
+        verifyNoInteractions(this.metricsService);
+    }
 }
