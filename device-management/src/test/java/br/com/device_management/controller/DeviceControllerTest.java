@@ -517,7 +517,10 @@ class DeviceControllerTest {
                             "newDescription" : "description"
                         }
                         """))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/update-device/deviceModel"));
     }
 
     @Test
