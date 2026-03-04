@@ -151,5 +151,12 @@ class SensorServiceTest {
         verifyNoInteractions(this.metricsService);
     }
 
+    @Test
+    void shouldReturnResponseSensorDtoWhenUpdate() {
 
+        var response = this.sensorService
+                .update(new Sensor(), new UpdateSensor("name", "", ""));
+
+        assertNotNull(response);
+    }
 }
