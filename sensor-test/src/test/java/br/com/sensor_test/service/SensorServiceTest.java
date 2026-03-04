@@ -14,7 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -187,4 +190,29 @@ class SensorServiceTest {
 
         this.sensorService.delete(new Sensor());
     }
+
+    // ===============================================================================================================
+
+    // =================================== PEGA TODOS OS SENSORES TEST ===============================================
+
+    @Test
+    void shouldReturnListResponseSensorDtoWhenGetAllSensorsActivated() {
+
+        var sample = mock(Timer.Sample.class);
+
+        when(this.metricsService.startTimer())
+                .thenReturn(sample);
+
+        when(this.sensorRepository.findAllSensors(PageRequest.of(0, 1)))
+                .thenReturn(Page.empty());
+
+        var response = this.sensorService.getAllSensorsActivated(0, 1);
+
+        assertNotNull(response);
+        verify(this.metricsService).stopSensorsTimer(sample);
+    }
+
+    // ===============================================================================================================
+
+    //
 }

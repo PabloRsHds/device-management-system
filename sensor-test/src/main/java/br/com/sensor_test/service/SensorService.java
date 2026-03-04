@@ -204,9 +204,11 @@ public class SensorService {
     @CircuitBreaker(name = "circuitbreaker_get_all_sensors", fallbackMethod = "getAllSensorsActivatedCircuitBreaker")
     public List<ResponseSensorDto> getAllSensorsActivated(int page, int size) {
 
+        log.info("Iniciando o timer do get all sensors");
         var sampleTimer = this.metricsService.startTimer();
 
         try {
+            log.info("Procurando registros no banco de dados, e transformando eles em um dto");
             return this.sensorRepository
                     .findAllSensors(PageRequest.of(page, size))
                     .stream()
@@ -221,6 +223,7 @@ public class SensorService {
                     .toList();
 
         } finally {
+            log.info("Parando o timer do get all sensors");
             this.metricsService.stopSensorsTimer(sampleTimer);
         }
     }
