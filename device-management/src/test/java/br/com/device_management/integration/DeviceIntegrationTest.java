@@ -199,4 +199,11 @@ public class DeviceIntegrationTest {
         this.mockMvc.perform(get("/api/find-by-device/{deviceModel}", "deviceModel"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void shouldReturn200GetDeviceWithDeviceModelFailed() throws Exception{
+
+        this.mockMvc.perform(get("/api/find-by-device/{deviceModel}", "deviceModel"))
+                .andExpect(status().isConflict());
+    }
 }
