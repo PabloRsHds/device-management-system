@@ -50,7 +50,10 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.source").exists())
                 .andExpect(jsonPath("$.service").exists())
                 .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.path").exists());
+                .andExpect(jsonPath("$.path").exists())
+
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"));
     }
 
     // ===================================== REGISTER ================================================================
@@ -112,7 +115,10 @@ class DeviceControllerTest {
                                 "location": "location"
                             }
                         """))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));;
     }
 
     @Test
