@@ -880,7 +880,10 @@ class DeviceControllerTest {
 
         this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/delete-device/deviceModel"));
     }
 
     // =====================================  ALL DEVICES ============================================================
