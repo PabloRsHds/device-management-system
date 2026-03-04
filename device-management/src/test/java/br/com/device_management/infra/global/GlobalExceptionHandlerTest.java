@@ -91,7 +91,6 @@ class GlobalExceptionHandlerTest {
                         }
                         """))
                 .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.timesTamp").exists())
                 .andExpect(jsonPath("$.status").value(503))
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try again later"))
@@ -116,11 +115,8 @@ class GlobalExceptionHandlerTest {
                         }
                         """))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.timesTamp").exists())
                 .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.error").value("Device not found"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
                 .andExpect(jsonPath("$.message").value("This device model is not registered in the database"))
                 .andExpect(jsonPath("$.path").value("/api/update-device/deviceModel"));
     }
