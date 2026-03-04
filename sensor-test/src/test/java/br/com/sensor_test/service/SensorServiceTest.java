@@ -125,4 +125,16 @@ class SensorServiceTest {
         verify(this.sensorRepository).findByDeviceModel("deviceModel");
     }
 
+    @Test
+    void shouldReturnSensorWhenVerifyIfSensorIsPresent() {
+
+        when(this.sensorRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Sensor()));
+
+        var response = this.sensorService.verifyIfSensorIsPresent("deviceModel");
+
+        assertNotNull(response);
+        verify(this.sensorRepository).findByDeviceModel("deviceModel");
+        verifyNoInteractions(this.metricsService);
+    }
 }
