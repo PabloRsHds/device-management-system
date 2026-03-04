@@ -231,6 +231,15 @@ class SensorServiceTest {
     }
 
     @Test
+    void shouldReturnThrowWhenChangeStatus() {
+
+        assertThrows(SensorIsEmptyException.class,
+                () -> this.sensorService.changeStatus("deviceModel"));
+
+        verifyNoInteractions(this.metricsService);
+    }
+
+    @Test
     void shouldReturnResponseSensorDtoWhenChange() {
 
         var sensor = mock(Sensor.class);
@@ -242,4 +251,10 @@ class SensorServiceTest {
         assertNotNull(response);
         verifyNoInteractions(this.metricsService);
     }
+
+    // ===============================================================================================================
+
+    // ========================================= PEGO O STATUS TEST ==================================================
+
+
 }
