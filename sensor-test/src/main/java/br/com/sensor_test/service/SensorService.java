@@ -116,8 +116,11 @@ public class SensorService {
         Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
 
         if (entity.isEmpty()) {
+            log.info("Sensor não presente no banco de dados");
             throw new SensorIsEmptyException("Sensor not found");
         }
+
+        log.info("Sensor presente no banco de dados");
         return entity.get();
     }
 
@@ -138,15 +141,19 @@ public class SensorService {
     public ResponseSensorDto update(Sensor entity, UpdateSensor request) {
 
         if (!request.name().isBlank()) {
+            log.info("alterando o nome");
             entity.setName(request.name());
         }
         if (!request.deviceModel().isBlank()) {
+            log.info("alterando o deviceModel");
             entity.setDeviceModel(request.deviceModel());
         }
         if (!request.manufacturer().isBlank()) {
+            log.info("alterando o manufacturer");
             entity.setManufacturer(request.manufacturer());
         }
 
+        log.info("Salvando alterações");
         this.sensorRepository.save(entity);
 
         return new ResponseSensorDto(

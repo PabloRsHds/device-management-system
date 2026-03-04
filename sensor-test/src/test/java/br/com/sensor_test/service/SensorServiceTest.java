@@ -1,6 +1,9 @@
 package br.com.sensor_test.service;
 
 import br.com.sensor_test.dtos.ConsumerDeviceManagement;
+import br.com.sensor_test.dtos.UpdateSensor;
+import br.com.sensor_test.enums.Status;
+import br.com.sensor_test.infra.exceptions.SensorIsEmptyException;
 import br.com.sensor_test.infra.exceptions.SensorIsPresentException;
 import br.com.sensor_test.metrics.MetricsService;
 import br.com.sensor_test.model.Sensor;
@@ -14,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -97,4 +101,28 @@ class SensorServiceTest {
                 1f
         ));
     }
+
+    // ===============================================================================================================
+
+    // ============================================= UPDATE SENSOR TEST ==============================================
+
+    @Test
+    void shouldReturnResponseSensorDtoWhenUpdateSensor() {
+
+        var sample = mock(Timer.Sample.class);
+
+        when(this.metricsService.startTimer())
+                .thenReturn(sample);
+
+        when(this.sensorRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Sensor()));
+
+        var response = this.sensorService.updateSensor("deviceModel",
+                new UpdateSensor("name", "", ""));
+
+        assertNotNull(response);
+        verify(this.metricsService).stopUpdateTimer(sample);
+        verify(this.sensorRepository).findByDeviceModel("deviceModel");
+    }
+
 }
