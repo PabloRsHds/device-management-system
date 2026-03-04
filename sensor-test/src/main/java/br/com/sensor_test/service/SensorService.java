@@ -250,6 +250,8 @@ public class SensorService {
     public ResponseSensorDto change(Sensor entity) {
 
         if (entity.getStatus().equals(Status.ACTIVATED)) {
+
+            log.info("Sensor foi desativado");
             entity.setStatus(Status.DEACTIVATED);
             this.sensorRepository.save(entity);
 
@@ -262,9 +264,11 @@ public class SensorService {
                 );
         }
 
+        log.info("Sensor foi ativado");
         entity.setStatus(Status.ACTIVATED);
         this.sensorRepository.save(entity);
 
+        log.info("Retornando o dto ResponseSensorDto, com os dados atualizados");
         return new ResponseSensorDto(
                         entity.getName(),
                         entity.getType(),

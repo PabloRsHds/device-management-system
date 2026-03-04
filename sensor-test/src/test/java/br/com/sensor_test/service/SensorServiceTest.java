@@ -214,5 +214,19 @@ class SensorServiceTest {
 
     // ===============================================================================================================
 
-    //
+    // ================================= ALTERA O STATUS DO SENSOR TEST ==============================================
+
+    @Test
+    void shouldReturnResponseSensorDtoWhenChangeStatus() {
+
+        var sensor = mock(Sensor.class);
+
+        when(sensor.getStatus()).thenReturn(Status.ACTIVATED);
+        when(this.sensorRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(sensor));
+
+        this.sensorService.changeStatus("deviceModel");
+    }
+
+
 }
