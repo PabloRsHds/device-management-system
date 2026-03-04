@@ -59,4 +59,19 @@ class SensorServiceTest {
     }
 
 
+
+    @Test
+    void shouldReturnVoidWhenSave() {
+
+        this.sensorService.save(new ConsumerDeviceManagement(
+                "",
+                "",
+                "",
+                "",
+                "",
+                "unit",
+                0f,
+                1f
+        ));
+    }
 }
