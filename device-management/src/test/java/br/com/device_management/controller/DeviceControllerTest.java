@@ -139,7 +139,10 @@ class DeviceControllerTest {
                                 "location": "location"
                             }
                         """))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Device already cadastred"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));;
     }
 
     // NAME VALIDATION
