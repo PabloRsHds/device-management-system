@@ -135,8 +135,6 @@ public class SensorService {
         throw new ServiceUnavailableException("Database service is not available");
     }
 
-
-
     @Transactional
     public ResponseSensorDto update(Sensor entity, UpdateSensor request) {
 
@@ -192,6 +190,8 @@ public class SensorService {
 
     @Transactional
     public void delete(Sensor entity) {
+
+        log.info("Sensor deletado com sucesso");
         this.sensorRepository.delete(entity);
     }
 

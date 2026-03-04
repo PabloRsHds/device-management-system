@@ -33,7 +33,7 @@ class SensorServiceTest {
     @InjectMocks
     private SensorService sensorService;
 
-    // =========================================== REGISTER SENSOR ===================================================
+    // ======================================= REGISTER SENSOR TEST ===================================================
 
     @Test
     void shouldReturnSuccessWhenRegisterSensor() {
@@ -158,5 +158,27 @@ class SensorServiceTest {
                 .update(new Sensor(), new UpdateSensor("name", "", ""));
 
         assertNotNull(response);
+    }
+
+    // ===============================================================================================================
+
+    // ========================================== DELETE SENSOR TEST =================================================
+
+    @Test
+    void shouldReturnResponseSensorDtoDeleteSensor() {
+
+        var sample = mock(Timer.Sample.class);
+
+        when(this.metricsService.startTimer())
+                .thenReturn(sample);
+
+        when(this.sensorRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Sensor()));
+
+        this.sensorService.deleteSensor("deviceModel");
+
+        verify(this.metricsService).stopDeleteTimer(sample);
+        verify(this.metricsService).startTimer();
+        verify(this.sensorRepository).findByDeviceModel("deviceModel");
     }
 }
