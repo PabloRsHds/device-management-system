@@ -40,6 +40,7 @@ public class SensorService {
 
     public void registerSensor(ConsumerDeviceManagement consumer) {
 
+        log.info("Iniciando o timer do consumer");
         var sampleTimer = this.metricsService.startTimer();
 
         try {
@@ -47,6 +48,7 @@ public class SensorService {
             this.save(consumer);
 
         } finally {
+            log.info("Parando o timer do consumer");
             this.metricsService.stopConsumerTimer(sampleTimer);
         }
     }
@@ -58,8 +60,10 @@ public class SensorService {
         Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
 
         if (entity.isPresent()) {
+            log.info("Sensor já cadastrado. STATUS: NEGATIVO");
             throw new SensorIsPresentException("This device already cadastred in database");
         }
+        log.info("Sensor não existe no banco de dados. STATUS: OK");
     }
 
     public void verifyIfSensorIsEmptyRetry(String deviceModel, Exception ex) {
@@ -74,6 +78,7 @@ public class SensorService {
     @Transactional
     public void save(ConsumerDeviceManagement consumer) {
 
+        log.info("Salvando novo sensor no banco de dados");
         var newEntity = new Sensor();
 
         newEntity.setName(consumer.name());
