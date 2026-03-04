@@ -256,5 +256,22 @@ class SensorServiceTest {
 
     // ========================================= PEGO O STATUS TEST ==================================================
 
+    @Test
+    void shouldReturnStringWhenGetStatus() {
+
+        var sensor = mock(Sensor.class);
+
+        when(sensor.getStatus()).thenReturn(Status.ACTIVATED);
+
+        when(this.sensorRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(sensor));
+
+        var response = this.sensorService.getStatus("deviceModel");
+
+        assertNotNull(response);
+        verify(this.sensorRepository).findByDeviceModel("deviceModel");
+        verifyNoInteractions(this.metricsService);
+    }
+
 
 }

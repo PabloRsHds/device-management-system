@@ -284,6 +284,7 @@ public class SensorService {
 
         var entity = this.verifyIfSensorIsPresent(deviceModel);
 
+        log.info("Retornando o status do sensor");
         return entity.getStatus().toString();
     }
 }
