@@ -645,7 +645,10 @@ class DeviceControllerTest {
                             "newDescription" : "description"
                         }
                         """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation error"))
+                .andExpect(jsonPath("$.path").value("/api/update-device/deviceModel"));
     }
 
     @Test
