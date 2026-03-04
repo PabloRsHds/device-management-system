@@ -866,7 +866,10 @@ class DeviceControllerTest {
 
         this.mockMvc.perform(delete("/api/delete-device/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Device not found"))
+                .andExpect(jsonPath("$.path").value("/api/delete-device/deviceModel"));
     }
 
     @Test
