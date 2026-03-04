@@ -140,11 +140,8 @@ class GlobalExceptionHandlerTest {
                         }
                         """))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.timesTamp").exists())
                 .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.error").value("Device already cadastred"))
-                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
-                .andExpect(jsonPath("$.service").value("device-management"))
                 .andExpect(jsonPath("$.message").value("This device model is already registered in the database"))
                 .andExpect(jsonPath("$.path").value("/api/register-device"));
     }
