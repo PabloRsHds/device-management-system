@@ -1,7 +1,6 @@
 package br.com.device_management.integration;
 
 import br.com.device_management.dtos.DeviceManagementEventForSensor;
-import br.com.device_management.dtos.UpdateDeviceDto;
 import br.com.device_management.enums.Type;
 import br.com.device_management.model.Device;
 import br.com.device_management.repository.DeviceRepository;
@@ -16,6 +15,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,6 +38,20 @@ public class DeviceIntegrationTest {
 
     @MockitoBean
     private KafkaTemplate<String, DeviceManagementEventForSensor> kafkaTemplate;
+
+    private ResultActions expectDefaultErrorStructure(ResultActions result) throws Exception {
+        return result
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists())
+
+                .andExpect(jsonPath("$.source").value("DEVICE-MANAGEMENT"))
+                .andExpect(jsonPath("$.service").value("device-management"));
+    }
 
     // =========================================== REGISTER DEVICE ====================================================
     @Test
@@ -65,7 +79,7 @@ public class DeviceIntegrationTest {
     }
 
     @Test
-    void shouldReturnThrowWhenRegisterDeviceIsPresent() throws Exception {
+    void shouldReturn409WhenRegisterDeviceFailed() throws Exception {
 
         var device = new Device();
         device.setName("name");
@@ -90,7 +104,10 @@ public class DeviceIntegrationTest {
                         "location" : "location"
                     }
                     """))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Device already cadastred"))
+                .andExpect(jsonPath("$.path").value("/api/register-device"));
     }
     // ================================================================================================================
 
@@ -136,7 +153,10 @@ public class DeviceIntegrationTest {
                         "newDescription" : "description"
                     }
                     """))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
+                .andExpect(jsonPath("$.path").value("/api/login"));
     }
 
     // ===============================================================================================================
