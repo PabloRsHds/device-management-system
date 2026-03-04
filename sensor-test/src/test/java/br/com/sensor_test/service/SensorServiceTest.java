@@ -71,6 +71,19 @@ class SensorServiceTest {
     }
 
     @Test
+    void shouldReturnThrowWhenVerifyIfSensorIsEmpty() {
+
+        when(this.sensorRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Sensor()));
+
+        assertThrows(SensorIsPresentException.class,
+                () -> this.sensorService.verifyIfSensorIsEmpty("deviceModel"));
+
+        verify(this.sensorRepository).findByDeviceModel("deviceModel");
+        verifyNoInteractions(this.metricsService);
+    }
+
+    @Test
     void shouldReturnVoidWhenSave() {
 
         this.sensorService.save(new ConsumerDeviceManagement(
