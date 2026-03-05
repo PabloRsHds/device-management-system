@@ -67,5 +67,27 @@ class SensorControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenUpdateSensor() throws Exception{
+
+        when(this.sensorService.updateSensor(
+                eq("deviceModel"),
+                any(UpdateSensor.class)))
+                .thenThrow(new SensorIsEmptyException("Sensor not found"));
+
+        this.mockMvc.perform(patch("/api/update-sensor/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                    {
+                        "name" : "newName",
+                        "deviceModel" : "",
+                        "manufacturer" : ""
+                     }
+                    """))
+                .andExpect(status().isConflict());
+    }
+
+    // ===============================================================================================================
+
 
 }
