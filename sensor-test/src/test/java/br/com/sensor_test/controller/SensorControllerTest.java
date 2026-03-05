@@ -197,5 +197,8 @@ class SensorControllerTest {
 
         this.mockMvc.perform(patch("/api/change-status/{deviceModel}", "deviceModel"))
                 .andExpect(status().isConflict());
+
+        verify(this.sensorService).changeStatus("deviceModel");
+        verifyNoInteractions(this.sensorRepository);
     }
 }
