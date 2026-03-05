@@ -27,7 +27,7 @@ public class SensorController {
     }
 
     @DeleteMapping("/delete-sensor/{deviceModel:.+}")
-    public ResponseEntity<?> deleteSensor(@PathVariable String deviceModel){
+    public ResponseEntity<ResponseSensorDto> deleteSensor(@PathVariable String deviceModel){
         var response = this.sensorService.deleteSensor(deviceModel);
         return ResponseEntity.ok(response);
     }

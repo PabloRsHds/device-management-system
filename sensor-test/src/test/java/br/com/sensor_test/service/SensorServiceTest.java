@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -103,6 +102,8 @@ class SensorServiceTest {
                 0f,
                 1f
         ));
+
+        verifyNoInteractions(this.metricsService);
     }
 
     // ===============================================================================================================
@@ -161,6 +162,7 @@ class SensorServiceTest {
                 .update(new Sensor(), new UpdateSensor("name", "", ""));
 
         assertNotNull(response);
+        verifyNoInteractions(this.metricsService);
     }
 
     // ===============================================================================================================
@@ -189,6 +191,8 @@ class SensorServiceTest {
     void shouldReturnVoidDelete() {
 
         this.sensorService.delete(new Sensor());
+
+        verifyNoInteractions(this.metricsService);
     }
 
     // ===============================================================================================================
