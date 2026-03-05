@@ -140,5 +140,17 @@ class SensorControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenGetStatus() throws Exception {
+
+        when(this.sensorService.getStatus("deviceModel"))
+                .thenThrow(new SensorIsEmptyException("Sensor is empty"));
+
+        this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
+                .andExpect(status().isConflict());
+    }
+
+    //================================================================================================================
+
 
 }
