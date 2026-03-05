@@ -100,5 +100,15 @@ class SensorControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenDeleteSensor() throws Exception {
+
+        when(this.sensorService.deleteSensor("deviceModel"))
+                .thenThrow(new SensorIsEmptyException("Sensor is empty"));
+
+        this.mockMvc.perform(delete("/api/delete-sensor/{deviceModel}", "deviceModel"))
+                .andExpect(status().isConflict());
+    }
+
 
 }
