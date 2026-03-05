@@ -49,4 +49,22 @@ class GlobalHandlerExceptionTest {
                         """))
                 .andExpect(status().isServiceUnavailable());
     }
+
+    @Test
+    void shouldReturnThrowWhenSensorIsEmptyException() throws Exception{
+
+        when(this.sensorController.updateSensor(eq("deviceModel"), any(UpdateSensor.class)))
+                .thenThrow(new SensorIsEmptyException("Sensor not found"));
+
+        this.mockMvc.perform(patch("/api/update-sensor/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name" : "name",
+                            "deviceModel" : "deviceModel",
+                            "manufacturer" : "manufacturer"
+                        }
+                        """))
+                .andExpect(status().isConflict());
+    }
 }
