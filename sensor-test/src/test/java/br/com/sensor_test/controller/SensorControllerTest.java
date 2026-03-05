@@ -89,5 +89,16 @@ class SensorControllerTest {
 
     // ===============================================================================================================
 
+    // =========================================== DELETE TEST =======================================================
+    @Test
+    void shouldReturnResponseSensorDtoWhenDeleteSensor() throws Exception {
+
+        when(this.sensorService.deleteSensor("deviceModel"))
+                .thenReturn(any(ResponseSensorDto.class));
+
+        this.mockMvc.perform(delete("/api/delete-sensor/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
+    }
+
 
 }
