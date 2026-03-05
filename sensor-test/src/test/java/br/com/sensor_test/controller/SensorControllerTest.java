@@ -198,7 +198,6 @@ class SensorControllerTest {
 
         this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
                 .andExpect(status().isOk());
-
         verify(this.sensorService).getStatus("deviceModel");
         verifyNoInteractions(this.sensorRepository);
     }
@@ -227,11 +226,24 @@ class SensorControllerTest {
     @Test
     void shouldReturnResponseSensorDtoWhenChangeStatus() throws Exception{
 
+        var response = new ResponseSensorDto(
+                "name",
+                "type",
+                "deviceModel",
+                "manufacturer",
+                Status.ACTIVATED
+        );
+
         when(this.sensorService.changeStatus("deviceModel"))
-                .thenReturn(any(ResponseSensorDto.class));
+                .thenReturn(response);
 
         this.mockMvc.perform(patch("/api/change-status/{deviceModel}", "deviceModel"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.name()))
+                .andExpect(jsonPath("$.type").value(response.type()))
+                .andExpect(jsonPath("$.deviceModel").value(response.deviceModel()))
+                .andExpect(jsonPath("$.manufacturer").value(response.manufacturer()))
+                .andExpect(jsonPath("$.status").value("ACTIVATED"));
 
         verify(this.sensorService).changeStatus("deviceModel");
         verifyNoInteractions(this.sensorRepository);
