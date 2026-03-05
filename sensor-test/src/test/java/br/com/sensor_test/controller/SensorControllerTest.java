@@ -127,11 +127,24 @@ class SensorControllerTest {
     @Test
     void shouldReturnResponseSensorDtoWhenDeleteSensor() throws Exception {
 
+        var response = new ResponseSensorDto(
+                "name",
+                "type",
+                "deviceModel",
+                "manufacturer",
+                Status.ACTIVATED
+        );
+
         when(this.sensorService.deleteSensor("deviceModel"))
-                .thenReturn(any(ResponseSensorDto.class));
+                .thenReturn(response);
 
         this.mockMvc.perform(delete("/api/delete-sensor/{deviceModel}", "deviceModel"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.name()))
+                .andExpect(jsonPath("$.type").value(response.type()))
+                .andExpect(jsonPath("$.deviceModel").value(response.deviceModel()))
+                .andExpect(jsonPath("$.manufacturer").value(response.manufacturer()))
+                .andExpect(jsonPath("$.status").value("ACTIVATED"));
 
         verify(this.sensorService).deleteSensor("deviceModel");
         verifyNoInteractions(this.sensorRepository);
