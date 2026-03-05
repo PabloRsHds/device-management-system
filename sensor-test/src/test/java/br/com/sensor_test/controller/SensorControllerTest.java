@@ -137,6 +137,9 @@ class SensorControllerTest {
                         .param("page","0")
                         .param("size", "1"))
                 .andExpect(status().isOk());
+
+        verify(this.sensorService).getAllSensorsActivated(0, 1);
+        verifyNoInteractions(this.sensorRepository);
     }
 
     // ================================================================================================================
