@@ -154,6 +154,9 @@ class SensorControllerTest {
 
         this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
                 .andExpect(status().isOk());
+
+        verify(this.sensorService).getStatus("deviceModel");
+        verifyNoInteractions(this.sensorRepository);
     }
 
     @Test
