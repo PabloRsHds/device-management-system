@@ -20,6 +20,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(SensorController.class)
@@ -65,7 +66,12 @@ class SensorControllerTest {
                             "manufacturer" : ""
                          }
                         """))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(response.name()))
+                .andExpect(jsonPath("$.type").value(response.type()))
+                .andExpect(jsonPath("$.deviceModel").value(response.deviceModel()))
+                .andExpect(jsonPath("$.manufacturer").value(response.manufacturer()))
+                .andExpect(jsonPath("$.status").value("ACTIVATED"));
 
         verify(this.sensorService).updateSensor("deviceModel", request);
         verifyNoInteractions(this.sensorRepository);
