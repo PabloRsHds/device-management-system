@@ -89,6 +89,9 @@ class SensorControllerTest {
                      }
                     """))
                 .andExpect(status().isConflict());
+
+        verify(this.sensorService).updateSensor(eq("deviceModel"), any(UpdateSensor.class));
+        verifyNoInteractions(this.sensorRepository);
     }
 
     // ===============================================================================================================
