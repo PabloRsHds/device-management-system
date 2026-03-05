@@ -128,5 +128,17 @@ class SensorControllerTest {
 
     // ================================================================================================================
 
+    // ============================================= GET STATUS TEST ==================================================
+
+    @Test
+    void shouldReturnStringWhenGetStatus() throws Exception {
+
+        when(this.sensorService.getStatus("deviceModel"))
+                .thenReturn(anyString());
+
+        this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
+    }
+
 
 }
