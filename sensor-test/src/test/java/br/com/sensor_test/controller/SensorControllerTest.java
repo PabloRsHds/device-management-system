@@ -110,5 +110,23 @@ class SensorControllerTest {
                 .andExpect(status().isConflict());
     }
 
+    // ================================================================================================================
+
+    // ====================================== FIND ALL SENSORS ACTIVATED TEST =========================================
+
+    @Test
+    void shouldReturnListResponseSensorDtoWhenFindAllSensorsActivated() throws Exception {
+
+        when(this.sensorService.getAllSensorsActivated(0, 1))
+                .thenReturn(List.of());
+
+        this.mockMvc.perform(get("/api/find-all-sensors-activated")
+                        .param("page","0")
+                        .param("size", "1"))
+                .andExpect(status().isOk());
+    }
+
+    // ================================================================================================================
+
 
 }
