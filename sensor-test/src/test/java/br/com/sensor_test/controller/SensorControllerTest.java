@@ -100,7 +100,7 @@ class SensorControllerTest {
         when(this.sensorService.updateSensor(
                 eq("deviceModel"),
                 any(UpdateSensor.class)))
-                .thenThrow(new SensorIsEmptyException("Sensor not found"));
+                .thenThrow(new SensorIsEmptyException("Sensor is empty"));
 
         this.mockMvc.perform(patch("/api/update-sensor/{deviceModel}", "deviceModel")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -114,7 +114,7 @@ class SensorControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.error").value("SENSOR NOT FOUND"))
-                .andExpect(jsonPath("$.message").value("Sensor not found"))
+                .andExpect(jsonPath("$.message").value("Sensor is empty"))
                 .andExpect(jsonPath("$.path").value("/api/update-sensor/deviceModel"));
 
         verify(this.sensorService).updateSensor(eq("deviceModel"), any(UpdateSensor.class));
