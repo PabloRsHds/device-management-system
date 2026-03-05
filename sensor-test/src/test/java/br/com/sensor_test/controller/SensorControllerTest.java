@@ -152,5 +152,17 @@ class SensorControllerTest {
 
     //================================================================================================================
 
+    // ========================================== CHANGE STATUS TEST =================================================
+
+    @Test
+    void shouldReturnResponseSensorDtoWhenChangeStatus() throws Exception{
+
+        when(this.sensorService.changeStatus("deviceModel"))
+                .thenReturn(any(ResponseSensorDto.class));
+
+        this.mockMvc.perform(patch("/api/change-status/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
+    }
+
 
 }
