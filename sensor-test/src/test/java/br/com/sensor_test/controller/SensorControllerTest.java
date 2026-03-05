@@ -105,6 +105,9 @@ class SensorControllerTest {
 
         this.mockMvc.perform(delete("/api/delete-sensor/{deviceModel}", "deviceModel"))
                 .andExpect(status().isOk());
+
+        verify(this.sensorService).deleteSensor("deviceModel");
+        verifyNoInteractions(this.sensorRepository);
     }
 
     @Test
