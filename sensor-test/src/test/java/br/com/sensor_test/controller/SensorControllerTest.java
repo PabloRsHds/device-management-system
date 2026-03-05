@@ -256,7 +256,11 @@ class SensorControllerTest {
                 .thenThrow(new SensorIsEmptyException("Sensor is empty"));
 
         this.mockMvc.perform(patch("/api/change-status/{deviceModel}", "deviceModel"))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("SENSOR NOT FOUND"))
+                .andExpect(jsonPath("$.message").value("Sensor is empty"))
+                .andExpect(jsonPath("$.path").value("/api/change-status/deviceModel"));
 
         verify(this.sensorService).changeStatus("deviceModel");
         verifyNoInteractions(this.sensorRepository);
