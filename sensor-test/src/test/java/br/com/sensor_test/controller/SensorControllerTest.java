@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,8 +51,9 @@ class SensorControllerTest {
                 Status.ACTIVATED
         );
 
-        when(this.sensorService.updateSensor("deviceModel",
-                new UpdateSensor("newName", "", "")))
+        var request = new UpdateSensor("newName", "", "");
+
+        when(this.sensorService.updateSensor("deviceModel",request))
                 .thenReturn(response);
 
         this.mockMvc.perform(patch("/api/update-sensor/{deviceModel}", "deviceModel")
@@ -65,6 +66,9 @@ class SensorControllerTest {
                          }
                         """))
                 .andExpect(status().isOk());
+
+        verify(this.sensorService).updateSensor("deviceModel", request);
+        verifyNoInteractions(this.sensorRepository);
     }
 
     @Test
