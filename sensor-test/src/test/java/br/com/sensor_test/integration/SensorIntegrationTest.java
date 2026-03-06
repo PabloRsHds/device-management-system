@@ -81,5 +81,10 @@ public class SensorIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnFailedWhenDeleteSensor() throws Exception{
 
+        this.mockMvc.perform(delete("/api/delete-sensor/{deviceModel}", "deviceModel"))
+                .andExpect(status().isConflict());
+    }
 }
