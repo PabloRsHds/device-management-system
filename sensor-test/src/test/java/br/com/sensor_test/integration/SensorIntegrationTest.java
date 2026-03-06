@@ -12,8 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -87,4 +86,19 @@ public class SensorIntegrationTest {
         this.mockMvc.perform(delete("/api/delete-sensor/{deviceModel}", "deviceModel"))
                 .andExpect(status().isConflict());
     }
+
+    // ===============================================================================================================
+
+    // ================================ FIND ALL SENSORS ACTIVATED INTEGRATION =======================================
+
+    @Test
+    void shouldReturnSuccessWhenFindAllSensorsActivated() throws Exception{
+
+        this.mockMvc.perform(get("/api/find-all-sensors-activated")
+                        .param("page", "0")
+                        .param("size", "1"))
+                .andExpect(status().isOk());
+    }
+
+    // ===============================================================================================================
 }
