@@ -138,4 +138,11 @@ public class SensorIntegrationTest {
         this.mockMvc.perform(patch("/api/change-status/{deviceModel}", "deviceModel"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void shouldReturnFailedWhenChangeStatus() throws Exception{
+
+        this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
+                .andExpect(status().isConflict());
+    }
 }
