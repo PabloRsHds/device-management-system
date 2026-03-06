@@ -101,4 +101,20 @@ public class SensorIntegrationTest {
     }
 
     // ===============================================================================================================
+
+    // ============================================= GET STATUS ======================================================
+
+    @Test
+    void shouldReturnSuccessWhenGetStatus() throws Exception{
+
+        var sensor = new Sensor();
+        sensor.setDeviceModel("deviceModel");
+        sensor.setStatus(Status.ACTIVATED);
+        this.sensorRepository.save(sensor);
+
+        this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
+    }
+
+    // ===============================================================================================================
 }
