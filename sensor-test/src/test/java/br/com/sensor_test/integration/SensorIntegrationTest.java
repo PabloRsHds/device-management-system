@@ -102,7 +102,7 @@ public class SensorIntegrationTest {
 
     // ===============================================================================================================
 
-    // ============================================= GET STATUS ======================================================
+    // ================================= GET STATUS INTEGRATION ======================================================
 
     @Test
     void shouldReturnSuccessWhenGetStatus() throws Exception{
@@ -116,5 +116,16 @@ public class SensorIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnFailedWhenGetStatus() throws Exception{
+
+        this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
+                .andExpect(status().isConflict());
+    }
+
     // ===============================================================================================================
+
+    // ====================================== CHANGE STATUS INTEGRATION ==============================================
+
+
 }
