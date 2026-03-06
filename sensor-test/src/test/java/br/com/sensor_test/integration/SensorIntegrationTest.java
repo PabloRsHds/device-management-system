@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -33,7 +34,10 @@ public class SensorIntegrationTest {
     void shouldReturnSuccessWhenUpdateSensor() throws Exception{
 
         var sensor = new Sensor();
+        sensor.setName("name");
+        sensor.setType("type");
         sensor.setDeviceModel("deviceModel");
+        sensor.setManufacturer("manufacturer");
         sensor.setStatus(Status.ACTIVATED);
         this.sensorRepository.save(sensor);
 
@@ -46,7 +50,12 @@ public class SensorIntegrationTest {
                             "manufacturer" : ""
                         }
                         """))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("newName"))
+                .andExpect(jsonPath("$.type").value("type"))
+                .andExpect(jsonPath("$.deviceModel").value("deviceModel"))
+                .andExpect(jsonPath("$.manufacturer").value("manufacturer"))
+                .andExpect(jsonPath("$.status").value("ACTIVATED"));
     }
 
     @Test
