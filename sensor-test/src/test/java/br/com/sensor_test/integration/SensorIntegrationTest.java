@@ -127,5 +127,15 @@ public class SensorIntegrationTest {
 
     // ====================================== CHANGE STATUS INTEGRATION ==============================================
 
+    @Test
+    void shouldReturnSuccessWhenChangeStatus() throws Exception{
 
+        var sensor = new Sensor();
+        sensor.setDeviceModel("deviceModel");
+        sensor.setStatus(Status.ACTIVATED);
+        this.sensorRepository.save(sensor);
+
+        this.mockMvc.perform(patch("/api/change-status/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
+    }
 }
