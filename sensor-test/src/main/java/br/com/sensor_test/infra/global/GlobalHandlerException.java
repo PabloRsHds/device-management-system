@@ -42,7 +42,7 @@ public class GlobalHandlerException {
                 new ResponseExceptionDto(
                         Instant.now().toString(),
                         HttpStatus.SERVICE_UNAVAILABLE.value(),
-                        "SERVICE_UNAVAILABLE",
+                        "SERVICE UNAVAILABLE",
                         "SENSOR-TEST",
                         "DATABASE",
                         this.serviceName,

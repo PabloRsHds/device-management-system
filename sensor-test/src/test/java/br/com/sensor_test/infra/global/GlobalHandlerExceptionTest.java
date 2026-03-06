@@ -12,11 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(SensorController.class)
@@ -32,11 +34,27 @@ class GlobalHandlerExceptionTest {
     @MockitoBean
     private MetricsForExceptions metricsForExceptions;
 
+    private ResultActions expectDefaultErrorStructure(ResultActions result) throws Exception {
+        return result
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.target").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists())
+
+                .andExpect(jsonPath("$.source").value("SENSOR-TEST"))
+                .andExpect(jsonPath("$.target").value("DATABASE"))
+                .andExpect(jsonPath("$.service").value("sensor-test"));
+    }
+
     @Test
     void shouldReturnThrowWhenServiceUnavailableException() throws Exception{
 
         when(this.sensorController.updateSensor(eq("deviceModel"), any(UpdateSensor.class)))
-                .thenThrow(new ServiceUnavailableException("Service unavailable."));
+                .thenThrow(new ServiceUnavailableException("Service unavailable"));
 
         this.mockMvc.perform(patch("/api/update-sensor/{deviceModel}", "deviceModel")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -47,7 +65,11 @@ class GlobalHandlerExceptionTest {
                             "manufacturer" : "manufacturer"
                         }
                         """))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("SERVICE UNAVAILABLE"))
+                .andExpect(jsonPath("$.message").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/update-sensor/deviceModel"));
     }
 
     @Test
