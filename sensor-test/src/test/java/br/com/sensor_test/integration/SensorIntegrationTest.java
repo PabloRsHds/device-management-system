@@ -1,5 +1,9 @@
 package br.com.sensor_test.integration;
 
+import br.com.sensor_test.enums.Status;
+import br.com.sensor_test.model.Sensor;
+import br.com.sensor_test.repository.SensorRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,16 +18,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-public class SensorIntegration {
+@Transactional
+public class SensorIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private SensorRepository sensorRepository;
 
     @Test
     void shouldReturnSuccessWhenUpdateSensor() throws Exception{
 
-        this.mockMvc.perform(patch("/update-sensor/{deviceModel}", "deviceModel")
+        var sensor = new Sensor();
+        sensor.setDeviceModel("deviceModel");
+        sensor.setStatus(Status.ACTIVATED);
+        this.sensorRepository.save(sensor);
+
+        this.mockMvc.perform(patch("/api/update-sensor/{deviceModel}", "deviceModel")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
