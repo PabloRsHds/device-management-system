@@ -27,6 +27,8 @@ public class SensorIntegrationTest {
     @Autowired
     private SensorRepository sensorRepository;
 
+
+    // ============================================= UPDATE INTEGRATION ==============================================
     @Test
     void shouldReturnSuccessWhenUpdateSensor() throws Exception{
 
@@ -46,4 +48,21 @@ public class SensorIntegrationTest {
                         """))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void shouldReturnFailedWhenUpdateSensor() throws Exception{
+
+        this.mockMvc.perform(patch("/api/update-sensor/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name" : "newName",
+                            "deviceModel" : "",
+                            "manufacturer" : ""
+                        }
+                        """))
+                .andExpect(status().isConflict());
+    }
+
+    // ===============================================================================================================
 }
