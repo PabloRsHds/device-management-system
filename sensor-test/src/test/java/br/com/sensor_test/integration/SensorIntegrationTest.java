@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,4 +66,20 @@ public class SensorIntegrationTest {
     }
 
     // ===============================================================================================================
+
+    // ============================================= DELETE INTEGRATION ==============================================
+
+    @Test
+    void shouldReturnSuccessWhenDeleteSensor() throws Exception{
+
+        var sensor = new Sensor();
+        sensor.setDeviceModel("deviceModel");
+        sensor.setStatus(Status.ACTIVATED);
+        this.sensorRepository.save(sensor);
+
+        this.mockMvc.perform(delete("/api/delete-sensor/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
+    }
+
+
 }
