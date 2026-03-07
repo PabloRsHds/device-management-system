@@ -177,18 +177,30 @@ public class SensorIntegrationTest {
     void shouldReturnSuccessWhenChangeStatus() throws Exception{
 
         var sensor = new Sensor();
+        sensor.setName("name");
+        sensor.setType("type");
         sensor.setDeviceModel("deviceModel");
+        sensor.setManufacturer("manufacturer");
         sensor.setStatus(Status.ACTIVATED);
         this.sensorRepository.save(sensor);
 
         this.mockMvc.perform(patch("/api/change-status/{deviceModel}", "deviceModel"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("name"))
+                .andExpect(jsonPath("$.type").value("type"))
+                .andExpect(jsonPath("$.deviceModel").value("deviceModel"))
+                .andExpect(jsonPath("$.manufacturer").value("manufacturer"))
+                .andExpect(jsonPath("$.status").value("DEACTIVATED"));
     }
 
     @Test
     void shouldReturnFailedWhenChangeStatus() throws Exception{
 
         this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("SENSOR NOT FOUND"))
+                .andExpect(jsonPath("$.message").value("Sensor not found"))
+                .andExpect(jsonPath("$.path").value("/api/get-status/deviceModel"));
     }
 }
