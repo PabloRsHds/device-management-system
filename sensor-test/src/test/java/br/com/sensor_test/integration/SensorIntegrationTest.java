@@ -162,7 +162,11 @@ public class SensorIntegrationTest {
     void shouldReturnFailedWhenGetStatus() throws Exception{
 
         this.mockMvc.perform(get("/api/get-status/{deviceModel}", "deviceModel"))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("SENSOR NOT FOUND"))
+                .andExpect(jsonPath("$.message").value("Sensor not found"))
+                .andExpect(jsonPath("$.path").value("/api/get-status/deviceModel"));
     }
 
     // ===============================================================================================================
