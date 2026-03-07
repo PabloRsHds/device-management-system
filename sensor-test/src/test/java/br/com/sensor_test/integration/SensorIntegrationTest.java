@@ -102,12 +102,20 @@ public class SensorIntegrationTest {
     void shouldReturnSuccessWhenDeleteSensor() throws Exception{
 
         var sensor = new Sensor();
+        sensor.setName("name");
+        sensor.setType("type");
         sensor.setDeviceModel("deviceModel");
+        sensor.setManufacturer("manufacturer");
         sensor.setStatus(Status.ACTIVATED);
         this.sensorRepository.save(sensor);
 
         this.mockMvc.perform(delete("/api/delete-sensor/{deviceModel}", "deviceModel"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("name"))
+                .andExpect(jsonPath("$.type").value("type"))
+                .andExpect(jsonPath("$.deviceModel").value("deviceModel"))
+                .andExpect(jsonPath("$.manufacturer").value("manufacturer"))
+                .andExpect(jsonPath("$.status").value("ACTIVATED"));
     }
 
     @Test
