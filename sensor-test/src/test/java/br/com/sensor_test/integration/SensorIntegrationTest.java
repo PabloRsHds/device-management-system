@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -27,6 +28,22 @@ public class SensorIntegrationTest {
 
     @Autowired
     private SensorRepository sensorRepository;
+
+    private ResultActions expectDefaultErrorStructure(ResultActions result) throws Exception {
+        return result
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.target").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists())
+
+                .andExpect(jsonPath("$.source").value("SENSOR-TEST"))
+                .andExpect(jsonPath("$.target").value("DATABASE"))
+                .andExpect(jsonPath("$.service").value("sensor-test"));
+    }
 
 
     // ============================================= UPDATE INTEGRATION ==============================================
@@ -70,7 +87,11 @@ public class SensorIntegrationTest {
                             "manufacturer" : ""
                         }
                         """))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("SENSOR NOT FOUND"))
+                .andExpect(jsonPath("$.message").value("Sensor not found"))
+                .andExpect(jsonPath("$.path").value("/api/update-sensor/deviceModel"));
     }
 
     // ===============================================================================================================
