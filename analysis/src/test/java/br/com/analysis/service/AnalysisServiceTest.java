@@ -2,6 +2,7 @@ package br.com.analysis.service;
 
 import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.dtos.ConsumerSensorTest;
+import br.com.analysis.infra.exceptions.ServiceUnavailableException;
 import br.com.analysis.metrics.MetricsService;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
@@ -100,5 +101,17 @@ class AnalysisServiceTest {
 
         this.kafkaTemplate.send("message",
                 new AnalysisEventForNotification("deviceModel", true));
+    }
+
+    @Test
+    void shouldReturnThrowWhenSendEventKafkaRetry() {
+
+        var exception = mock(Exception.class);
+
+        assertThrows(ServiceUnavailableException.class,
+                () -> this.analysisService.sendEventKafkaRetry(
+                        "topic",
+                        new AnalysisEventForNotification("deviceModel", true),
+                        exception));
     }
 }
