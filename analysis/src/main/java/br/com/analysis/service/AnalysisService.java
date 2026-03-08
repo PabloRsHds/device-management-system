@@ -177,8 +177,10 @@ public class AnalysisService {
         newEntity.setHistoryMaxLimit(new ArrayList<>());
         newEntity.setHistoryUpdate(new ArrayList<>());
 
+        log.info("Salvando uma nova análise");
         this.analysisRepository.save(newEntity);
 
+        log.info("Enviando um evento para a notificação, analise criada");
         this.sendEvent("analysis-for-notification-topic", new AnalysisEventForNotification(
                 consumer.deviceModel(),
                 true

@@ -1,6 +1,7 @@
 package br.com.analysis.service;
 
 import br.com.analysis.dtos.AnalysisEventForNotification;
+import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.metrics.MetricsService;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
@@ -45,6 +46,7 @@ class AnalysisServiceTest {
 
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
         verifyNoInteractions(this.metricsService);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
@@ -58,6 +60,7 @@ class AnalysisServiceTest {
 
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
         verify(this.metricsService).analysisSuccess(false);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
@@ -71,6 +74,7 @@ class AnalysisServiceTest {
 
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
         verifyNoInteractions(this.metricsService);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
@@ -85,5 +89,16 @@ class AnalysisServiceTest {
                 new AnalysisEventForNotification("deviceModel", false));
 
         verify(this.metricsService).analysisSuccess(true);
+    }
+
+    @Test
+    void shouldReturnVoidWhenRegister() {
+
+        var consumer = mock(ConsumerSensorTest.class);
+
+        this.analysisService.register(consumer);
+
+        this.kafkaTemplate.send("message",
+                new AnalysisEventForNotification("deviceModel", true));
     }
 }
