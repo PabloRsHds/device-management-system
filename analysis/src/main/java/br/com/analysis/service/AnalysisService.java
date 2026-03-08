@@ -68,14 +68,18 @@ public class AnalysisService {
     @Transactional
     public AnalysisResult analysisResult(String deviceModel, Float minValue, Float minLimit, Float maxValue, Float maxLimit) {
 
+        log.info("Verificando modelo");
         Optional<Analysis> optionalEntity =
                 this.analysisRepository.findByDeviceModel(deviceModel);
 
         if (optionalEntity.isEmpty()) {
+            log.info("Entidade de análise não presente no banco de dados");
             return AnalysisResult.REGISTER;
         }
 
         if (minValue < minLimit || maxValue > maxLimit) {
+
+            log.info("Valor mínimo ou valor máximo incorretos");
 
             var entity = optionalEntity.get();
             entity.setAnalysisFailed(entity.getAnalysisFailed() + 1);
@@ -86,6 +90,7 @@ public class AnalysisService {
             return AnalysisResult.FAILED;
         }
 
+        log.info("Valor mínimo e valor máximo corretos");
         return AnalysisResult.SUCCESS;
     }
 
