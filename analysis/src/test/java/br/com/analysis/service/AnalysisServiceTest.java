@@ -54,4 +54,17 @@ class AnalysisServiceTest {
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
         verify(this.metricsService).analysisSuccess(false);
     }
+
+    @Test
+    void shouldReturnAnalysisResultWhenAnalysisResultSuccess() {
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Analysis()));
+
+        this.analysisService.analysisResult(
+                "deviceModel",10f, 0f,90f, 100f);
+
+        verify(this.analysisRepository).findByDeviceModel("deviceModel");
+        verifyNoInteractions(this.metricsService);
+    }
 }
