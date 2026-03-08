@@ -28,12 +28,12 @@ public class KafkaConsumer {
             groupId = "sensor-test-for-analysis-groupId",
             containerFactory = "kafkaListenerSensorTestFactory")
     @CircuitBreaker(name = "circuitbreaker_kafka_consumer", fallbackMethod = "kafkaConsumerCircuitBreaker")
-    public void consumerIotGateway(ConsumerSensorTest consumer, Acknowledgment ack) {
+    public void consumerSensorTest(ConsumerSensorTest consumer, Acknowledgment ack) {
 
         var sampleTimer = this.metricsService.startTimer();
 
         try {
-            this.analysisService.consumerIotGatewayService(consumer);
+            this.analysisService.consumerSensorTest(consumer);
 
         } finally {
             this.metricsService.stopConsumerTimer(sampleTimer);

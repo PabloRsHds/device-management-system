@@ -4,6 +4,7 @@ import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.dtos.RequestUpdateAnalysis;
 import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
+import br.com.analysis.enums.AnalysisResult;
 import br.com.analysis.infra.exceptions.DeviceNotFoundException;
 import br.com.analysis.infra.exceptions.ServiceUnavailableException;
 import br.com.analysis.metrics.MetricsService;
@@ -42,58 +43,57 @@ public class AnalysisService {
 
     // ============================================= REGISTER =======================================================
 
-    public void consumerIotGatewayService(ConsumerSensorTest consumer) {
+    public void consumerSensorTest(ConsumerSensorTest consumer) {
 
         System.out.println(consumer.minLimit());
         System.out.println(consumer.maxLimit());
         System.out.println(consumer.minValue());
         System.out.println(consumer.maxValue());
 
-        var entity = this.analysisFailed(
+        var response = this.analysisResult(
                 consumer.deviceModel(),
                 consumer.minValue(),
                 consumer.minLimit(),
                 consumer.maxValue(),
                 consumer.maxLimit());
 
-        if (entity != null) {
+        switch (response) {
 
-            this.analysisSuccess(
-                    entity,
-                    consumer.minValue(),
-                    consumer.maxValue());
-
-        } else {
-            this.register(consumer);
+            case REGISTER -> this.register(consumer);
+            case FAILED -> { return; }
+            case SUCCESS -> this.analysisSuccess(consumer.deviceModel(), consumer.minValue(), consumer.maxValue());
         }
     }
 
     @Transactional
-    public Analysis analysisFailed(String deviceModel, Float minValue, Float minLimit, Float maxValue, Float maxLimit) {
+    public AnalysisResult analysisResult(String deviceModel, Float minValue, Float minLimit, Float maxValue, Float maxLimit) {
 
-        if (minValue < minLimit ||
-                maxValue > maxLimit) {
+        Optional<Analysis> optionalEntity =
+                this.analysisRepository.findByDeviceModel(deviceModel);
 
-            Optional<Analysis> optionalEntity =
-                    this.analysisRepository.findByDeviceModel(deviceModel);
-
-            if (optionalEntity.isPresent()) {
-
-                var entity = optionalEntity.get();
-                entity.setAnalysisFailed(entity.getAnalysisFailed() + 1);
-
-                this.analysisRepository.save(entity);
-
-                this.metricsService.analysisSuccess(false);
-                return entity;
-            }
-
+        if (optionalEntity.isEmpty()) {
+            return AnalysisResult.REGISTER;
         }
-        return null;
+
+        if (minValue < minLimit || maxValue > maxLimit) {
+
+            var entity = optionalEntity.get();
+            entity.setAnalysisFailed(entity.getAnalysisFailed() + 1);
+
+            this.analysisRepository.save(entity);
+            this.metricsService.analysisSuccess(false);
+
+            return AnalysisResult.FAILED;
+        }
+
+        return AnalysisResult.SUCCESS;
     }
 
     @Transactional
-    public void analysisSuccess(Analysis entity, Float minValue, Float maxValue) {
+    public void analysisSuccess(String deviceModel, Float minValue, Float maxValue) {
+
+        Optional<Analysis> optionalEntity = this.analysisRepository.findByDeviceModel(deviceModel);
+        var entity = optionalEntity.get();
 
         String now = LocalDateTime.now()
                 .atZone(ZoneId.of("America/Sao_Paulo"))
