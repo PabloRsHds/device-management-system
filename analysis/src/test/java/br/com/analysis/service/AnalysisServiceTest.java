@@ -1,5 +1,7 @@
 package br.com.analysis.service;
 
+import br.com.analysis.metrics.MetricsService;
+import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AnalysisServiceTest {
@@ -21,6 +22,9 @@ class AnalysisServiceTest {
 
     @InjectMocks
     private AnalysisService analysisService;
+
+    @Mock
+    private MetricsService metricsService;
 
 
     // ========================================= REGISTER ============================================================
@@ -35,5 +39,19 @@ class AnalysisServiceTest {
                 "deviceModel",10f, 1f,10f, 1f);
 
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
+        verifyNoInteractions(this.metricsService);
+    }
+
+    @Test
+    void shouldReturnAnalysisResultWhenAnalysisResultFailed() {
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Analysis()));
+
+        this.analysisService.analysisResult(
+                "deviceModel",10f, 1f,10f, 1f);
+
+        verify(this.analysisRepository).findByDeviceModel("deviceModel");
+        verify(this.metricsService).analysisSuccess(false);
     }
 }
