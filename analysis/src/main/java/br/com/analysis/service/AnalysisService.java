@@ -143,8 +143,10 @@ public class AnalysisService {
         entity.setAnalysisWorked(entity.getAnalysisWorked() + 1);
 
         this.metricsService.analysisSuccess(true);
+        log.info("Salvando novos dados para a análise");
         this.analysisRepository.save(entity);
 
+        log.info("Envio um evento para a notificação");
         this.sendEvent("analysis-for-notification-topic",
                 new AnalysisEventForNotification(
                         entity.getDeviceModel(),

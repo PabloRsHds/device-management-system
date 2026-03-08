@@ -1,5 +1,6 @@
 package br.com.analysis.service;
 
+import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.metrics.MetricsService;
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Optional;
 
@@ -25,6 +27,9 @@ class AnalysisServiceTest {
 
     @Mock
     private MetricsService metricsService;
+
+    @Mock
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
 
     // ========================================= REGISTER ============================================================
@@ -66,5 +71,19 @@ class AnalysisServiceTest {
 
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
         verifyNoInteractions(this.metricsService);
+    }
+
+    @Test
+    void shouldReturnVoidWhenAnalysisSuccess() {
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Analysis()));
+
+        this.analysisService.analysisSuccess("deviceModel", 10f, 90f);
+
+        this.kafkaTemplate.send("message",
+                new AnalysisEventForNotification("deviceModel", false));
+
+        verify(this.metricsService).analysisSuccess(true);
     }
 }
