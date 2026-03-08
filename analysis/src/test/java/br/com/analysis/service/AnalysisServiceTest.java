@@ -114,4 +114,16 @@ class AnalysisServiceTest {
                         new AnalysisEventForNotification("deviceModel", true),
                         exception));
     }
+
+    @Test
+    void shouldReturnThrowWhenSendEventKafkaCircuitBreaker() {
+
+        var exception = mock(Exception.class);
+
+        assertThrows(ServiceUnavailableException.class,
+                () -> this.analysisService.sendEventKafkaCircuitBreaker(
+                        "topic",
+                        new AnalysisEventForNotification("deviceModel", true),
+                        exception));
+    }
 }
