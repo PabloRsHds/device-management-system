@@ -1,6 +1,7 @@
 package br.com.analysis.controller;
 
 import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
+import br.com.analysis.infra.exceptions.DeviceNotFoundException;
 import br.com.analysis.metrics.MetricsService;
 import br.com.analysis.service.AnalysisService;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,17 @@ class AnalysisControllerTest {
         this.mockMvc.perform(get("/api/get-device-for-model")
                 .param("deviceModel", "deviceModel"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnThrowWhenFindDeviceForAnalysis() throws Exception{
+
+        when(this.analysisService.getDeviceForAnalysis("deviceModel"))
+                .thenThrow(new DeviceNotFoundException("Device not found"));
+
+        this.mockMvc.perform(get("/api/get-device-for-model")
+                        .param("deviceModel", "deviceModel"))
+                .andExpect(status().isBadRequest());
     }
 
 }
