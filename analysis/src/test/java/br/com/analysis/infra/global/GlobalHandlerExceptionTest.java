@@ -53,5 +53,20 @@ class GlobalHandlerExceptionTest {
                 .andExpect(jsonPath("$.service").value("analysis"));
     }
 
+    @Test
+    void shouldReturnThrowWhenDeviceNotFoundException() throws Exception{
+
+        when(this.analysisService.getDeviceForAnalysis("deviceModel"))
+                .thenThrow(new DeviceNotFoundException("Device not found"));
+
+        this.mockMvc.perform(get("/api/get-device-for-model")
+                        .param("deviceModel", "deviceModel"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("NOT FOUND"))
+                .andExpect(jsonPath("$.message").value("Device not found"))
+                .andExpect(jsonPath("$.path").value("/api/get-device-for-model"));
+    }
+
 
 }
