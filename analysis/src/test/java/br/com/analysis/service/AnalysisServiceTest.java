@@ -249,10 +249,19 @@ class AnalysisServiceTest {
     }
 
     @Test
+    void shouldReturnThrowWhenDeleteAnalysis() {
+
+        assertThrows(DeviceNotFoundException.class,
+                () -> this.analysisService.deleteAnalysis("deviceModel"));
+    }
+
+    @Test
     void shouldReturnResponseDeviceAnalysisDtoWhenDelete() {
 
         var response = this.analysisService.delete(new Analysis());
 
         assertNotNull(response);
     }
+
+    // ===============================================================================================================
 }
