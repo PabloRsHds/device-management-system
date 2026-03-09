@@ -276,6 +276,8 @@ class AnalysisServiceTest {
         var response = this.analysisService.deleteAnalysis("deviceModel");
 
         assertNotNull(response);
+        verifyNoInteractions(this.metricsService);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
