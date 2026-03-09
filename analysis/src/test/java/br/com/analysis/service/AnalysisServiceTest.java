@@ -200,5 +200,19 @@ class AnalysisServiceTest {
                         "")));
     }
 
+    @Test
+    void shouldReturnResponseDeviceAnalysisDtoWhenUpdateAnalysis() {
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Analysis()));
+
+        this.analysisService.updateAnalysis("deviceModel", new RequestUpdateAnalysis(
+                "newName",
+                "",
+                "",
+                ""
+        ));
+    }
+
 
 }
