@@ -121,6 +121,9 @@ class AnalysisServiceTest {
                         "topic",
                         new AnalysisEventForNotification("deviceModel", true),
                         exception));
+
+        verifyNoInteractions(this.analysisRepository);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
@@ -133,6 +136,9 @@ class AnalysisServiceTest {
                         "topic",
                         new AnalysisEventForNotification("deviceModel", true),
                         exception));
+
+        verifyNoInteractions(this.analysisRepository);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     //================================================================================================================
