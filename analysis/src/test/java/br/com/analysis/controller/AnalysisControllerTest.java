@@ -223,4 +223,18 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.analysisWorked").value(1))
                 .andExpect(jsonPath("$.analysisFailed").value(2));
     }
+
+    @Test
+    void shouldReturnThrowWhenDeleteAnalysis() throws Exception{
+
+        when(this.analysisService.deleteAnalysis("deviceModel"))
+                .thenThrow(new DeviceNotFoundException("Device not found"));
+
+        this.mockMvc.perform(delete("/api/delete-analysis/{deviceModel}", "deviceModel"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("NOT FOUND"))
+                .andExpect(jsonPath("$.message").value("Device not found"))
+                .andExpect(jsonPath("$.path").value("/api/delete-analysis/deviceModel"));
+    }
 }
