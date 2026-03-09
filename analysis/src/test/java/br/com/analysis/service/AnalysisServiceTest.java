@@ -2,6 +2,8 @@ package br.com.analysis.service;
 
 import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.dtos.ConsumerSensorTest;
+import br.com.analysis.enums.AnalysisResult;
+import br.com.analysis.infra.exceptions.DeviceNotFoundException;
 import br.com.analysis.infra.exceptions.ServiceUnavailableException;
 import br.com.analysis.metrics.MetricsService;
 import br.com.analysis.model.Analysis;
@@ -126,4 +128,23 @@ class AnalysisServiceTest {
                         new AnalysisEventForNotification("deviceModel", true),
                         exception));
     }
+
+    //================================================================================================================
+
+    // ========================================== FIND DEVICE FOR ANALYSIS ===========================================
+
+    @Test
+    void shouldReturnResponseDeviceAnalysisDtoWhenGetDeviceForAnalysis() {
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Analysis()));
+
+        var response = this.analysisService.getDeviceForAnalysis("deviceModel");
+
+        assertNotNull(response);
+    }
+
+
+
+    // ===============================================================================================================
 }

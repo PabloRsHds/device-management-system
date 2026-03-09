@@ -213,6 +213,7 @@ public class AnalysisService {
 
         var entity = this.getDeviceWithModel(deviceModel);
 
+        log.info("Retornando um ResponseDeviceAnalysisDto ");
         return new ResponseDeviceAnalysisDto(
                 entity.getName(),
                 entity.getDeviceModel(),
@@ -236,9 +237,11 @@ public class AnalysisService {
         Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);
 
         if (entity.isEmpty()) {
+            log.info("Entidade vazia, retorno throw");
             throw new DeviceNotFoundException("Device not found for analysis");
         }
 
+        log.info("Retorno a entidade no banco de dados");
         return entity.get();
     }
 
