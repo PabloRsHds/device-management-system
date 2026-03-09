@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AnalysisController.class)
@@ -30,7 +32,7 @@ class AnalysisControllerTest {
     private AnalysisService analysisService;
 
     @Test
-    void shouldReturnResponseDeviceAnalysisDtoWhenFindDeviceForAnalysis() throws Exception{
+    void shouldReturnResponseDeviceAnalysisDtoWhenFindDeviceForAnalysis() throws Exception {
 
         var response = new ResponseDeviceAnalysisDto(
                 "name",
@@ -51,8 +53,20 @@ class AnalysisControllerTest {
                 .thenReturn(response);
 
         this.mockMvc.perform(get("/api/get-device-for-model")
-                .param("deviceModel", "deviceModel"))
-                .andExpect(status().isOk());
+                        .param("deviceModel", "deviceModel"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("name"))
+                .andExpect(jsonPath("$.deviceModel").value("deviceModel"))
+                .andExpect(jsonPath("$.minLimit").value(0f))
+                .andExpect(jsonPath("$.maxLimit").value(100f))
+                .andExpect(jsonPath("$.unit").value("unit"))
+                .andExpect(jsonPath("$.update").value("update"))
+                .andExpect(jsonPath("$.created").value("created"))
+                .andExpect(jsonPath("$.minValue").value(10f))
+                .andExpect(jsonPath("$.maxValue").value(50f))
+                .andExpect(jsonPath("$.symbol").value("AA"))
+                .andExpect(jsonPath("$.analysisSuccess").value(1))
+                .andExpect(jsonPath("$.analysisFailed").value(2));
     }
 
     @Test
