@@ -226,6 +226,9 @@ class AnalysisServiceTest {
                         "",
                         "",
                         "")));
+
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.metricsService);
     }
 
     @Test
