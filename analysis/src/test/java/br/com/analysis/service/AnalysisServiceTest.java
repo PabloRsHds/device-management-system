@@ -191,6 +191,10 @@ class AnalysisServiceTest {
 
         assertThrows(ServiceUnavailableException.class,
                 () -> this.analysisService.getDeviceWithModelRetry("deviceModel", exception));
+
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.metricsService);
+        verifyNoInteractions(this.analysisRepository);
     }
 
     @Test
