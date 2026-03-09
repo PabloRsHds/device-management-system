@@ -167,6 +167,8 @@ class AnalysisServiceTest {
         var response = this.analysisService.getDeviceWithModel("deviceModel");
 
         assertNotNull(response);
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.metricsService);
     }
 
     @Test
