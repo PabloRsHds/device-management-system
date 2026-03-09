@@ -2,6 +2,7 @@ package br.com.analysis.service;
 
 import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.dtos.ConsumerSensorTest;
+import br.com.analysis.dtos.RequestUpdateAnalysis;
 import br.com.analysis.enums.AnalysisResult;
 import br.com.analysis.infra.exceptions.DeviceNotFoundException;
 import br.com.analysis.infra.exceptions.ServiceUnavailableException;
@@ -182,4 +183,22 @@ class AnalysisServiceTest {
     }
 
     // ===============================================================================================================
+
+    // ================================================ UPDATE ========================================================
+
+    @Test
+    void shouldReturnThrowDeviceAnalysisDtoWhenUpdateAnalysis() {
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(DeviceNotFoundException.class,
+                () -> this.analysisService.updateAnalysis("deviceModel", new RequestUpdateAnalysis(
+                        "newName",
+                        "",
+                        "",
+                        "")));
+    }
+
+
 }

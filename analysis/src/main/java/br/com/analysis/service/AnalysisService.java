@@ -272,23 +272,28 @@ public class AnalysisService {
     public ResponseDeviceAnalysisDto update(Analysis entity, RequestUpdateAnalysis request) {
 
         if (!request.name().isBlank()) {
+            log.info("Salvando um novo nome");
             entity.setName(request.name());
         }
 
         if (!request.deviceModel().isBlank()) {
+            log.info("Salvando um novo model");
             entity.setDeviceModel(request.deviceModel());
         }
 
         if (!request.manufacturer().isBlank()) {
+            log.info("Salvando um novo manufacturer");
             entity.setManufacturer(request.manufacturer());
         }
 
         if (!request.description().isBlank()) {
+            log.info("Salvando um novo description");
             entity.setDescription(request.description());
         }
 
         this.analysisRepository.save(entity);
 
+        log.info("Retornando um response");
         return new ResponseDeviceAnalysisDto(
                 entity.getName(),
                 entity.getDeviceModel(),
