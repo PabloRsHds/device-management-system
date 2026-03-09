@@ -179,6 +179,9 @@ class AnalysisServiceTest {
 
         assertThrows(DeviceNotFoundException.class,
                 () -> this.analysisService.getDeviceWithModel("deviceModel"));
+
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.metricsService);
     }
 
     @Test
