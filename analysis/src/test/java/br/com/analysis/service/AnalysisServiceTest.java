@@ -163,6 +163,15 @@ class AnalysisServiceTest {
                 () -> this.analysisService.getDeviceWithModel("deviceModel"));
     }
 
+    @Test
+    void shouldReturnAnalysisWhenGetDeviceWithModelRetry() {
+
+        var exception = mock(Exception.class);
+
+        assertThrows(ServiceUnavailableException.class,
+                () -> this.analysisService.getDeviceWithModelRetry("deviceModel", exception));
+    }
+
 
 
     // ===============================================================================================================
