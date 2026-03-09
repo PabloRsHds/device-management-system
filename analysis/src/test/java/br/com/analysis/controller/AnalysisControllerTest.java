@@ -142,6 +142,45 @@ class AnalysisControllerTest {
                             "description" : ""
                         }
                         """))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("newName"))
+                .andExpect(jsonPath("$.deviceModel").value("deviceModel"))
+                .andExpect(jsonPath("$.minLimit").value(0f))
+                .andExpect(jsonPath("$.maxLimit").value(100f))
+                .andExpect(jsonPath("$.unit").value("unit"))
+                .andExpect(jsonPath("$.updatedAt").value("update"))
+                .andExpect(jsonPath("$.createdAt").value("created"))
+                .andExpect(jsonPath("$.lastReadingMinLimit").value(10f))
+                .andExpect(jsonPath("$.lastReadingMaxLimit").value(50f))
+                .andExpect(jsonPath("$.lastReadingUpdateAt").value("AA"))
+                .andExpect(jsonPath("$.analysisWorked").value(1))
+                .andExpect(jsonPath("$.analysisFailed").value(2));
+    }
+
+    @Test
+    void shouldReturnThrowWhenUpdateAnalysis() throws Exception{
+
+        when(this.analysisService.updateAnalysis("deviceModel", new RequestUpdateAnalysis(
+                "newName",
+                "",
+                "",
+                ""
+        ))).thenThrow(new DeviceNotFoundException("Device not found"));
+
+        this.mockMvc.perform(patch("/api/update-analysis/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name" : "newName",
+                            "deviceModel" : "",
+                            "manufacturer" : "",
+                            "description" : ""
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("NOT FOUND"))
+                .andExpect(jsonPath("$.message").value("Device not found"))
+                .andExpect(jsonPath("$.path").value("/api/update-analysis/deviceModel"));
     }
 }
