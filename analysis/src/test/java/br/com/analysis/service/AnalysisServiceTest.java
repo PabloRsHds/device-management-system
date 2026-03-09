@@ -204,6 +204,10 @@ class AnalysisServiceTest {
 
         assertThrows(ServiceUnavailableException.class,
                 () -> this.analysisService.getDeviceWithModelCircuitBreaker("deviceModel", exception));
+
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.metricsService);
+        verifyNoInteractions(this.analysisRepository);
     }
 
     // ===============================================================================================================
