@@ -60,12 +60,12 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.minLimit").value(0f))
                 .andExpect(jsonPath("$.maxLimit").value(100f))
                 .andExpect(jsonPath("$.unit").value("unit"))
-                .andExpect(jsonPath("$.update").value("update"))
-                .andExpect(jsonPath("$.created").value("created"))
-                .andExpect(jsonPath("$.minValue").value(10f))
-                .andExpect(jsonPath("$.maxValue").value(50f))
-                .andExpect(jsonPath("$.symbol").value("AA"))
-                .andExpect(jsonPath("$.analysisSuccess").value(1))
+                .andExpect(jsonPath("$.updatedAt").value("update"))
+                .andExpect(jsonPath("$.createdAt").value("created"))
+                .andExpect(jsonPath("$.lastReadingMinLimit").value(10f))
+                .andExpect(jsonPath("$.lastReadingMaxLimit").value(50f))
+                .andExpect(jsonPath("$.lastReadingUpdateAt").value("AA"))
+                .andExpect(jsonPath("$.analysisWorked").value(1))
                 .andExpect(jsonPath("$.analysisFailed").value(2));
     }
 
