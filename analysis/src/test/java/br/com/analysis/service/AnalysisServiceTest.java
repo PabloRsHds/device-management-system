@@ -172,7 +172,14 @@ class AnalysisServiceTest {
                 () -> this.analysisService.getDeviceWithModelRetry("deviceModel", exception));
     }
 
+    @Test
+    void shouldReturnAnalysisWhenGetDeviceWithModelCircuitBreaker() {
 
+        var exception = mock(Exception.class);
+
+        assertThrows(ServiceUnavailableException.class,
+                () -> this.analysisService.getDeviceWithModelCircuitBreaker("deviceModel", exception));
+    }
 
     // ===============================================================================================================
 }
