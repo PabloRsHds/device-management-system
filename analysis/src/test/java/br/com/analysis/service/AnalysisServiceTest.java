@@ -285,6 +285,9 @@ class AnalysisServiceTest {
 
         assertThrows(DeviceNotFoundException.class,
                 () -> this.analysisService.deleteAnalysis("deviceModel"));
+
+        verifyNoInteractions(this.metricsService);
+        verifyNoInteractions(this.kafkaTemplate);
     }
 
     @Test
