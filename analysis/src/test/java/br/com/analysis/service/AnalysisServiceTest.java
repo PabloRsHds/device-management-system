@@ -153,6 +153,16 @@ class AnalysisServiceTest {
         this.analysisService.getDeviceWithModel("deviceModel");
     }
 
+    @Test
+    void shouldReturnThrowWhenGetDeviceWithModel(){
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(DeviceNotFoundException.class,
+                () -> this.analysisService.getDeviceWithModel("deviceModel"));
+    }
+
 
 
     // ===============================================================================================================
