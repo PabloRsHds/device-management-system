@@ -68,5 +68,18 @@ class GlobalHandlerExceptionTest {
                 .andExpect(jsonPath("$.path").value("/api/get-device-for-model"));
     }
 
+    @Test
+    void shouldReturnThrowWhenServiceUnavailableException() throws Exception{
 
+        when(this.analysisService.getDeviceForAnalysis("deviceModel"))
+                .thenThrow(new ServiceUnavailableException("Service unavailable"));
+
+        this.mockMvc.perform(get("/api/get-device-for-model")
+                        .param("deviceModel", "deviceModel"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("SERVICE UNAVAILABLE"))
+                .andExpect(jsonPath("$.message").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/get-device-for-model"));
+    }
 }
