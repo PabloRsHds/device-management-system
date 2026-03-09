@@ -144,6 +144,15 @@ class AnalysisServiceTest {
         assertNotNull(response);
     }
 
+    @Test
+    void shouldReturnAnalysisWhenGetDeviceWithModel(){
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Analysis()));
+
+        this.analysisService.getDeviceWithModel("deviceModel");
+    }
+
 
 
     // ===============================================================================================================
