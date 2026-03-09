@@ -324,6 +324,7 @@ public class AnalysisService {
     @Transactional
     public ResponseDeviceAnalysisDto delete(Analysis entity) {
 
+        log.info("Retornando um response da análise deletada");
         var response = new ResponseDeviceAnalysisDto(
                 entity.getName(),
                 entity.getDeviceModel(),
@@ -339,6 +340,7 @@ public class AnalysisService {
                 entity.getAnalysisFailed()
         );
 
+        log.info("Deletando uma análise");
         this.analysisRepository.delete(entity);
         return response;
     }

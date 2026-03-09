@@ -206,22 +206,38 @@ class AnalysisServiceTest {
         when(this.analysisRepository.findByDeviceModel("deviceModel"))
                 .thenReturn(Optional.of(new Analysis()));
 
-        this.analysisService.updateAnalysis("deviceModel", new RequestUpdateAnalysis(
+        var response = this.analysisService.updateAnalysis("deviceModel", new RequestUpdateAnalysis(
                 "newName",
                 "",
                 "",
                 ""
         ));
+
+        assertNotNull(response);
     }
 
     @Test
     void shouldReturnResponseDeviceAnalysisDtoWhenUpdate() {
 
-        this.analysisService.update(new Analysis(), new RequestUpdateAnalysis(
+        var response = this.analysisService.update(new Analysis(), new RequestUpdateAnalysis(
                 "newName",
                 "",
                 "",
                 ""
         ));
+
+        assertNotNull(response);
+    }
+
+    // ===============================================================================================================
+
+    // ================================================ DELETE =======================================================
+
+    @Test
+    void shouldReturnResponseDeviceAnalysisDtoWhenDelete() {
+
+        var response = this.analysisService.delete(new Analysis());
+
+        assertNotNull(response);
     }
 }
