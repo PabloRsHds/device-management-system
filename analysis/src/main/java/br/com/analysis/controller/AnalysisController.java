@@ -13,7 +13,6 @@ public class AnalysisController {
 
     private final AnalysisService analysisService;
 
-    @Autowired
     public AnalysisController(AnalysisService analysisService) {
         this.analysisService = analysisService;
     }
