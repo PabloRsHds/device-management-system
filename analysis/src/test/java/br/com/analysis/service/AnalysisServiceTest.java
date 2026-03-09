@@ -107,6 +107,8 @@ class AnalysisServiceTest {
 
         this.kafkaTemplate.send("message",
                 new AnalysisEventForNotification("deviceModel", true));
+
+        verifyNoInteractions(this.metricsService);
     }
 
     @Test
