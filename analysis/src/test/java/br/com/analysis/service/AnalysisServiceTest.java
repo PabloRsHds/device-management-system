@@ -214,5 +214,14 @@ class AnalysisServiceTest {
         ));
     }
 
+    @Test
+    void shouldReturnResponseDeviceAnalysisDtoWhenUpdate() {
 
+        this.analysisService.update(new Analysis(), new RequestUpdateAnalysis(
+                "newName",
+                "",
+                "",
+                ""
+        ));
+    }
 }
