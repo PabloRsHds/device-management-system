@@ -245,6 +245,8 @@ class AnalysisServiceTest {
         ));
 
         assertNotNull(response);
+        verifyNoInteractions(this.kafkaTemplate);
+        verifyNoInteractions(this.metricsService);
     }
 
     @Test
