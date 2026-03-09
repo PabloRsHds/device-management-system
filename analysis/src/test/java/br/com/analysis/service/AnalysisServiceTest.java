@@ -3,7 +3,6 @@ package br.com.analysis.service;
 import br.com.analysis.dtos.AnalysisEventForNotification;
 import br.com.analysis.dtos.ConsumerSensorTest;
 import br.com.analysis.dtos.RequestUpdateAnalysis;
-import br.com.analysis.enums.AnalysisResult;
 import br.com.analysis.infra.exceptions.DeviceNotFoundException;
 import br.com.analysis.infra.exceptions.ServiceUnavailableException;
 import br.com.analysis.metrics.MetricsService;
@@ -18,7 +17,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,9 +45,10 @@ class AnalysisServiceTest {
         when(this.analysisRepository.findByDeviceModel("deviceModel"))
                 .thenReturn(Optional.empty());
 
-        this.analysisService.analysisResult(
+        var response = this.analysisService.analysisResult(
                 "deviceModel",10f, 1f,10f, 1f);
 
+        assertNotNull(response);
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
         verifyNoInteractions(this.metricsService);
         verifyNoInteractions(this.kafkaTemplate);
@@ -59,9 +60,10 @@ class AnalysisServiceTest {
         when(this.analysisRepository.findByDeviceModel("deviceModel"))
                 .thenReturn(Optional.of(new Analysis()));
 
-        this.analysisService.analysisResult(
+        var response = this.analysisService.analysisResult(
                 "deviceModel",10f, 1f,10f, 1f);
 
+        assertNotNull(response);
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
         verify(this.metricsService).analysisSuccess(false);
         verifyNoInteractions(this.kafkaTemplate);
@@ -73,9 +75,10 @@ class AnalysisServiceTest {
         when(this.analysisRepository.findByDeviceModel("deviceModel"))
                 .thenReturn(Optional.of(new Analysis()));
 
-        this.analysisService.analysisResult(
+        var response = this.analysisService.analysisResult(
                 "deviceModel",10f, 0f,90f, 100f);
 
+        assertNotNull(response);
         verify(this.analysisRepository).findByDeviceModel("deviceModel");
         verifyNoInteractions(this.metricsService);
         verifyNoInteractions(this.kafkaTemplate);
@@ -151,7 +154,9 @@ class AnalysisServiceTest {
         when(this.analysisRepository.findByDeviceModel("deviceModel"))
                 .thenReturn(Optional.of(new Analysis()));
 
-        this.analysisService.getDeviceWithModel("deviceModel");
+        var response = this.analysisService.getDeviceWithModel("deviceModel");
+
+        assertNotNull(response);
     }
 
     @Test
@@ -232,6 +237,16 @@ class AnalysisServiceTest {
     // ===============================================================================================================
 
     // ================================================ DELETE =======================================================
+
+    @Test
+    void shouldReturnResponseDeviceAnalysisDtoWhenDeleteAnalysis() {
+
+        when(this.analysisRepository.findByDeviceModel("deviceModel"))
+                .thenReturn(Optional.of(new Analysis()));
+        var response = this.analysisService.deleteAnalysis("deviceModel");
+
+        assertNotNull(response);
+    }
 
     @Test
     void shouldReturnResponseDeviceAnalysisDtoWhenDelete() {
