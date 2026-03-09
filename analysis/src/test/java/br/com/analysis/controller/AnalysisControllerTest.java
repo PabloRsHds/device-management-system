@@ -1,5 +1,6 @@
 package br.com.analysis.controller;
 
+import br.com.analysis.dtos.RequestUpdateAnalysis;
 import br.com.analysis.dtos.ResponseDeviceAnalysisDto;
 import br.com.analysis.infra.exceptions.DeviceNotFoundException;
 import br.com.analysis.metrics.MetricsService;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -48,7 +50,7 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.service").value("analysis"));
     }
 
-    // ===================================== FindDeviceForAnalysis ===================================================
+    // ===================================== findDeviceForAnalysis ===================================================
     @Test
     void shouldReturnResponseDeviceAnalysisDtoWhenFindDeviceForAnalysis() throws Exception {
 
@@ -102,4 +104,44 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.path").value("/api/get-device-for-model"));
     }
     // ===============================================================================================================
+
+    // ============================================ updateAnalysis ===================================================
+
+    @Test
+    void shouldReturnResponseDeviceAnalysisDtoWhenUpdateAnalysis() throws Exception{
+
+        var response = new ResponseDeviceAnalysisDto(
+                "newName",
+                "deviceModel",
+                0f,
+                100f,
+                "unit",
+                "update",
+                "created",
+                10f,
+                50f,
+                "AA",
+                1,
+                2
+        );
+
+        when(this.analysisService.updateAnalysis("deviceModel", new RequestUpdateAnalysis(
+                "newName",
+                "",
+                "",
+                ""
+        ))).thenReturn(response);
+
+        this.mockMvc.perform(patch("/api/update-analysis/{deviceModel}", "deviceModel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name" : "newName",
+                            "deviceModel" : "",
+                            "manufacturer" : "",
+                            "description" : ""
+                        }
+                        """))
+                .andExpect(status().isOk());
+    }
 }
