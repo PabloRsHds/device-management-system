@@ -55,5 +55,28 @@ public class AnalysisIntegration {
 
     // ===============================================================================================================
 
+    // =========================================== updateAnalysis ====================================================
+
+    @Test
+    void shouldReturnResponseDeviceAnalysisDtoWhenUpdateAnalysis() throws Exception {
+
+        var entity = new Analysis();
+        entity.setName("name");
+        entity.setDeviceModel("deviceModel");
+        this.analysisRepository.save(entity);
+
+        this.mockMvc.perform(patch("/api/update-analysis/{deviceModel}", "deviceModel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name" : "newName",
+                            "deviceModel" : "",
+                            "manufacturer" : "",
+                            "description" : ""
+                        }
+                        """))
+                .andExpect(status().isOk());
+    }
+
 
 }
