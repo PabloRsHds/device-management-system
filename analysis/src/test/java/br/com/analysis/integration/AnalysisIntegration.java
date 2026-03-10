@@ -110,5 +110,10 @@ public class AnalysisIntegration {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenDeleteAnalysis() throws Exception {
 
+        this.mockMvc.perform(delete("/api/delete-analysis/{deviceModel}", "deviceModel"))
+                .andExpect(status().isBadRequest());
+    }
 }
