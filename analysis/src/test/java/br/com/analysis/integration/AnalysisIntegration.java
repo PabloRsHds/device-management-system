@@ -203,6 +203,10 @@ public class AnalysisIntegration {
     void shouldReturnThrowWhenDeleteAnalysis() throws Exception {
 
         this.mockMvc.perform(delete("/api/delete-analysis/{deviceModel}", "deviceModel"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("NOT FOUND"))
+                .andExpect(jsonPath("$.message").value("Device not found for analysis"))
+                .andExpect(jsonPath("$.path").value("/api/delete-analysis/deviceModel"));
     }
 }
