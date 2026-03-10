@@ -96,5 +96,19 @@ public class AnalysisIntegration {
 
     // ===============================================================================================================
 
+    // ========================================== deleteAnalysis =====================================================
+
+    @Test
+    void shouldReturnResponseDeviceAnalysisDtoWhenDeleteAnalysis() throws Exception {
+
+        var entity = new Analysis();
+        entity.setName("name");
+        entity.setDeviceModel("deviceModel");
+        this.analysisRepository.save(entity);
+
+        this.mockMvc.perform(delete("/api/delete-analysis/{deviceModel}", "deviceModel"))
+                .andExpect(status().isOk());
+    }
+
 
 }
