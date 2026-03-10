@@ -45,5 +45,15 @@ public class AnalysisIntegration {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenFindDeviceForAnalysis() throws Exception{
+
+        this.mockMvc.perform(get("/api/get-device-for-model")
+                        .param("deviceModel", "deviceModel"))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ===============================================================================================================
+
 
 }
