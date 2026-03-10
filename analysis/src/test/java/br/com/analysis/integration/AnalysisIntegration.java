@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -27,9 +28,6 @@ public class AnalysisIntegration {
     @Autowired
     private AnalysisRepository analysisRepository;
 
-    @Autowired
-    private AnalysisService analysisService;
-
     // ================================== findDeviceForAnalysis ======================================================
 
     @Test
@@ -38,11 +36,33 @@ public class AnalysisIntegration {
         var entity = new Analysis();
         entity.setName("name");
         entity.setDeviceModel("deviceModel");
+        entity.setMinLimit(0f);
+        entity.setMaxLimit(100f);
+        entity.setUnit("unit");
+        entity.setUpdatedAt("update");
+        entity.setCreatedAt("created");
+        entity.setLastReadingMinLimit(10f);
+        entity.setLastReadingMaxLimit(50f);
+        entity.setLastReadingUpdateAt("AA");
+        entity.setAnalysisWorked(1);
+        entity.setAnalysisFailed(2);
         this.analysisRepository.save(entity);
 
         this.mockMvc.perform(get("/api/get-device-for-model")
                 .param("deviceModel", "deviceModel"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("name"))
+                .andExpect(jsonPath("$.deviceModel").value("deviceModel"))
+                .andExpect(jsonPath("$.minLimit").value(0f))
+                .andExpect(jsonPath("$.maxLimit").value(100f))
+                .andExpect(jsonPath("$.unit").value("unit"))
+                .andExpect(jsonPath("$.updatedAt").value("update"))
+                .andExpect(jsonPath("$.createdAt").value("created"))
+                .andExpect(jsonPath("$.lastReadingMinLimit").value(10f))
+                .andExpect(jsonPath("$.lastReadingMaxLimit").value(50f))
+                .andExpect(jsonPath("$.lastReadingUpdateAt").value("AA"))
+                .andExpect(jsonPath("$.analysisWorked").value(1))
+                .andExpect(jsonPath("$.analysisFailed").value(2));
     }
 
     @Test
