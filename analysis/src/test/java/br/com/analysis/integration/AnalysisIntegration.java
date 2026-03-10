@@ -78,5 +78,23 @@ public class AnalysisIntegration {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenUpdateAnalysis() throws Exception {
+
+        this.mockMvc.perform(patch("/api/update-analysis/{deviceModel}", "deviceModel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name" : "newName",
+                            "deviceModel" : "",
+                            "manufacturer" : "",
+                            "description" : ""
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ===============================================================================================================
+
 
 }
