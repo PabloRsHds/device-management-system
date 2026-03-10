@@ -2,7 +2,6 @@ package br.com.analysis.integration;
 
 import br.com.analysis.model.Analysis;
 import br.com.analysis.repository.AnalysisRepository;
-import br.com.analysis.service.AnalysisService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
