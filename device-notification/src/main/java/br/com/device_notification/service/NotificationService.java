@@ -119,9 +119,11 @@ public class NotificationService {
         var notification = this.notificationRepository.findById(notificationId);
 
         if (notification.isEmpty()) {
+            log.info("Notificação não existe");
             throw new NotificationNotFound("Notification not found");
         }
 
+        log.info("Notificação presente, salvando notificação vista");
         notification.get().setShowNotification(false);
         this.notificationRepository.save(notification.get());
     }
@@ -137,6 +139,8 @@ public class NotificationService {
     }
 
     // ===============================================================================================================
+
+    // ========================================= COUNT NOTIFICATIONS =================================================
 
     @Retry(name = "retry_count", fallbackMethod = "countRetry")
     @CircuitBreaker(name = "circuitbreaker_count", fallbackMethod = "countCircuitBreaker")
