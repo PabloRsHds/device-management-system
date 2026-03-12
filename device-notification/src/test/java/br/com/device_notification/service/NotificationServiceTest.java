@@ -51,6 +51,7 @@ class NotificationServiceTest {
         var response = notificationService.allNotifications(0, 10);
 
         assertEquals(1, response.size());
+        verify(this.notificationRepository).findAllByShowNotificationTrue(any(Pageable.class));
     }
     // ================================================================================================================
 
@@ -71,6 +72,7 @@ class NotificationServiceTest {
         var response = notificationService.allNotificationsOccult(0, 10);
 
         assertEquals(1, response.size());
+        verify(this.notificationRepository).findAllByShowNotificationFalse(any(Pageable.class));
     }
 
     // ================================================================================================================
