@@ -103,5 +103,19 @@ class NotificationServiceTest {
         verify(this.notificationRepository).findById(1L);
     }
 
+    @Test
+    void shouldReturnThrowWhenOccult(){
+
+        when(this.notificationRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NotificationNotFound.class,
+                () -> this.notificationService.occult(1L));
+
+        verify(this.notificationRepository).findById(1L);
+    }
+
+    //=================================================================================================================
+
 
 }
