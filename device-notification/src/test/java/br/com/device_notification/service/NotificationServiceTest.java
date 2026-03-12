@@ -117,5 +117,13 @@ class NotificationServiceTest {
 
     //=================================================================================================================
 
+    // ========================================= COUNT NOTIFICATIONS =================================================
 
+    @Test
+    void shouldReturnIntWhenCountNotifications(){
+
+        var response = this.notificationService.countNotifications();
+
+        assertEquals(0L, response);
+    }
 }
