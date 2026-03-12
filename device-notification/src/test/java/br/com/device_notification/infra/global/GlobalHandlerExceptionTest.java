@@ -44,4 +44,15 @@ class GlobalHandlerExceptionTest {
         this.mockMvc.perform(get("/api/count-notification"))
                 .andExpect(status().isServiceUnavailable());
     }
+
+    @Test
+    void shouldReturnNotificationNotFoundWhenOccultNotification() throws Exception{
+
+        doThrow(new NotificationNotFound("Notification not found"))
+                .when(notificationService)
+                .occultNotification(1L);
+
+        this.mockMvc.perform(put("/api/occult-notification/{notificationId}", "1"))
+                .andExpect(status().isNotFound());
+    }
 }
