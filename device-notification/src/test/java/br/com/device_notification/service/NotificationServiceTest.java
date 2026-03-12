@@ -47,10 +47,28 @@ class NotificationServiceTest {
         when(notificationRepository.findAllByShowNotificationTrue(any(Pageable.class)))
                 .thenReturn(page);
 
-        List<ResponseNotifications> response =
-                notificationService.allNotifications(0, 10);
+        var response = notificationService.allNotifications(0, 10);
 
         assertEquals(1, response.size());
     }
     // ================================================================================================================
+
+    // ================================ ALL NOTIFICATIONS OCCULTS =====================================================
+
+    @Test
+    void shouldReturnResponseNotificationsWhenAllNotificationsOccult() {
+
+        var notification = new Notification();
+        notification.setNotificationId(1L);
+        notification.setMessage("Mensagem teste");
+
+        Page<Notification> page = new PageImpl<>(List.of(notification));
+
+        when(notificationRepository.findAllByShowNotificationFalse(any(Pageable.class)))
+                .thenReturn(page);
+
+        var response = notificationService.allNotificationsOccult(0, 10);
+
+        assertEquals(1, response.size());
+    }
 }
