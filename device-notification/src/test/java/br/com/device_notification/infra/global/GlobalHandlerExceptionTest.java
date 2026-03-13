@@ -11,14 +11,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Optional;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(NotificationController.class)
@@ -34,6 +32,20 @@ class GlobalHandlerExceptionTest {
     @MockitoBean
     private NotificationRepository notificationRepository;
 
+    private ResultActions expectDefaultErrorStructure(ResultActions result) throws Exception {
+        return result
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.source").exists())
+                .andExpect(jsonPath("$.service").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.path").exists())
+
+                .andExpect(jsonPath("$.source").value("DEVICE-NOTIFICATION"))
+                .andExpect(jsonPath("$.service").value("device-notification"));
+    }
+
     @Test
     void shouldReturnServiceUnavailableWhenCountNotifications() throws Exception{
 
@@ -41,7 +53,11 @@ class GlobalHandlerExceptionTest {
                 .thenThrow(new ServiceUnavailable("Service unavailable"));
 
         this.mockMvc.perform(get("/api/count-notification"))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("The service is unavailable"))
+                .andExpect(jsonPath("$.message").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/count-notification"));
 
         verify(this.notificationService).countNotifications();
     }
