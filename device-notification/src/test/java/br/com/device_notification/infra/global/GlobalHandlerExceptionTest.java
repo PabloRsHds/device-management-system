@@ -14,8 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,6 +42,8 @@ class GlobalHandlerExceptionTest {
 
         this.mockMvc.perform(get("/api/count-notification"))
                 .andExpect(status().isServiceUnavailable());
+
+        verify(this.notificationService).countNotifications();
     }
 
     @Test
@@ -54,5 +55,7 @@ class GlobalHandlerExceptionTest {
 
         this.mockMvc.perform(put("/api/occult-notification/{notificationId}", "1"))
                 .andExpect(status().isNotFound());
+
+        verify(this.notificationService).occultNotification(1L);
     }
 }
