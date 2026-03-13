@@ -39,6 +39,7 @@ public class NotificationService {
     @CircuitBreaker(name = "circuitbreaker_notifications", fallbackMethod = "allNotificationsCircuitBreaker")
     public List<ResponseNotifications> allNotifications(int page, int size) {
 
+        log.info("Retornando todas as notificações que estejam true");
         return this.notificationRepository.findAllByShowNotificationTrue(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
                 .stream()
                 .map(notification -> new ResponseNotifications(
