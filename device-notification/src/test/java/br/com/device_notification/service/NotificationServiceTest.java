@@ -98,7 +98,17 @@ class NotificationServiceTest {
         assertNotNull(response);
     }
 
+    @Test
+    void shouldReturnThrowWhenVerifyIfNotificationIsEmpty(){
 
+        when(this.notificationRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NotificationNotFound.class,
+                () -> this.notificationService.verifyIfNotificationIsEmpty(1L));
+
+        verify(this.notificationRepository).findById(1L);
+    }
 
     //=================================================================================================================
 
