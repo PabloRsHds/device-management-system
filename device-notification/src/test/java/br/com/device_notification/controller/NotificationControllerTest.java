@@ -128,8 +128,8 @@ class NotificationControllerTest {
                 .occultNotification(1L);
 
         mockMvc.perform(put("/api/occult-notification/{notificationId}","1"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.error").value("Notification not found"))
                 .andExpect(jsonPath("$.message").value("Notification not found"))
                 .andExpect(jsonPath("$.path").value("/api/occult-notification/1"));

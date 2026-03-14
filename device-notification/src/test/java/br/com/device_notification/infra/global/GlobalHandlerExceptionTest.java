@@ -70,7 +70,7 @@ class GlobalHandlerExceptionTest {
                 .occultNotification(1L);
 
         this.mockMvc.perform(put("/api/occult-notification/{notificationId}", "1"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isConflict());
 
         verify(this.notificationService).occultNotification(1L);
     }

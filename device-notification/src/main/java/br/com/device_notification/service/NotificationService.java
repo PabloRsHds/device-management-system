@@ -4,10 +4,12 @@ import br.com.device_notification.dtos.ResponseNotifications;
 import br.com.device_notification.infra.exceptions.NotificationNotFound;
 import br.com.device_notification.infra.exceptions.ServiceUnavailable;
 import br.com.device_notification.metrics.MetricsService;
+import br.com.device_notification.model.Notification;
 import br.com.device_notification.repository.NotificationRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -109,14 +111,16 @@ public class NotificationService {
 
     // ======================================= OCULTAR NOTIFICAÇÕES ==================================================
 
-    @Retry(name = "retry_occult", fallbackMethod = "occultRetry")
-    @CircuitBreaker(name = "circuitbreaker_occult", fallbackMethod = "occultCircuitBreaker")
+
     public void occultNotification(Long notificationId) {
-        this.occult(notificationId);
+        var notification = this.verifyIfNotificationIsEmpty(notificationId);
+        this.occult(notification);
     }
 
-    @Transactional
-    public void occult(Long notificationId) {
+    @Retry(name = "retry_occult", fallbackMethod = "occultRetry")
+    @CircuitBreaker(name = "circuitbreaker_occult", fallbackMethod = "occultCircuitBreaker")
+    public Notification verifyIfNotificationIsEmpty(Long notificationId) {
+
         var notification = this.notificationRepository.findById(notificationId);
 
         if (notification.isEmpty()) {
@@ -124,9 +128,16 @@ public class NotificationService {
             throw new NotificationNotFound("Notification not found");
         }
 
+        log.info("Notificação presente no banco de dados");
+        return notification.get();
+    }
+
+    @Transactional
+    public void occult(Notification notification) {
+
         log.info("Notificação presente, salvando notificação vista");
-        notification.get().setShowNotification(false);
-        this.notificationRepository.save(notification.get());
+        notification.setShowNotification(false);
+        this.notificationRepository.save(notification);
     }
 
     public void occultRetry(Long notificationId, Exception ex) {

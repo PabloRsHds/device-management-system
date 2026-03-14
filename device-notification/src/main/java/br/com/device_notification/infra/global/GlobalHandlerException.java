@@ -35,9 +35,9 @@ public class GlobalHandlerException {
     public ResponseEntity<ResponseExceptionDto> notificationNotFound(NotificationNotFound ex,
                                                                      HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseExceptionDto(
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseExceptionDto(
                 Instant.now().toString(),
-                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.CONFLICT.value(),
                 "Notification not found",
                 "DEVICE-NOTIFICATION",
                 this.serviceName,
