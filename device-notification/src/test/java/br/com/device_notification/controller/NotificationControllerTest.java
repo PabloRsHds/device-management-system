@@ -143,7 +143,11 @@ class NotificationControllerTest {
                 .occultNotification(1L);
 
         mockMvc.perform(put("/api/occult-notification/{notificationId}","1"))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("The service is unavailable"))
+                .andExpect(jsonPath("$.message").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/occult-notification/1"));
     }
     // ===============================================================================================================
 
