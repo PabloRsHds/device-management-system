@@ -16,8 +16,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -86,6 +85,18 @@ class NotificationServiceTest {
     //================================================================================================================
 
     // ======================================= OCULTAR NOTIFICAÇÕES ==================================================
+
+    @Test
+    void shouldReturnNotificationWhenVerifyIfNotificationIsEmpty(){
+
+        when(this.notificationRepository.findById(1L))
+                .thenReturn(Optional.of(new Notification()));
+
+        var response = this.notificationService.verifyIfNotificationIsEmpty(1L);
+
+        verify(this.notificationRepository).findById(1L);
+        assertNotNull(response);
+    }
 
 
 
