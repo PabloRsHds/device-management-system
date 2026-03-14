@@ -54,5 +54,25 @@ public class NotificationIntegrationTest {
 
     // ===============================================================================================================
 
+    // ====================================== allNotificationsOccult =================================================
+
+    @Test
+    void shouldReturnListResponseNotificationsWhenAllNotificationsOccult() throws Exception{
+
+        var notification = new Notification();
+        notification.setMessage("Message");
+        notification.setShowNotification(false);
+        this.notificationRepository.save(notification);
+
+        this.mockMvc.perform(get("/api/notifications-occult")
+                        .param("page", "0")
+                        .param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].notificationId").value(notification.getNotificationId()))
+                .andExpect(jsonPath("$[0].message").value(notification.getMessage()));
+    }
+
+    // ===============================================================================================================
+
 
 }
