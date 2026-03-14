@@ -86,6 +86,15 @@ class NotificationServiceTest {
     // ======================================= OCULTAR NOTIFICAÇÕES ==================================================
 
     @Test
+    void shouldReturnVoidWhenOccultNotification() {
+
+        when(this.notificationRepository.findById(1L))
+                .thenReturn(Optional.of(new Notification()));
+
+        this.notificationService.occultNotification(1L);
+    }
+
+    @Test
     void shouldReturnNotificationWhenVerifyIfNotificationIsEmpty(){
 
         when(this.notificationRepository.findById(1L))
