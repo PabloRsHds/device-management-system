@@ -50,5 +50,24 @@ class NotificationControllerTest {
                 .andExpect(jsonPath("$.service").value("device-notification"));
     }
 
+    // ========================================== allNotifications ===================================================
+
+    @Test
+    void shouldReturnListResponseNotificationsWhenAllNotifications() throws Exception{
+
+        when(this.notificationService.allNotifications(0, 10))
+                .thenReturn(List.of(new ResponseNotifications(1L, "Mensagem 1")));
+
+        mockMvc.perform(get("/api/notifications")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].notificationId").value(1))
+                .andExpect(jsonPath("$[0].message").value("Mensagem 1"));
+
+        assertEquals(1, this.notificationService.allNotifications(0, 10).size());
+    }
+    // ===============================================================================================================
+
 
 }
