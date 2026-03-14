@@ -74,5 +74,22 @@ public class NotificationIntegrationTest {
 
     // ===============================================================================================================
 
+    // =============================================== visualisation =================================================
+
+    @Test
+    void shouldReturnVoidWhenVisualisation() throws Exception{
+
+        var notification = new Notification();
+        notification.setMessage("Message");
+        notification.setShowNotification(false);
+        notification.setVisualisation(false);
+        this.notificationRepository.save(notification);
+
+        this.mockMvc.perform(put("/api/visualisation-notification"))
+                .andExpect(status().isOk());
+    }
+
+    // ===============================================================================================================
+
 
 }
