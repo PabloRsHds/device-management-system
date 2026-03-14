@@ -86,5 +86,15 @@ class NotificationControllerTest {
     }
     // ===============================================================================================================
 
+    // ========================================== visualisation ======================================================
+
+    @Test
+    void shouldReturnVoidWhenVisualisation() throws Exception{
+
+        mockMvc.perform(put("/api/visualisation-notification"))
+                .andExpect(status().isOk());
+    }
+    // ===============================================================================================================
+
 
 }
