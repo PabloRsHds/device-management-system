@@ -168,7 +168,11 @@ class NotificationControllerTest {
                 .countNotifications();
 
         mockMvc.perform(get("/api/count-notification"))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("The service is unavailable"))
+                .andExpect(jsonPath("$.message").value("Service unavailable"))
+                .andExpect(jsonPath("$.path").value("/api/count-notification"));
     }
 
     // ===============================================================================================================
