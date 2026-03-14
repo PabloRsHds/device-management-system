@@ -69,5 +69,22 @@ class NotificationControllerTest {
     }
     // ===============================================================================================================
 
+    // ========================================== allNotificationsOccult =============================================
+
+    @Test
+    void shouldReturnListResponseNotificationsWhenAllNotificationsOccult() throws Exception{
+
+        when(this.notificationService.allNotificationsOccult(0, 10))
+                .thenReturn(List.of(new ResponseNotifications(1L, "Mensagem")));
+
+        mockMvc.perform(get("/api/notifications-occult")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].notificationId").value(1))
+                .andExpect(jsonPath("$[0].message").value("Mensagem"));
+    }
+    // ===============================================================================================================
+
 
 }
