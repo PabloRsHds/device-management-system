@@ -114,7 +114,7 @@ public class NotificationService {
 
     public void occultNotification(Long notificationId) {
         var notification = this.verifyIfNotificationIsEmpty(notificationId);
-        this.occult(notification);
+        this.saveUpdateInShowNotification(notification);
     }
 
     @Retry(name = "retry_occult", fallbackMethod = "occultRetry")
@@ -133,7 +133,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void occult(Notification notification) {
+    public void saveUpdateInShowNotification(Notification notification) {
 
         log.info("Notificação presente, salvando notificação vista");
         notification.setShowNotification(false);

@@ -18,8 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
@@ -108,6 +107,12 @@ class NotificationServiceTest {
                 () -> this.notificationService.verifyIfNotificationIsEmpty(1L));
 
         verify(this.notificationRepository).findById(1L);
+    }
+
+    @Test
+    void shouldReturnVoidWhenSaveUpdateInShowNotification(){
+
+        this.notificationService.saveUpdateInShowNotification(new Notification());
     }
 
     //=================================================================================================================
