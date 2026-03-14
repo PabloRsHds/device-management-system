@@ -115,5 +115,14 @@ public class NotificationIntegrationTest {
 
     // ===============================================================================================================
 
+    // ========================================== countNotifications =================================================
 
+    @Test
+    void shouldReturnIntWhenCountNotifications() throws Exception {
+
+        mockMvc.perform(get("/api/count-notification"))
+                .andExpect(status().isOk());
+    }
+
+    // ===============================================================================================================
 }
