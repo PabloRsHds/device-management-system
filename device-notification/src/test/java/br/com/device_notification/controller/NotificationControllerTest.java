@@ -105,5 +105,17 @@ class NotificationControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenOccultNotification() throws Exception{
+
+        doThrow(new NotificationNotFound("Notification not found"))
+                .when(this.notificationService)
+                .occultNotification(1L);
+
+        mockMvc.perform(put("/api/occult-notification/{notificationId}","1"))
+                .andExpect(status().isNotFound());
+    }
+    // ===============================================================================================================
+
 
 }
