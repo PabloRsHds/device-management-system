@@ -91,5 +91,20 @@ public class NotificationIntegrationTest {
 
     // ===============================================================================================================
 
+    // ========================================== occultNotification =================================================
+
+    @Test
+    void shouldReturnVoidWhenOccultNotification() throws Exception{
+
+        var notification = new Notification();
+        notification.setMessage("Message");
+        notification.setShowNotification(true);
+        this.notificationRepository.save(notification);
+
+        this.mockMvc.perform(put("/api/occult-notification/{notificationId}",
+                        notification.getNotificationId()))
+                .andExpect(status().isOk());
+    }
+
 
 }
