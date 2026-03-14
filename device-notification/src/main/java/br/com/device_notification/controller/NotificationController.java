@@ -46,8 +46,9 @@ public class NotificationController {
     }
 
     @PutMapping("/occult-notification/{notificationId}")
-    public void occultNotification(@PathVariable Long notificationId) {
+    public ResponseEntity<Void> occultNotification(@PathVariable Long notificationId) {
         this.notificationService.occultNotification(notificationId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/count-notification")
