@@ -2,6 +2,7 @@ package br.com.device_notification.controller;
 
 import br.com.device_notification.dtos.ResponseNotifications;
 import br.com.device_notification.infra.exceptions.NotificationNotFound;
+import br.com.device_notification.infra.exceptions.ServiceUnavailable;
 import br.com.device_notification.repository.NotificationRepository;
 import br.com.device_notification.service.NotificationService;
 import org.junit.jupiter.api.Test;
@@ -94,6 +95,17 @@ class NotificationControllerTest {
         mockMvc.perform(put("/api/visualisation-notification"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void shouldReturnThrowWhenVisualisation() throws Exception{
+
+        doThrow(new ServiceUnavailable("Service unavailable"))
+                .when(this.notificationService)
+                .visualisation();
+
+        mockMvc.perform(put("/api/visualisation-notification"))
+                .andExpect(status().isServiceUnavailable());
+    }
     // ===============================================================================================================
 
     // ========================================== occultNotification =================================================
@@ -106,7 +118,7 @@ class NotificationControllerTest {
     }
 
     @Test
-    void shouldReturnThrowWhenOccultNotification() throws Exception{
+    void shouldReturnThrowNotificationNotFoundWhenOccultNotification() throws Exception{
 
         doThrow(new NotificationNotFound("Notification not found"))
                 .when(this.notificationService)
@@ -115,6 +127,8 @@ class NotificationControllerTest {
         mockMvc.perform(put("/api/occult-notification/{notificationId}","1"))
                 .andExpect(status().isNotFound());
     }
+
+
     // ===============================================================================================================
 
     // ========================================== countNotifications =================================================
@@ -125,6 +139,8 @@ class NotificationControllerTest {
         mockMvc.perform(get("/api/count-notification"))
                 .andExpect(status().isOk());
     }
+
+
 
     // ===============================================================================================================
 }
