@@ -96,5 +96,14 @@ class NotificationControllerTest {
     }
     // ===============================================================================================================
 
+    // ========================================== occultNotification =================================================
+
+    @Test
+    void shouldReturnVoidWhenOccultNotification() throws Exception{
+
+        mockMvc.perform(put("/api/occult-notification/{notificationId}","1"))
+                .andExpect(status().isOk());
+    }
+
 
 }
