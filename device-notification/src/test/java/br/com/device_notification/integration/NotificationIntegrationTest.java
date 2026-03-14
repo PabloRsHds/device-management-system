@@ -106,5 +106,14 @@ public class NotificationIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenOccultNotification() throws Exception {
+
+        mockMvc.perform(put("/api/occult-notification/{notificationId}", 999))
+                .andExpect(status().isConflict());
+    }
+
+    // ===============================================================================================================
+
 
 }
