@@ -150,7 +150,16 @@ class NotificationControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void shouldReturnThrowWhenCountNotifications() throws Exception{
 
+        doThrow(new ServiceUnavailable("Service unavailable"))
+                .when(this.notificationService)
+                .countNotifications();
+
+        mockMvc.perform(get("/api/count-notification"))
+                .andExpect(status().isServiceUnavailable());
+    }
 
     // ===============================================================================================================
 }
