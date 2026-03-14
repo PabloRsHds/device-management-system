@@ -9,7 +9,6 @@ import br.com.device_notification.repository.NotificationRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -41,7 +40,8 @@ public class NotificationService {
     public List<ResponseNotifications> allNotifications(int page, int size) {
 
         log.info("Retornando todas as notificações que estejam true");
-        return this.notificationRepository.findAllByShowNotificationTrue(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+        return this.notificationRepository.findAllByShowNotificationTrue(PageRequest.of(page, size,
+                        Sort.by(Sort.Direction.DESC, "createdAt")))
                 .stream()
                 .map(notification -> new ResponseNotifications(
                         notification.getNotificationId(),
@@ -68,7 +68,8 @@ public class NotificationService {
     @CircuitBreaker(name = "circuitbreaker_occult_notifications", fallbackMethod = "allNotificationsOccultCircuitBreaker")
     public List<ResponseNotifications> allNotificationsOccult(int page, int size) {
 
-        return this.notificationRepository.findAllByShowNotificationFalse(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+        return this.notificationRepository.findAllByShowNotificationFalse(PageRequest.of(page, size,
+                        Sort.by(Sort.Direction.DESC, "createdAt")))
                 .stream()
                 .map(notification -> new ResponseNotifications(
                         notification.getNotificationId(),
@@ -110,7 +111,6 @@ public class NotificationService {
     // ================================================================================================================
 
     // ======================================= OCULTAR NOTIFICAÇÕES ==================================================
-
 
     public void occultNotification(Long notificationId) {
         var notification = this.verifyIfNotificationIsEmpty(notificationId);
