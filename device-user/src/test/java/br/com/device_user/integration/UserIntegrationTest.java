@@ -30,7 +30,6 @@ class UserIntegrationTest {
     @Test
     void shouldReturnUserWhenExistsInDatabase() throws Exception {
 
-        // Arrange - inserir usuário real no banco H2
         var user = new User();
         user.setEmail("teste@gmail.com");
         user.setName("Rodrigo");
@@ -38,7 +37,7 @@ class UserIntegrationTest {
         user.setRole(Role.USER);
 
         this.userRepository.save(user);
-        // Act + Assert
+
         this.mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
                         .param("email", "teste@gmail.com")
                         .param("userId", "123"))
