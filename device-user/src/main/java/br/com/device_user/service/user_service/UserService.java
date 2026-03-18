@@ -73,6 +73,7 @@ public class UserService {
         this.userMetrics.recordUserIsPresent("true");
         this.userMetrics.stopUserResponseSuccessTimer(sampleTimer);
 
+        // Retorno um dto
         return new ResponseUserForLogin(
                 user.getUserId(),
                 user.getPassword(),
