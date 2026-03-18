@@ -3,6 +3,7 @@ package br.com.device_user.service.adm;
 import br.com.device_user.enums.Role;
 import br.com.device_user.model.User;
 import br.com.device_user.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @Component
 public class AdmService implements CommandLineRunner {
 
@@ -27,6 +29,7 @@ public class AdmService implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        log.info("Criando ADM");
         var entity = this.userRepository.findByEmail("pablo@gmail.com");
 
         entity.ifPresentOrElse(
