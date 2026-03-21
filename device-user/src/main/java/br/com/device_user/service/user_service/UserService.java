@@ -81,12 +81,13 @@ public class UserService {
         );
     }
 
-    // Retry do metodo userRetryFallback
+    // Retry do metodo getResponseUserWithEmailOrUserId
     public ResponseUserForLogin userRetryFallback(String email, String userId, Exception e) {
         log.warn("Database retry exhausted after multiple attempts for email: {}", email, e);
         throw new ServiceUnavailableException("Database temporarily unavailable after retries");
     }
 
+    // Circuit breaker do metodo getResponseUserWithEmailOrUserId
     public ResponseUserForLogin databaseOfflineFallBack(String email, String userId, Exception e) {
         log.warn("Database offline, using fallback for email: {}", email);
         throw new ServiceUnavailableException("Database service temporarily unavailable - Circuit Breaker is OPEN");
