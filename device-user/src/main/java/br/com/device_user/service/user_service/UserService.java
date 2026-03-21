@@ -81,6 +81,7 @@ public class UserService {
         );
     }
 
+    // Retry do metodo userRetryFallback
     public ResponseUserForLogin userRetryFallback(String email, String userId, Exception e) {
         log.warn("Database retry exhausted after multiple attempts for email: {}", email, e);
         throw new ServiceUnavailableException("Database temporarily unavailable after retries");
