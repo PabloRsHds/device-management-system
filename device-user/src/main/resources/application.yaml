@@ -18,7 +18,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"  # Só o essencial
+        include: "*"
 
   metrics:
     tags:
@@ -28,7 +28,7 @@ management:
 resilience4j:
   retry:
     instances:
-      retry_database:  # ← Nome do @Retry
+      retry_database:
         max-attempts: 3
         wait-duration: 500ms
         retry-exceptions:
