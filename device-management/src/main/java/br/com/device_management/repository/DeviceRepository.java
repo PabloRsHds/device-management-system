@@ -12,6 +12,5 @@ public interface DeviceRepository extends JpaRepository<Device, String> {
 
     Optional<Device> findByDeviceModel(String deviceModel);
 
-    @Query("SELECT d FROM Device d")
     Page<Device> findAllDevices(Pageable pageable);
 }
