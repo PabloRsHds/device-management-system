@@ -1,7 +1,6 @@
 spring:
   application:
     name: device-user
-  #Qualquer coisa check
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/device_user}
     username: root
