@@ -48,7 +48,6 @@ public class ServiceForLogin {
         2. Chama o UserService
         3. Retorna os dados do usuário (DTO)
     */
-
     @GetMapping("/verify-if-email-already-cadastred")
     public ResponseUserForLogin getUserForLoginWithEmailOrUserId(
             @RequestParam String email,   // Email recebido na requisição

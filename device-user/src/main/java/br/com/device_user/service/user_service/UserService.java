@@ -122,7 +122,7 @@ public class UserService {
         );
     }
 
-    // 🔁 Método fallback do Retry
+    // Método fallback do Retry
     // É chamado quando todas as tentativas de retry falham
     public ResponseUserForLogin userRetryFallback(String email, String userId, Exception e) {
 

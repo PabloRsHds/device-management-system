@@ -16,6 +16,7 @@ import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -296,6 +297,7 @@ public class DeviceService {
 
     // =============================== Retorna o dispositivo com o modelo dele ========================================
 
+    @Cacheable(value = "cache_get_device_with_device_model", key = "#deviceModel")
     public getDeviceWithDeviceModel getDeviceWithDeviceModel(String deviceModel) {
 
         var sampleTimer = this.timer.startTimer();
@@ -319,6 +321,7 @@ public class DeviceService {
 
     // ================================= Retorna todos os dispositivos ================================================
 
+    @Cacheable(value = "cache_get_all_devices", key = "#page + '-' + #size")
     @Retry(name = "retry_all_devices", fallbackMethod = "getAllDevicesRetry")
     @CircuitBreaker(name = "circuitbreaker_all_devices", fallbackMethod = "getAllDevicesCircuitBreaker")
     public List<ResponseDeviceDto> getAllDevices(int page, int size) {
