@@ -65,7 +65,7 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
 
     instances:
-      circuitbreaker_sensor_is_empty: #OK
+      circuitbreaker_sensor_empty: #OK
         base-config: default
         record-exceptions:
           - org.springframework.dao.DataAccessException
@@ -73,7 +73,7 @@ resilience4j:
         ignore-exceptions:
           - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
-      circuitbreaker-sensor_is_present: #OK
+      circuitbreaker-sensor_present: #OK
         base-config: default
         record-exceptions:
           - org.springframework.dao.DataAccessException
@@ -81,7 +81,7 @@ resilience4j:
         ignore-exceptions:
           - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
-      circuitbreaker_get_all_sensors: #OK
+      circuitbreaker_all_sensors: #OK
         base-config: default
         record-exceptions:
           - org.springframework.dao.DataAccessException

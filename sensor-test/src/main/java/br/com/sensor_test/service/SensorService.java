@@ -15,6 +15,8 @@ import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,16 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class SensorService {
+
+    //Caches
+    private static final String CACHE_GET_SENSOR = "cache_get_sensor";
+    private static final String CACHE_GET_ALL_SENSORS = "cache_get_all_sensors";
+
+    //Circuit breakers
+    private static final String CIRCUIT_BREAKER_SENSOR_EMPTY = "circuitbreaker_sensor_empty";
+    private static final String CIRCUIT_BREAKER_SENSOR_PRESENT = "circuitbreaker-sensor_present";
+    private static final String CIRCUIT_BREAKER_ALL_SENSORS = "circuitbreaker_all_sensors";
+    // ===============
 
     private final SensorRepository sensorRepository;
     private final MetricsService metricsService;
@@ -53,8 +65,9 @@ public class SensorService {
         }
     }
 
+
     @Retry(name = "retry_sensor_is_empty", fallbackMethod = "verifyIfSensorIsEmptyRetry")
-    @CircuitBreaker(name = "circuitbreaker_sensor_is_empty", fallbackMethod = "verifyIfSensorIsEmptyCircuitBreaker")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_SENSOR_EMPTY, fallbackMethod = "verifyIfSensorIsEmptyCircuitBreaker")
     public void verifyIfSensorIsEmpty(String deviceModel) {
 
         Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
@@ -100,7 +113,7 @@ public class SensorService {
         var sampleTimer = this.metricsService.startTimer();
 
         try {
-            var entity = verifyIfSensorIsPresent(deviceModel);
+            var entity = getSensorOrThrow(deviceModel);
             return this.update(entity, request);
 
         } finally {
@@ -109,9 +122,10 @@ public class SensorService {
     }
 
     // Metodo para verificar se o sensor é presente, se não ele retorna um erro.
+    @Cacheable(value = {CACHE_GET_SENSOR},key = "'sensor_present:'+ #deviceModel", unless = "#result == null")
     @Retry(name = "retry_sensor_is_present", fallbackMethod = "verifyIfSensorIsPresentRetry")
-    @CircuitBreaker(name = "circuitbreaker-sensor_is_present", fallbackMethod = "verifyIfSensorIsPresentCircuitBreaker")
-    public Sensor verifyIfSensorIsPresent(String deviceModel) {
+    @CircuitBreaker(name = CIRCUIT_BREAKER_SENSOR_PRESENT, fallbackMethod = "verifyIfSensorIsPresentCircuitBreaker")
+    public Sensor getSensorOrThrow(String deviceModel) {
 
         Optional<Sensor> entity = this.sensorRepository.findByDeviceModel(deviceModel);
 
@@ -135,6 +149,7 @@ public class SensorService {
         throw new ServiceUnavailableException("Database service is not available");
     }
 
+    @CacheEvict(value = {CACHE_GET_SENSOR, CACHE_GET_ALL_SENSORS}, allEntries = true)
     @Transactional
     public ResponseSensorDto update(Sensor entity, UpdateSensor request) {
 
@@ -172,7 +187,7 @@ public class SensorService {
         var sampleTimer = this.metricsService.startTimer();
 
         try {
-            var entity = this.verifyIfSensorIsPresent(deviceModel);
+            var entity = this.getSensorOrThrow(deviceModel);
             var response = new ResponseSensorDto(
                     entity.getName(),
                     entity.getType(),
@@ -188,6 +203,7 @@ public class SensorService {
         }
     }
 
+    @CacheEvict(value = {CACHE_GET_SENSOR, CACHE_GET_ALL_SENSORS}, allEntries = true)
     @Transactional
     public void delete(Sensor entity) {
 
@@ -200,8 +216,9 @@ public class SensorService {
 
     // ====================================== PEGA TODOS OS SENSORES =================================================
 
+    @Cacheable(value = {CACHE_GET_ALL_SENSORS},key = "#page+'-'+#size")
     @Retry(name = "retry_get_all_sensors", fallbackMethod = "getAllSensorsActivatedRetry")
-    @CircuitBreaker(name = "circuitbreaker_get_all_sensors", fallbackMethod = "getAllSensorsActivatedCircuitBreaker")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_ALL_SENSORS, fallbackMethod = "getAllSensorsActivatedCircuitBreaker")
     public List<ResponseSensorDto> getAllSensorsActivated(int page, int size) {
 
         log.info("Iniciando o timer do get all sensors");
@@ -242,7 +259,7 @@ public class SensorService {
 
     public ResponseSensorDto changeStatus(String deviceModel) {
 
-        var entity = this.verifyIfSensorIsPresent(deviceModel);
+        var entity = this.getSensorOrThrow(deviceModel);
         return this.change(entity);
     }
 
@@ -282,7 +299,7 @@ public class SensorService {
     // ============================================ PEGO O STATUS ====================================================
     public String getStatus(String deviceModel) {
 
-        var entity = this.verifyIfSensorIsPresent(deviceModel);
+        var entity = this.getSensorOrThrow(deviceModel);
 
         log.info("Retornando o status do sensor");
         return entity.getStatus().toString();
