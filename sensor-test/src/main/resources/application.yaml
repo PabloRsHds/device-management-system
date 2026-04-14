@@ -73,7 +73,7 @@ resilience4j:
         ignore-exceptions:
           - br.com.sensor_test.infra.exceptions.ServiceUnavailableException
 
-      circuitbreaker-sensor_present: #OK
+      circuitbreaker_sensor_present: #OK
         base-config: default
         record-exceptions:
           - org.springframework.dao.DataAccessException
