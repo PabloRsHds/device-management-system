@@ -43,6 +43,12 @@ public class SensorService {
     private static final String FALLBACK_ALL_SENSORS = "fallback_all_sensors";
     // ======================
 
+    //Retry
+    private static final String RETRY_SENSOR_EMPTY = "retry_sensor_empty";
+    private static final String RETRY_SENSOR_PRESENT = "retry_sensor_present";
+    private static final String RETRY_ALL_SENSORS = "retry_all_sensors";
+    // ==============
+
     private final SensorRepository sensorRepository;
     private final MetricsService metricsService;
 
@@ -72,7 +78,7 @@ public class SensorService {
     }
 
 
-    @Retry(name = "retry_sensor_is_empty", fallbackMethod = "verifyIfSensorIsEmptyRetry")
+    @Retry(name = RETRY_SENSOR_EMPTY, fallbackMethod = "verifyIfSensorIsEmptyRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_SENSOR_EMPTY, fallbackMethod = FALLBACK_SENSOR_EMPTY)
     public void verifyIfSensorIsEmpty(String deviceModel) {
 
@@ -129,7 +135,7 @@ public class SensorService {
 
     // Metodo para verificar se o sensor é presente, se não ele retorna um erro.
     @Cacheable(value = {CACHE_GET_SENSOR},key = "'sensor_present:'+ #deviceModel", unless = "#result == null")
-    @Retry(name = "retry_sensor_is_present", fallbackMethod = "verifyIfSensorIsPresentRetry")
+    @Retry(name = RETRY_SENSOR_PRESENT, fallbackMethod = "verifyIfSensorIsPresentRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_SENSOR_PRESENT, fallbackMethod = FALLBACK_SENSOR_PRESENT)
     public Sensor getSensorOrThrow(String deviceModel) {
 
@@ -223,7 +229,7 @@ public class SensorService {
     // ====================================== PEGA TODOS OS SENSORES =================================================
 
     @Cacheable(value = {CACHE_GET_ALL_SENSORS},key = "#page+'-'+#size")
-    @Retry(name = "retry_get_all_sensors", fallbackMethod = "getAllSensorsActivatedRetry")
+    @Retry(name = RETRY_ALL_SENSORS, fallbackMethod = "getAllSensorsActivatedRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_ALL_SENSORS, fallbackMethod = FALLBACK_ALL_SENSORS)
     public List<ResponseSensorDto> getAllSensorsActivated(int page, int size) {
 

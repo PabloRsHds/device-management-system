@@ -43,15 +43,15 @@ management:
 resilience4j:
   retry:
     instances:
-      retry_sensor_is_empty: #OK
+      retry_sensor_empty: #OK
         max-attempts: 3
         wait-duration: 5s
 
-      retry_sensor_is_present: #OK
+      retry_sensor_present: #OK
         max-attempts: 3
         wait-duration: 5s
 
-      retry_get_all_sensors: #OK
+      retry_all_sensors: #OK
         max-attempts: 3
         wait-duration: 5s
 
