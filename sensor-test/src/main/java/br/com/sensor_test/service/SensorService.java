@@ -49,6 +49,12 @@ public class SensorService {
     private static final String RETRY_ALL_SENSORS = "retry_all_sensors";
     // ==============
 
+    //Fallback Retry
+    private static final String FALLBACK_RETRY_SENSOR_EMPTY = "fallback_retry_sensor_empty";
+    private static final String FALLBACK_RETRY_SENSOR_PRESENT = "fallback_retry_sensor_present";
+    private static final String FALLBACK_RETRY_ALL_SENSORS = "fallback_retry_all_sensors";
+    // =============
+
     private final SensorRepository sensorRepository;
     private final MetricsService metricsService;
 
@@ -78,7 +84,7 @@ public class SensorService {
     }
 
 
-    @Retry(name = RETRY_SENSOR_EMPTY, fallbackMethod = "verifyIfSensorIsEmptyRetry")
+    @Retry(name = RETRY_SENSOR_EMPTY, fallbackMethod = FALLBACK_RETRY_SENSOR_EMPTY)
     @CircuitBreaker(name = CIRCUIT_BREAKER_SENSOR_EMPTY, fallbackMethod = FALLBACK_SENSOR_EMPTY)
     public void verifyIfSensorIsEmpty(String deviceModel) {
 
@@ -91,7 +97,7 @@ public class SensorService {
         log.info("Sensor não existe no banco de dados. STATUS: OK");
     }
 
-    public void verifyIfSensorIsEmptyRetry(String deviceModel, Exception ex) {
+    public void fallback_retry_sensor_empty(String deviceModel, Exception ex) {
         log.warn("Serviço de banco de dados indisponível, com isso não está sendo possível verificar o dispositivo");
     }
 
@@ -135,7 +141,7 @@ public class SensorService {
 
     // Metodo para verificar se o sensor é presente, se não ele retorna um erro.
     @Cacheable(value = {CACHE_GET_SENSOR},key = "'sensor_present:'+ #deviceModel", unless = "#result == null")
-    @Retry(name = RETRY_SENSOR_PRESENT, fallbackMethod = "verifyIfSensorIsPresentRetry")
+    @Retry(name = RETRY_SENSOR_PRESENT, fallbackMethod = FALLBACK_RETRY_SENSOR_PRESENT)
     @CircuitBreaker(name = CIRCUIT_BREAKER_SENSOR_PRESENT, fallbackMethod = FALLBACK_SENSOR_PRESENT)
     public Sensor getSensorOrThrow(String deviceModel) {
 
@@ -150,7 +156,7 @@ public class SensorService {
         return entity.get();
     }
 
-    public Sensor verifyIfSensorIsPresentRetry(String deviceModel, Exception ex) {
+    public Sensor fallback_retry_sensor_present(String deviceModel, Exception ex) {
         log.warn("Serviço de banco de dados indisponível, não foi possível fazer a verificação do dispositivo: {}"
                 ,deviceModel);
         throw new ServiceUnavailableException("Database service is not available");
@@ -229,7 +235,7 @@ public class SensorService {
     // ====================================== PEGA TODOS OS SENSORES =================================================
 
     @Cacheable(value = {CACHE_GET_ALL_SENSORS},key = "#page+'-'+#size")
-    @Retry(name = RETRY_ALL_SENSORS, fallbackMethod = "getAllSensorsActivatedRetry")
+    @Retry(name = RETRY_ALL_SENSORS, fallbackMethod = FALLBACK_RETRY_ALL_SENSORS)
     @CircuitBreaker(name = CIRCUIT_BREAKER_ALL_SENSORS, fallbackMethod = FALLBACK_ALL_SENSORS)
     public List<ResponseSensorDto> getAllSensorsActivated(int page, int size) {
 
@@ -257,7 +263,7 @@ public class SensorService {
         }
     }
 
-    public List<ResponseSensorDto> getAllSensorsActivatedRetry(int page, int size, Exception ex) {
+    public List<ResponseSensorDto> fallback_retry_all_sensors(int page, int size, Exception ex) {
         return List.of();
     }
 
