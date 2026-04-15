@@ -131,7 +131,7 @@ class UserServiceTest {
         var userId = "123";
 
         assertThrows(ServiceUnavailableException.class, () ->
-                userService.userRetryFallback(email, userId,
+                userService.getResponseUserWithEmailOrUserIdRetry(email, userId,
                         new DataAccessException("Database temporarily unavailable after retries") {})
         );
 
@@ -146,7 +146,7 @@ class UserServiceTest {
         var userId = "123";
 
         assertThrows(ServiceUnavailableException.class, () ->
-                userService.databaseOfflineFallBack(email, userId,
+                userService.getResponseUserWithEmailOrUserIdCircuitBreaker(email, userId,
                         new DataAccessException("Database service temporarily unavailable - Circuit Breaker is OPEN") {}));
 
         verifyNoInteractions(this.userMetrics);
