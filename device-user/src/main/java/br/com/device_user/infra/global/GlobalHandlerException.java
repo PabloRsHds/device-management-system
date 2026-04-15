@@ -15,7 +15,7 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalHandlerException {
 
-    private final String serviceName = "device-user";
+    private static final String serviceName = "device-user";
     private final MetricsForExceptions metricsForExceptions;
 
     public GlobalHandlerException(MetricsForExceptions metricsForExceptions) {
@@ -39,7 +39,7 @@ public class GlobalHandlerException {
                     "Service unavailable",
                     "DEVICE-USER",
                     "DATABASE",
-                    this.serviceName,
+                    serviceName,
                     ex.getMessage(),
                     request.getRequestURI()
             ));

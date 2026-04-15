@@ -31,6 +31,11 @@ import java.util.Optional;
 @Service // Marca como Service (camada de regra de negócio)
 public class UserService {
 
+    // Circuit breaker
+    private static final String CIRCUIT_BREAKER_DATABASE = "circuitbreaker_database";
+    // Retry
+    private static final String RETRY_DATABASE = "retry_database";
+
     // Repositório para buscar usuários no banco
     private final UserRepository userRepository;
 
@@ -50,10 +55,9 @@ public class UserService {
     */
 
     // Retry: tenta novamente em caso de falha (ex: erro de banco)
-    @Retry(name = "retry_database", fallbackMethod = "userRetryFallback")
-
+    @Retry(name = RETRY_DATABASE, fallbackMethod = "getResponseUserWithEmailOrUserIdRetry")
     // Circuit Breaker: abre o circuito se houver muitas falhas
-    @CircuitBreaker(name = "circuitbreaker_database", fallbackMethod = "databaseOfflineFallBack")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_DATABASE, fallbackMethod = "getResponseUserWithEmailOrUserIdCircuitBreaker")
     public ResponseUserForLogin getResponseUserWithEmailOrUserId(String email, String userId) {
 
         // Inicia um timer para métricas de performance
@@ -124,7 +128,7 @@ public class UserService {
 
     // Método fallback do Retry
     // É chamado quando todas as tentativas de retry falham
-    public ResponseUserForLogin userRetryFallback(String email, String userId, Exception e) {
+    public ResponseUserForLogin getResponseUserWithEmailOrUserIdRetry(String email, String userId, Exception e) {
 
         log.warn("Database retry exhausted after multiple attempts for email: {}", email, e);
 
@@ -134,7 +138,7 @@ public class UserService {
 
     // 🔌 Método fallback do Circuit Breaker
     // É chamado quando o circuito está aberto (muitas falhas recentes)
-    public ResponseUserForLogin databaseOfflineFallBack(String email, String userId, Exception e) {
+    public ResponseUserForLogin getResponseUserWithEmailOrUserIdCircuitBreaker(String email, String userId, Exception e) {
 
         log.warn("Database offline, using fallback for email: {}", email);
 

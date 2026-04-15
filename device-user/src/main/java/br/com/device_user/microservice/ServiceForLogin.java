@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 // Define que essa classe é um controller REST (retorna JSON)
 @RestController
-
 // Define o prefixo base da URL
 @RequestMapping("/microservice")
 public class ServiceForLogin {
