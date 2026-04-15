@@ -18,6 +18,11 @@ import java.util.Random;
 @Service
 public class SchedulingService {
 
+    // Circuit breakers
+    private static final String CIRCUIT_BREAKER_SCHEDULING = "circuitbreaker_scheduling";
+    private static final String CIRCUIT_BREAKER_KAFKA_PRODUCER = "circuitbreaker_kafka_producer";
+    // ================
+
     private final SensorRepository sensorRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final MetricsService metricsService;
@@ -37,10 +42,14 @@ public class SchedulingService {
 
 
     @Scheduled(fixedDelay = 2 * 60 * 1000)
-    @CircuitBreaker(name = "circuitbreaker_scheduling", fallbackMethod = "schedulingCircuitBreaker")
     public void sensorTestService() {
+        this.processActiveSensorsForAnalysis();
+    }
 
-        sensorRepository.findAll()
+    @CircuitBreaker(name = CIRCUIT_BREAKER_SCHEDULING, fallbackMethod = "processActiveSensorsForAnalysisCircuitBreaker")
+    public void processActiveSensorsForAnalysis() {
+        this.sensorRepository
+                .findAll()
                 .stream()
                 .filter(device -> device.getStatus() == Status.ACTIVATED)
                 .forEach(device -> {
@@ -51,10 +60,9 @@ public class SchedulingService {
                     var valueMin = this.randomMinLimit(minLimit);
                     var valueMax = this.randomMaxLimit(maxLimit);
 
-
                     this.sendEvent(
                             "sensor-test-for-analysis-topic",
-                                    new SensorForAnalysisEvent(
+                            new SensorForAnalysisEvent(
                                     device.getName(),
                                     device.getType(),
                                     device.getDescription(),
@@ -69,12 +77,13 @@ public class SchedulingService {
                 });
     }
 
-    public void schedulingCircuitBreaker(Exception ex) {
+    public void processActiveSensorsForAnalysisCircuitBreaker(Exception ex) {
         log.warn("Database service is not available, error:", ex);
         this.metricsService.metricForScheduling();
     }
 
-    @CircuitBreaker(name = "circuitbreaker_kafka_producer", fallbackMethod = "KafkaProducerCircuitBreaker")
+    // KAFKA PRODUCER E CIRCUIT BREAKER
+    @CircuitBreaker(name = CIRCUIT_BREAKER_KAFKA_PRODUCER, fallbackMethod = "sendEventCircuitBreaker")
     public void sendEvent(String topic, SensorForAnalysisEvent event) {
         kafkaTemplate.send(
                 topic,
@@ -82,11 +91,12 @@ public class SchedulingService {
         );
     }
 
-    public void KafkaProducerCircuitBreaker(String topic, SensorForAnalysisEvent event, Exception ex) {
+    public void sendEventCircuitBreaker(String topic, SensorForAnalysisEvent event, Exception ex) {
 
         log.error("Circuit breaker opened or error in consumer: {}", ex.getMessage(), ex);
         throw new ServiceUnavailableException("Service unavailable, message will be retried");
     }
+    // =============================================================================================================
 
     public float randomMinLimit(float minLimit) {
 
