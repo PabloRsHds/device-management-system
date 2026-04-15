@@ -12,14 +12,16 @@ public class Sensor {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long sensorId;
-
     private String name;
     private String type;
     private String description;
+    @Column(name = "device_model")
     private String deviceModel;
     private String manufacturer;
     private String unit;
+    @Column(name = "min_limit")
     private Float minLimit;
+    @Column(name = "max_limit")
     private Float maxLimit;
 
     @Enumerated(EnumType.STRING)
