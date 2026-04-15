@@ -81,6 +81,7 @@ public class SchedulingService {
         log.warn("Database service is not available, error:", ex);
         this.metricsService.metricFailedDatabaseInScheduling();
     }
+    // ================================================================================================================
 
     // KAFKA PRODUCER E CIRCUIT BREAKER
     @CircuitBreaker(name = CIRCUIT_BREAKER_KAFKA_PRODUCER, fallbackMethod = "sendEventCircuitBreaker")
