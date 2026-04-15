@@ -25,6 +25,8 @@ import java.util.Objects;
 @Service
 public class LoginService {
 
+    private static final String CIRCUIT_BREAKER_FEIGN = "circuitbreaker_feign";
+
     private static final Logger log = LoggerFactory.getLogger(LoginService.class);
     private final UserClient userClient;
     private final PasswordEncoder passwordEncoder;
@@ -126,7 +128,7 @@ public class LoginService {
     }
 
     // Circuit breaker para o microservice de usuário
-    @CircuitBreaker(name = "circuitbreaker_feign", fallbackMethod = "getUserFallback")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_FEIGN, fallbackMethod = "getUserCircuitBreaker")
     public ResponseUserForLogin getUser(String email, String userId ) {
 
         if (email != null && !email.isBlank()) {
@@ -136,7 +138,7 @@ public class LoginService {
         return this.userClient.getResponseUserWithEmailOrUserId(null, userId);
     }
 
-    public ResponseUserForLogin getUserFallback(String email, String userId, Exception ex) {
+    public ResponseUserForLogin getUserCircuitBreaker(String email, String userId, Exception ex) {
         log.error("Service Unavailable, try again later.", ex);
         throw new ServiceUnavailableException("Service Unavailable, try again later.");
     }
