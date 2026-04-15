@@ -1,6 +1,7 @@
 package br.com.sensor_test.consumer;
 
 import br.com.sensor_test.dtos.ConsumerDeviceManagement;
+import br.com.sensor_test.metrics.MetricsService;
 import br.com.sensor_test.service.SensorService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +14,11 @@ import org.springframework.stereotype.Service;
 public class KafkaConsumer {
 
     private final SensorService sensorService;
+    private final MetricsService metricsService;
 
-    public KafkaConsumer(SensorService sensorService ) {
+    public KafkaConsumer(SensorService sensorService, MetricsService metricsService ) {
         this.sensorService = sensorService;
+        this.metricsService = metricsService;
     }
 
     @KafkaListener(
@@ -35,6 +38,6 @@ public class KafkaConsumer {
 
     public void kafkaConsumerCircuitBreaker(ConsumerDeviceManagement consumer, Acknowledgment ack, Exception ex) {
         log.error("Circuit breaker opened or error in consumer: {}", ex.getMessage(), ex);
-
+        this.metricsService.metricFailedConsumer();
     }
 }

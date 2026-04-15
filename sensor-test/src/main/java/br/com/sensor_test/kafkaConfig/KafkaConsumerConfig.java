@@ -18,7 +18,6 @@ public class KafkaConsumerConfig {
 
     private final KafkaProperties kafkaProperties;
 
-
     public KafkaConsumerConfig(KafkaProperties kafka) {
         this.kafkaProperties = kafka;
     }

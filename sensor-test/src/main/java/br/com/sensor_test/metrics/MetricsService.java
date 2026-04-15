@@ -41,6 +41,12 @@ public class MetricsService {
                 .increment();
     }
 
+    public void metricFailedConsumer() {
+        this.meterRegistry.counter("kafka_consumer_error",
+                        "output", "failed_consumer")
+                .increment();
+    }
+
     public Timer.Sample startTimer() {
         return Timer.start(meterRegistry);
     }
