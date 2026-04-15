@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MetricsService {
 
-    private final String serviceName = "sensor-test";
+    private static final String SERVICE_NAME = "sensor-test";
 
     private final MeterRegistry meterRegistry;
     private final Timer consumerTimer;
@@ -19,19 +19,19 @@ public class MetricsService {
         this.meterRegistry = meterRegistry;
 
         this.consumerTimer = Timer.builder("consumer_timer")
-                .tags("service", serviceName)
+                .tags("service", SERVICE_NAME)
                 .register(meterRegistry);
 
         this.updateTimer = Timer.builder("update_timer")
-                .tags("service", serviceName)
+                .tags("service", SERVICE_NAME)
                 .register(meterRegistry);
 
         this.deleteTimer = Timer.builder("delete_timer")
-                .tags("service", serviceName)
+                .tags("service", SERVICE_NAME)
                 .register(meterRegistry);
 
         this.sensorsTimer = Timer.builder("sensors_timer")
-                .tags("service", serviceName)
+                .tags("service", SERVICE_NAME)
                 .register(meterRegistry);
     }
 
