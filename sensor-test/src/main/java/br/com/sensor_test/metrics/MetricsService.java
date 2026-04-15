@@ -35,15 +35,15 @@ public class MetricsService {
                 .register(meterRegistry);
     }
 
-    public void metricForScheduling() {
-        this.meterRegistry.counter("scheduling_error",
-                        "output", "find_all_sensors")
+    public void metricFailedDatabaseInScheduling() {
+        this.meterRegistry.counter("scheduling_database_error",
+                        "output", "failed_database_scheduling")
                 .increment();
     }
 
     public void metricFailedConsumer() {
         this.meterRegistry.counter("kafka_consumer_error",
-                        "output", "failed_consumer")
+                        "output", "failed_kafka_consumer")
                 .increment();
     }
 

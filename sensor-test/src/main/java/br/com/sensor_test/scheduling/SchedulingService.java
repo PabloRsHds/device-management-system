@@ -79,7 +79,7 @@ public class SchedulingService {
 
     public void processActiveSensorsForAnalysisCircuitBreaker(Exception ex) {
         log.warn("Database service is not available, error:", ex);
-        this.metricsService.metricForScheduling();
+        this.metricsService.metricFailedDatabaseInScheduling();
     }
 
     // KAFKA PRODUCER E CIRCUIT BREAKER
