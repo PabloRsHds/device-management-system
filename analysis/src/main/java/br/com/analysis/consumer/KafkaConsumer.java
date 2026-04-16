@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaConsumer {
 
+    // CIRCUIT BREAKER
+    private static final String CIRCUIT_BREAKER_KAFKA_CONSUMER = "circuitbreaker_kafka_consumer";
+    // ===============
+
     private final AnalysisService analysisService;
     private final MetricsService metricsService;
 
@@ -24,10 +28,10 @@ public class KafkaConsumer {
     }
 
     @KafkaListener(
-            topics = "sensor-test-for-analysis-topic",
-            groupId = "sensor-test-for-analysis-groupId",
+            topics = "${kafka.topics.sensor-test}",
+            groupId = "${kafka.group-id.sensor-test}",
             containerFactory = "kafkaListenerSensorTestFactory")
-    @CircuitBreaker(name = "circuitbreaker_kafka_consumer", fallbackMethod = "kafkaConsumerCircuitBreaker")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_KAFKA_CONSUMER, fallbackMethod = "consumerSensorTestCircuitBreaker")
     public void consumerSensorTest(ConsumerSensorTest consumer, Acknowledgment ack) {
 
         var sampleTimer = this.metricsService.startTimer();
@@ -41,7 +45,7 @@ public class KafkaConsumer {
         }
     }
 
-    public void kafkaConsumerCircuitBreaker(ConsumerSensorTest consumer, Acknowledgment ack, Exception e) {
+    public void consumerSensorTestCircuitBreaker(ConsumerSensorTest consumer, Acknowledgment ack, Exception e) {
         log.warn("Circuit breaker for kafka: {}", e.getMessage());
         this.metricsService.failConsumerEvent();
     }

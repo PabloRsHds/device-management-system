@@ -13,7 +13,7 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager(
-
+                "cache_device_model"
         );
     }
 }

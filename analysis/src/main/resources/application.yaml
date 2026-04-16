@@ -14,6 +14,10 @@ spring:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
   kafka:
+    topics:
+      sensor-test: sensor-test-for-analysis-topic
+    group-id:
+      sensor-test: sensor-test-for-analysis-groupId
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

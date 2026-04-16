@@ -14,6 +14,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -109,10 +110,15 @@ public class AnalysisService {
         return AnalysisResult.SUCCESS;
     }
 
+    @CacheEvict(value = CACHE_DEVICE_MODEL, key = "#deviceModel")
     @Transactional
     public void analysisSuccess(String deviceModel, Float minValue, Float maxValue) {
 
         Optional<Analysis> optionalEntity = this.analysisRepository.findByDeviceModel(deviceModel);
+
+        if (optionalEntity.isEmpty()) {
+            throw new DeviceNotFoundException("Device not found for analysis");
+        }
         var entity = optionalEntity.get();
 
         String now = LocalDateTime.now()
@@ -169,6 +175,7 @@ public class AnalysisService {
                 ));
     }
 
+    @CacheEvict(value = CACHE_DEVICE_MODEL, key = "#consumer.deviceModel")
     @Transactional
     public void register(ConsumerSensorTest consumer) {
 
@@ -283,6 +290,7 @@ public class AnalysisService {
         return this.update(entity, request);
     }
 
+    @CacheEvict(value = CACHE_DEVICE_MODEL, key = "#entity.deviceModel")
     @Transactional
     public ResponseDeviceAnalysisDto update(Analysis entity, RequestUpdateAnalysis request) {
 
@@ -336,10 +344,10 @@ public class AnalysisService {
         return this.delete(entity);
     }
 
+    @CacheEvict(value = CACHE_DEVICE_MODEL, key = "#entity.deviceModel")
     @Transactional
     public ResponseDeviceAnalysisDto delete(Analysis entity) {
 
-        log.info("Retornando um response da análise deletada");
         var response = new ResponseDeviceAnalysisDto(
                 entity.getName(),
                 entity.getDeviceModel(),
@@ -355,8 +363,10 @@ public class AnalysisService {
                 entity.getAnalysisFailed()
         );
 
-        log.info("Deletando uma análise");
+        log.info("Apagando um dado no banco de dados referente a uma análise");
         this.analysisRepository.delete(entity);
+
+        log.info("Retornando um response da análise que acabou de ser apagada.");
         return response;
     }
 
