@@ -1,8 +1,8 @@
 package br.com.device_management.controller;
 
+import br.com.device_management.dtos.DeviceDetailsDto;
 import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.UpdateDeviceDto;
-import br.com.device_management.dtos.getDeviceWithDeviceModel;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.enums.Type;
 import br.com.device_management.infra.exceptions.DeviceIsEmpty;
@@ -939,7 +939,7 @@ class DeviceControllerTest {
     @Test
     void shouldReturn200WhenGetDeviceWithDeviceModelIsSuccess() throws Exception{
 
-        var response = new getDeviceWithDeviceModel(
+        var response = new DeviceDetailsDto(
                 "name",
                 "deviceModel",
                 "manufacturer",

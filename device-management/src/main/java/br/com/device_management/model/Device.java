@@ -18,15 +18,17 @@ public class Device {
     @Enumerated(EnumType.STRING)
     private Type type;
     private String description;
-    @Column(unique = true)
+    @Column(name = "device_model", unique = true)
     private String deviceModel;
     private String manufacturer;
     private String location;
 
     @Enumerated(EnumType.STRING)
     private Unit unit;
+    @Column(name = "min_limit")
     private Float minLimit;
+    @Column(name = "max_limit")
     private Float maxLimit;
-
+    @Column(name = "created_at")
     private String createdAt;
 }

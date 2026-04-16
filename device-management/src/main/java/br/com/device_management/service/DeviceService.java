@@ -3,7 +3,7 @@ package br.com.device_management.service;
 import br.com.device_management.dtos.DeviceManagementEventForSensor;
 import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.UpdateDeviceDto;
-import br.com.device_management.dtos.getDeviceWithDeviceModel;
+import br.com.device_management.dtos.DeviceDetailsDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.infra.exceptions.DeviceIsEmpty;
 import br.com.device_management.infra.exceptions.DeviceIsPresent;
@@ -317,14 +317,14 @@ public class DeviceService {
 
     // =============================== Retorna o dispositivo com o modelo dele ========================================
 
-    public getDeviceWithDeviceModel getDeviceWithDeviceModel(String deviceModel) {
+    public DeviceDetailsDto getDeviceWithDeviceModel(String deviceModel) {
 
         var sampleTimer = this.timer.startTimer();
 
         try {
 
             var entity = this.getDeviceOrThrow(deviceModel);
-            return new getDeviceWithDeviceModel(
+            return new DeviceDetailsDto(
                     entity.getName(),
                     entity.getDeviceModel(),
                     entity.getManufacturer(),
@@ -349,7 +349,7 @@ public class DeviceService {
 
         try {
 
-            return this.deviceRepository.findAllDevices(PageRequest.of(page, size))
+            return this.deviceRepository.findAll(PageRequest.of(page, size))
                     .stream()
                     .map(device -> new ResponseDeviceDto(
                             device.getName(),

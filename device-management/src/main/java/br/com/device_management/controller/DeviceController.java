@@ -2,7 +2,7 @@ package br.com.device_management.controller;
 
 import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.UpdateDeviceDto;
-import br.com.device_management.dtos.getDeviceWithDeviceModel;
+import br.com.device_management.dtos.DeviceDetailsDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.service.DeviceService;
 import jakarta.validation.Valid;
@@ -48,7 +48,7 @@ public class DeviceController {
     }
 
     @GetMapping("/find-by-device/{deviceModel:.+}")
-    public ResponseEntity<getDeviceWithDeviceModel> getDeviceWithDeviceModel(@PathVariable String deviceModel){
+    public ResponseEntity<DeviceDetailsDto> getDeviceWithDeviceModel(@PathVariable String deviceModel){
         var response = this.deviceService.getDeviceWithDeviceModel(deviceModel);
         return ResponseEntity.ok().body(response);
     }

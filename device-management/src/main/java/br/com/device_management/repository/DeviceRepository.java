@@ -4,7 +4,6 @@ import br.com.device_management.model.Device;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
@@ -12,5 +11,5 @@ public interface DeviceRepository extends JpaRepository<Device, String> {
 
     Optional<Device> findByDeviceModel(String deviceModel);
 
-    Page<Device> findAllDevices(Pageable pageable);
+    Page<Device> findAll(Pageable pageable);
 }

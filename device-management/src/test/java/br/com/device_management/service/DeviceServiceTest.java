@@ -158,7 +158,7 @@ class DeviceServiceTest {
         when(this.deviceRepository.findByDeviceModel("model"))
                 .thenReturn(Optional.of(new Device()));
 
-        var response = this.deviceService.verifyIfDeviceIsEmpty("model");
+        var response = this.deviceService.getDeviceOrThrow("model");
 
         assertNotNull(response);
         verify(this.deviceRepository).findByDeviceModel("model");
@@ -173,7 +173,7 @@ class DeviceServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(DeviceIsEmpty.class,
-                () -> this.deviceService.verifyIfDeviceIsEmpty("model"));
+                () -> this.deviceService.getDeviceOrThrow("model"));
 
         verify(this.deviceRepository).findByDeviceModel("model");
         verifyNoInteractions(this.timerMetrics);
@@ -184,7 +184,7 @@ class DeviceServiceTest {
     void shouldReturnThrowBecauseDeviceIsEmptyRetry() {
 
         assertThrows(ServiceUnavailable.class,
-                () -> this.deviceService.verifyIfDeviceIsEmptyRetry(
+                () -> this.deviceService.getDeviceOrThrowRetry(
                         "", new DataAccessException("") {}));
 
         verifyNoInteractions(this.deviceRepository);
@@ -196,7 +196,7 @@ class DeviceServiceTest {
     void shouldReturnThrowBecauseDeviceIsEmptyCircuitBreaker() {
 
         assertThrows(ServiceUnavailable.class,
-                () -> this.deviceService.verifyIfDeviceIsEmptyCircuitBreaker(
+                () -> this.deviceService.getDeviceOrThrowCircuitBreaker(
                         "", new DataAccessException("") {}));
 
         verifyNoInteractions(this.deviceRepository);
@@ -320,7 +320,7 @@ class DeviceServiceTest {
         when(this.timerMetrics.startTimer())
                 .thenReturn(sample);
 
-        when(this.deviceRepository.findAllDevices(any(Pageable.class)))
+        when(this.deviceRepository.findAll(any(Pageable.class)))
                 .thenReturn(Page.empty());
 
         var response = this.deviceService.getAllDevices(0, 1);
