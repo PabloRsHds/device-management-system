@@ -14,6 +14,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,20 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class AnalysisService {
+
+    // CACHE
+    private static final String CACHE_DEVICE_MODEL = "cache_device_model";
+    // =======
+
+    // CIRCUIT BREAKER
+    private static final String CIRCUIT_BREAKER_KAFKA_PRODUCER = "circuitbreaker_kafka_producer";
+    private static final String CIRCUIT_BREAKER_GET_DEVICE = "circuitbreaker_get_device";
+    // ===============
+
+    // RETRY
+    private static final String RETRY_KAFKA_PRODUCER = "retry_kafka_producer";
+    private static final String RETRY_GET_DEVICE = "retry_get_device";
+    // ==============
 
     private final AnalysisRepository analysisRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
@@ -187,19 +202,19 @@ public class AnalysisService {
         ));
     }
 
-    @Retry(name = "retry_kafka_producer", fallbackMethod = "sendEventKafkaRetry")
-    @CircuitBreaker(name = "circuitbreaker_kafka_producer", fallbackMethod = "sendEventKafkaCircuitBreaker")
+    @Retry(name = RETRY_KAFKA_PRODUCER, fallbackMethod = "sendEventRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_KAFKA_PRODUCER, fallbackMethod = "sendEventCircuitBreaker")
     public void sendEvent(String topic, AnalysisEventForNotification event) {
         this.kafkaTemplate.send(topic, event);
     }
 
-    public void sendEventKafkaRetry(String topic, AnalysisEventForNotification event, Exception e) {
+    public void sendEventRetry(String topic, AnalysisEventForNotification event, Exception e) {
         log.warn("Erro ao enviar evento para o Kafka, Kafka producer: {}", e.getMessage());
         this.metricsService.failSendEvent();
         throw new ServiceUnavailableException("Service Unavailable, please try again later");
     }
 
-    public void sendEventKafkaCircuitBreaker(String topic, AnalysisEventForNotification event, Exception e) {
+    public void sendEventCircuitBreaker(String topic, AnalysisEventForNotification event, Exception e) {
         log.warn("Circuit breaker aberto, Kafka producer: {}", e.getMessage());
         this.metricsService.failSendEvent();
         throw new ServiceUnavailableException("Service Unavailable, please try again later");
@@ -229,9 +244,9 @@ public class AnalysisService {
                 entity.getAnalysisFailed());
     }
 
-
-    @Retry(name = "retry_get_device_with_model", fallbackMethod = "getDeviceWithModelRetry")
-    @CircuitBreaker(name = "circuitbreaker_get_device_with_model", fallbackMethod = "getDeviceWithModelCircuitBreaker")
+    @Cacheable(value = CACHE_DEVICE_MODEL , key = "#deviceModel")
+    @Retry(name = RETRY_GET_DEVICE, fallbackMethod = "getDeviceWithModelRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_GET_DEVICE, fallbackMethod = "getDeviceWithModelCircuitBreaker")
     public Analysis getDeviceWithModel(String deviceModel) {
 
         Optional<Analysis> entity = this.analysisRepository.findByDeviceModel(deviceModel);

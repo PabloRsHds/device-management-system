@@ -135,7 +135,7 @@ class SensorServiceTest {
         when(this.sensorRepository.findByDeviceModel("deviceModel"))
                 .thenReturn(Optional.of(new Sensor()));
 
-        var response = this.sensorService.verifyIfSensorIsPresent("deviceModel");
+        var response = this.sensorService.getSensorOrThrow("deviceModel");
 
         assertNotNull(response);
         verify(this.sensorRepository).findByDeviceModel("deviceModel");
@@ -149,7 +149,7 @@ class SensorServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(SensorIsEmptyException.class,
-                () -> this.sensorService.verifyIfSensorIsPresent("deviceModel"));
+                () -> this.sensorService.getSensorOrThrow("deviceModel"));
 
         verify(this.sensorRepository).findByDeviceModel("deviceModel");
         verifyNoInteractions(this.metricsService);

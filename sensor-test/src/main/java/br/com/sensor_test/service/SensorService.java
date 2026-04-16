@@ -30,6 +30,7 @@ public class SensorService {
     //Caches
     private static final String CACHE_GET_SENSOR = "cache_get_sensor";
     private static final String CACHE_GET_ALL_SENSORS = "cache_get_all_sensors";
+    // ===============
 
     //Circuit breakers
     private static final String CIRCUIT_BREAKER_SENSOR_EMPTY = "circuitbreaker_sensor_empty";

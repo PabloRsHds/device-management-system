@@ -51,7 +51,7 @@ resilience4j:
         ignore-exceptions:
           - br.com.analysis.infra.exceptions.ServiceUnavailableException
 
-      retry_get_device_with_model: #OK
+      retry_get_device: #OK
         max-attempts: 3
         retry-exceptions:
           - org.springframework.dao.DataAccessException
@@ -63,7 +63,7 @@ resilience4j:
 
   circuitbreaker:
     instances:
-      circuitbreaker_get_device_with_model: #OK
+      circuitbreaker_get_device: #OK
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
