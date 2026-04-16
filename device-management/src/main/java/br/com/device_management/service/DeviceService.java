@@ -16,6 +16,7 @@ import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +31,24 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class DeviceService {
+
+    // Caches
+    private static final String CACHE_ALL_DEVICES = "cache_all_devices";
+    private static final String CACHE_GET_DEVICE = "cache_get_device";
+    // =============================
+
+    // Circuit breaker "circuitbreaker_kafka_send_event"
+    private static final String CIRCUIT_BREAKER_DEVICE_PRESENT = "circuitbreaker_device_present";
+    private static final String CIRCUIT_BREAKER_GET_DEVICE = "circuitbreaker_get_device";
+    private static final String CIRCUIT_BREAKER_ALL_DEVICES = "circuitbreaker_all_devices";
+    private static final String CIRCUIT_BREAKER_KAFKA_SEND = "circuitbreaker_kafka_send";
+    // =============================
+
+    // Retry
+    private static final String RETRY_DEVICE_PRESENT = "retry_device_present";
+    private static final String RETRY_GET_DEVICE = "retry_get_device";
+    private static final String RETRY_ALL_DEVICES = "retry_all_devices";
+    // =============================
 
     private final DeviceRepository deviceRepository;
     private final TimerMetrics timer;
@@ -80,8 +99,8 @@ public class DeviceService {
         }
     }
 
-    @Retry(name = "retry_device_is_present", fallbackMethod = "verifyIfDeviceIsPresentRetry")
-    @CircuitBreaker(name = "circuitbreaker_device_is_present", fallbackMethod = "verifyIfDeviceIsPresentCircuitBreaker")
+    @Retry(name = RETRY_DEVICE_PRESENT, fallbackMethod = "verifyIfDeviceIsPresentRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_DEVICE_PRESENT, fallbackMethod = "verifyIfDeviceIsPresentCircuitBreaker")
     public void verifyIfDeviceIsPresent(String deviceModel) {
 
         Optional<Device> device = this.deviceRepository.findByDeviceModel(deviceModel);
@@ -132,7 +151,7 @@ public class DeviceService {
         );
     }
 
-    @CircuitBreaker(name = "circuitbreaker_kafka_send_event", fallbackMethod = "sendEventCircuitBreaker")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_KAFKA_SEND, fallbackMethod = "sendEventCircuitBreaker")
     public void sendEvent(String topic, DeviceDto dto) {
 
         this.kafkaTemplate.send(topic,
@@ -162,7 +181,7 @@ public class DeviceService {
 
         try {
             log.info("Verificando se o dispositivo não está cadastrado");
-            var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+            var entity = this.getDeviceOrThrow(deviceModel);
 
             log.info("Salvando as atualizações");
             var deviceDto = this.saveUpdate(entity, request);
@@ -185,9 +204,10 @@ public class DeviceService {
         }
     }
 
-    @Retry(name = "retry_device_is_empty", fallbackMethod = "verifyIfDeviceIsEmptyRetry")
-    @CircuitBreaker(name = "circuitbreaker_device_is_empty", fallbackMethod = "verifyIfDeviceIsEmptyCircuitBreaker")
-    public Device verifyIfDeviceIsEmpty(String deviceModel) {
+    @Cacheable(value = CACHE_GET_DEVICE, key = "#deviceModel")
+    @Retry(name = RETRY_GET_DEVICE, fallbackMethod = "getDeviceOrThrowRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_GET_DEVICE, fallbackMethod = "getDeviceOrThrowCircuitBreaker")
+    public Device getDeviceOrThrow(String deviceModel) {
 
         Optional<Device> entity = this.deviceRepository.findByDeviceModel(deviceModel);
 
@@ -199,16 +219,17 @@ public class DeviceService {
         return entity.get();
     }
 
-    public Device verifyIfDeviceIsEmptyRetry(String deviceModel, Exception ex) {
+    public Device getDeviceOrThrowRetry(String deviceModel, Exception ex) {
         log.error("O serviço do banco de dados está fora do ar, com isso o retry retornará um throw: ", ex);
         throw new ServiceUnavailable("Database service unavailable");
     }
 
-    public Device verifyIfDeviceIsEmptyCircuitBreaker(String deviceModel, Exception ex) {
+    public Device getDeviceOrThrowCircuitBreaker(String deviceModel, Exception ex) {
         log.error("Circuit breaker aberto - Banco de dados indisponível");
         throw new ServiceUnavailable("Database service unavailable");
     }
 
+    @CacheEvict(value = {CACHE_ALL_DEVICES, CACHE_GET_DEVICE}, allEntries = true)
     @Transactional
     public DeviceDto saveUpdate(Device entity, UpdateDeviceDto dto) {
 
@@ -244,8 +265,6 @@ public class DeviceService {
                 entity.getLocation()
         );
     }
-
-
     //=================================================================================================================
 
     // ============================================ DELETE ============================================================
@@ -257,7 +276,7 @@ public class DeviceService {
 
         try {
             log.info("Verifico se o device existe no banco de dados");
-            var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+            var entity = this.getDeviceOrThrow(deviceModel);
 
             log.info("Usuário achado no banco de dados, salvando um responseDto com os dados do dispositivo");
             var responseDto = new ResponseDeviceDto(
@@ -281,6 +300,7 @@ public class DeviceService {
         }
     }
 
+    @CacheEvict(value = {CACHE_ALL_DEVICES, CACHE_GET_DEVICE}, allEntries = true)
     @Transactional
     public void delete(Device entity) {
         try {
@@ -297,14 +317,13 @@ public class DeviceService {
 
     // =============================== Retorna o dispositivo com o modelo dele ========================================
 
-    @Cacheable(value = "cache_get_device_with_device_model", key = "#deviceModel")
     public getDeviceWithDeviceModel getDeviceWithDeviceModel(String deviceModel) {
 
         var sampleTimer = this.timer.startTimer();
 
         try {
 
-            var entity = this.verifyIfDeviceIsEmpty(deviceModel);
+            var entity = this.getDeviceOrThrow(deviceModel);
             return new getDeviceWithDeviceModel(
                     entity.getName(),
                     entity.getDeviceModel(),
@@ -321,9 +340,9 @@ public class DeviceService {
 
     // ================================= Retorna todos os dispositivos ================================================
 
-    @Cacheable(value = "cache_get_all_devices", key = "#page + '-' + #size")
-    @Retry(name = "retry_all_devices", fallbackMethod = "getAllDevicesRetry")
-    @CircuitBreaker(name = "circuitbreaker_all_devices", fallbackMethod = "getAllDevicesCircuitBreaker")
+    @Cacheable(value = CACHE_ALL_DEVICES, key = "#page + '-' + #size", unless = "#result.isEmpty()")
+    @Retry(name = RETRY_ALL_DEVICES, fallbackMethod = "getAllDevicesRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_ALL_DEVICES, fallbackMethod = "getAllDevicesCircuitBreaker")
     public List<ResponseDeviceDto> getAllDevices(int page, int size) {
 
         var sampleTimer = this.timer.startTimer();
@@ -349,7 +368,6 @@ public class DeviceService {
             this.timer.stopGetDevicesTimer(sampleTimer);
         }
     }
-
 
     public List<ResponseDeviceDto> getAllDevicesRetry(int page, int size, Exception ex) {
         log.error("O serviço do banco de dados está fora do ar, com isso o retry retornará um throw: {}", ex.getMessage());

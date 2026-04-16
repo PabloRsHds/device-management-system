@@ -39,7 +39,7 @@ management:
 resilience4j:
   retry:
     instances:
-      retry_device_is_present:
+      retry_device_present:
         max-attempts: 3
         wait-duration: 5s
         retry-exceptions:
@@ -49,7 +49,7 @@ resilience4j:
         ignore-exceptions:
           - br.com.device_management.infra.exceptions.ServiceUnavailable
 
-      retry_device_is_empty:
+      retry_get_device:
         max-attempts: 3
         wait-duration: 5s
         retry-exceptions:
@@ -71,7 +71,7 @@ resilience4j:
 
   circuitbreaker:
     instances:
-      circuitbreaker_device_is_present:
+      circuitbreaker_device_present:
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -84,7 +84,7 @@ resilience4j:
         ignore-exceptions:
           - br.com.device_management.infra.exceptions.ServiceUnavailable
 
-      circuitbreaker_kafka_send_event:
+      circuitbreaker_kafka_send:
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
@@ -94,7 +94,7 @@ resilience4j:
         record-exceptions:
           - org.springframework.kafka.KafkaException
 
-      circuitbreaker_device_is_empty:
+      circuitbreaker_get_device:
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50
