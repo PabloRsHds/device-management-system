@@ -24,8 +24,8 @@ public class KafkaConsumer {
     }
 
     @KafkaListener(
-            topics = "device-management-for-sensor-test-topic",
-            groupId = "device-management-for-sensor-test-groupId",
+            topics = "${kafka.topics.device-management}",
+            groupId = "${kafka.group-id.device-management}",
             containerFactory = "kafkaListenerSensorTestFactory")
     @CircuitBreaker(name = CIRCUIT_BREAKER_KAFKA_CONSUMER, fallbackMethod = "consumerIotGatewayCircuitBreaker")
     public void consumerIotGateway(ConsumerDeviceManagement consumer, Acknowledgment ack) {

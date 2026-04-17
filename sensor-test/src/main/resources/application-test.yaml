@@ -8,3 +8,9 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
+
+kafka:
+  topics:
+    device-management: device-management-for-sensor-test-topic
+  group-id:
+    device-management: device-management-for-sensor-test-groupId
