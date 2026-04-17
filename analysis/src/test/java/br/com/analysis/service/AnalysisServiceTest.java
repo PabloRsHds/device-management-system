@@ -117,7 +117,7 @@ class AnalysisServiceTest {
         var exception = mock(Exception.class);
 
         assertThrows(ServiceUnavailableException.class,
-                () -> this.analysisService.sendEventKafkaRetry(
+                () -> this.analysisService.sendEventRetry(
                         "topic",
                         new AnalysisEventForNotification("deviceModel", true),
                         exception));
@@ -132,7 +132,7 @@ class AnalysisServiceTest {
         var exception = mock(Exception.class);
 
         assertThrows(ServiceUnavailableException.class,
-                () -> this.analysisService.sendEventKafkaCircuitBreaker(
+                () -> this.analysisService.sendEventCircuitBreaker(
                         "topic",
                         new AnalysisEventForNotification("deviceModel", true),
                         exception));

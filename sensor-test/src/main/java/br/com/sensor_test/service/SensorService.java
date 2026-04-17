@@ -14,9 +14,9 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +47,6 @@ public class SensorService {
     private final SensorRepository sensorRepository;
     private final MetricsService metricsService;
 
-    @Autowired
     public SensorService(
             SensorRepository sensorRepository,
             MetricsService metricsService) {
@@ -88,6 +87,7 @@ public class SensorService {
 
     public void verifyIfSensorIsEmptyRetry(String deviceModel, Exception ex) {
         log.warn("Serviço de banco de dados indisponível, com isso não está sendo possível verificar o dispositivo");
+        throw new ServiceUnavailableException("Database service is not available");
     }
 
     public void verifyIfSensorIsEmptyCircuitBreaker(String deviceModel, Exception ex) {
@@ -129,7 +129,7 @@ public class SensorService {
     }
 
     // Metodo para verificar se o sensor é presente, se não ele retorna um erro.
-    @Cacheable(value = CACHE_GET_SENSOR,key = "#deviceModel")
+    @Cacheable(value = CACHE_GET_SENSOR, key = "#deviceModel")
     @Retry(name = RETRY_SENSOR_PRESENT, fallbackMethod = "getSensorOrThrowRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_SENSOR_PRESENT, fallbackMethod = "getSensorOrThrowCircuitBreaker")
     public Sensor getSensorOrThrow(String deviceModel) {
@@ -156,7 +156,10 @@ public class SensorService {
         throw new ServiceUnavailableException("Database service is not available");
     }
 
-    @CacheEvict(value = {CACHE_GET_SENSOR, CACHE_GET_ALL_SENSORS}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_SENSOR, key = "#entity.deviceModel"),
+            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
+    })
     @Transactional
     public ResponseSensorDto update(Sensor entity, UpdateSensor request) {
 
@@ -210,11 +213,14 @@ public class SensorService {
         }
     }
 
-    @CacheEvict(value = {CACHE_GET_SENSOR, CACHE_GET_ALL_SENSORS}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_SENSOR, key = "#entity.deviceModel"),
+            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
+    })
     @Transactional
     public void delete(Sensor entity) {
 
-        log.info("Sensor deletado com sucesso");
+        log.info("Sensor apagado com sucesso");
         this.sensorRepository.delete(entity);
     }
 
@@ -223,7 +229,7 @@ public class SensorService {
 
     // ====================================== PEGA TODOS OS SENSORES =================================================
 
-    @Cacheable(value = CACHE_GET_ALL_SENSORS,key = "#page+'-'+#size", unless = "#result.isEmpty()")
+    @Cacheable(value = CACHE_GET_ALL_SENSORS, key = "#page+'-'+#size", unless = "#result.isEmpty()")
     @Retry(name = RETRY_ALL_SENSORS, fallbackMethod = "getAllSensorsActivatedRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_ALL_SENSORS, fallbackMethod = "getAllSensorsActivatedCircuitBreaker")
     public List<ResponseSensorDto> getAllSensorsActivated(int page, int size) {
@@ -271,7 +277,10 @@ public class SensorService {
         return this.change(entity);
     }
 
-    @CacheEvict(value = {CACHE_GET_SENSOR, CACHE_GET_ALL_SENSORS}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_SENSOR, key = "#entity.deviceModel"),
+            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
+    })
     @Transactional
     public ResponseSensorDto change(Sensor entity) {
 
