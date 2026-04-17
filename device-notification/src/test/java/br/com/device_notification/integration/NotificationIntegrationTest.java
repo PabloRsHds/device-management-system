@@ -1,6 +1,5 @@
 package br.com.device_notification.integration;
 
-import br.com.device_notification.infra.exceptions.NotificationNotFound;
 import br.com.device_notification.model.Notification;
 import br.com.device_notification.repository.NotificationRepository;
 import br.com.device_notification.service.NotificationService;
@@ -12,13 +11,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static reactor.core.publisher.Mono.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)

@@ -1,6 +1,7 @@
 package br.com.device_notification.service;
 
 import br.com.device_notification.dtos.ResponseNotifications;
+import br.com.device_notification.enums.NotificationVisibility;
 import br.com.device_notification.infra.exceptions.NotificationNotFound;
 import br.com.device_notification.infra.exceptions.ServiceUnavailable;
 import br.com.device_notification.metrics.MetricsService;
@@ -10,6 +11,8 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,25 @@ import java.util.List;
 @Slf4j
 @Service
 public class NotificationService {
+
+    // CACHE
+    private static final String CACHE_ALL_NOTIFICATIONS = "cache_all_notifications";
+    // ================
+
+    // CIRCUIT BREAKER
+    private static final String CIRCUIT_BREAKER_NOTIFICATIONS = "circuitbreaker_notifications";
+    private static final String CIRCUIT_BREAKER_VISUALISATION = "circuitbreaker_visualisation";
+    private static final String CIRCUIT_BREAKER_OCCULT = "circuitbreaker_occult";
+    private static final String CIRCUIT_BREAKER_COUNT = "circuitbreaker_count";
+    // ===============
+
+    // RETRY
+    private static final String RETRY_NOTIFICATIONS = "retry_notifications";
+    private static final String RETRY_VISUALISATION = "retry_visualisation";
+    private static final String RETRY_OCCULT = "retry_occult";
+    private static final String RETRY_COUNT = "retry_count";
+
+    // ===============
 
     private final NotificationRepository notificationRepository;
     private final MetricsService metricsService;
@@ -35,12 +57,15 @@ public class NotificationService {
 
     // ======================================== All NOTIFICATIONS =====================================================
 
-    @Retry(name = "retry_notifications", fallbackMethod = "allNotificationsRetry")
-    @CircuitBreaker(name = "circuitbreaker_notifications", fallbackMethod = "allNotificationsCircuitBreaker")
-    public List<ResponseNotifications> allNotifications(int page, int size) {
+    @Cacheable(value = CACHE_ALL_NOTIFICATIONS, key = "#page + '-' + #size + '?' + #visibility")
+    @Retry(name = RETRY_NOTIFICATIONS, fallbackMethod = "getAllNotificationsRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_NOTIFICATIONS, fallbackMethod = "getAllNotificationsCircuitBreaker")
+    public List<ResponseNotifications> getAllNotifications(int page, int size, NotificationVisibility visibility) {
 
-        log.info("Retornando todas as notificações que estejam true");
-        return this.notificationRepository.findAllByShowNotificationTrue(PageRequest.of(page, size,
+        boolean show = visibility == NotificationVisibility.VISIBLE;
+
+        log.info("Retornando todas as notificações");
+        return this.notificationRepository.findAllByShowNotification(show, PageRequest.of(page, size,
                         Sort.by(Sort.Direction.DESC, "createdAt")))
                 .stream()
                 .map(notification -> new ResponseNotifications(
@@ -49,11 +74,11 @@ public class NotificationService {
                 .toList();
     }
 
-    public List<ResponseNotifications> allNotificationsRetry(int page, int size, Exception ex) {
+    public List<ResponseNotifications> getAllNotificationsRetry(int page, int size, NotificationVisibility visibility, Exception ex) {
         return List.of();
     }
 
-    public List<ResponseNotifications> allNotificationsCircuitBreaker(int page, int size, Exception ex) {
+    public List<ResponseNotifications> getAllNotificationsCircuitBreaker(int page, int size, NotificationVisibility visibility, Exception ex) {
 
         this.metricsService.circuitbreaker("circuitbreaker_notifications");
         return List.of();
@@ -62,38 +87,10 @@ public class NotificationService {
     // ================================================================================================================
 
 
-    // ================================ ALL NOTIFICATIONS OCCULTS =====================================================
-
-    @Retry(name = "retry_occult_notifications", fallbackMethod = "allNotificationsOccultRetry")
-    @CircuitBreaker(name = "circuitbreaker_occult_notifications", fallbackMethod = "allNotificationsOccultCircuitBreaker")
-    public List<ResponseNotifications> allNotificationsOccult(int page, int size) {
-
-        return this.notificationRepository.findAllByShowNotificationFalse(PageRequest.of(page, size,
-                        Sort.by(Sort.Direction.DESC, "createdAt")))
-                .stream()
-                .map(notification -> new ResponseNotifications(
-                        notification.getNotificationId(),
-                        notification.getMessage()))
-                .toList();
-    }
-
-    public List<ResponseNotifications> allNotificationsOccultRetry(int page, int size, Exception ex) {
-        return List.of();
-    }
-
-    public List<ResponseNotifications> allNotificationsOccultCircuitBreaker(int page, int size, Exception ex) {
-
-        this.metricsService.circuitbreaker("circuitbreaker_occult_notifications");
-        return List.of();
-    }
-
-    // ================================================================================================================
-
-
     // ================================================ VISUALIZAÇÃO ==================================================
 
-    @Retry(name = "retry_visualisation", fallbackMethod = "visualisationRetry")
-    @CircuitBreaker(name = "circuitbreaker_visualisation", fallbackMethod = "visualisationCircuitBreaker")
+    @Retry(name = RETRY_VISUALISATION, fallbackMethod = "visualisationRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_VISUALISATION, fallbackMethod = "visualisationCircuitBreaker")
     public void visualisation() {
         this.notificationRepository.markAllAsVisualised();
     }
@@ -113,13 +110,13 @@ public class NotificationService {
     // ======================================= OCULTAR NOTIFICAÇÕES ==================================================
 
     public void occultNotification(Long notificationId) {
-        var notification = this.verifyIfNotificationIsEmpty(notificationId);
+        var notification = this.getNotificationOrThrow(notificationId);
         this.saveUpdateInShowNotification(notification);
     }
 
-    @Retry(name = "retry_occult", fallbackMethod = "occultRetry")
-    @CircuitBreaker(name = "circuitbreaker_occult", fallbackMethod = "occultCircuitBreaker")
-    public Notification verifyIfNotificationIsEmpty(Long notificationId) {
+    @Retry(name = RETRY_OCCULT, fallbackMethod = "occultRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_OCCULT, fallbackMethod = "occultCircuitBreaker")
+    public Notification getNotificationOrThrow(Long notificationId) {
 
         var notification = this.notificationRepository.findById(notificationId);
 
@@ -132,6 +129,7 @@ public class NotificationService {
         return notification.get();
     }
 
+    @CacheEvict(value = CACHE_ALL_NOTIFICATIONS, allEntries = true)
     @Transactional
     public void saveUpdateInShowNotification(Notification notification) {
 
@@ -154,18 +152,19 @@ public class NotificationService {
 
     // ========================================= COUNT NOTIFICATIONS =================================================
 
-    @Retry(name = "retry_count", fallbackMethod = "countRetry")
-    @CircuitBreaker(name = "circuitbreaker_count", fallbackMethod = "countCircuitBreaker")
+    @CacheEvict(value = CACHE_ALL_NOTIFICATIONS, allEntries = true)
+    @Retry(name = RETRY_COUNT, fallbackMethod = "countNotificationsRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_COUNT, fallbackMethod = "countNotificationsCircuitBreaker")
     public int countNotifications() {
         return this.notificationRepository.countByVisualisationFalse();
     }
 
-    public int countRetry(Exception ex) {
+    public int countNotificationsRetry(Exception ex) {
         log.error("Error while counting notifications");
         return 0;
     }
 
-    public int countCircuitBreaker(Exception ex) {
+    public int countNotificationsCircuitBreaker(Exception ex) {
 
         log.info("CircuitBreaker ON");
         this.metricsService.circuitbreaker("circuitbreaker_count");

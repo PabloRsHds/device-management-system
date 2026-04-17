@@ -10,9 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Page<Notification> findAllByShowNotificationTrue(Pageable pageable);
-
-    Page<Notification> findAllByShowNotificationFalse(Pageable pageable);
+    Page<Notification> findAllByShowNotification(boolean show, Pageable pageable);
 
     int countByVisualisationFalse();
 

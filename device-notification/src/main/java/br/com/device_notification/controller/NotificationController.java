@@ -1,6 +1,7 @@
 package br.com.device_notification.controller;
 
 import br.com.device_notification.dtos.ResponseNotifications;
+import br.com.device_notification.enums.NotificationVisibility;
 import br.com.device_notification.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +24,11 @@ public class NotificationController {
     @GetMapping("/notifications")
     public ResponseEntity<List<ResponseNotifications>> allNotifications(
             @RequestParam int page,
-            @RequestParam int size
-    ) {
-        var response = this.notificationService.allNotifications(page, size);
+            @RequestParam int size,
+            @RequestParam NotificationVisibility visibility
+            ) {
+        var response = this.notificationService.getAllNotifications(page, size, visibility);
 
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/notifications-occult")
-    public ResponseEntity<List<ResponseNotifications>> allNotificationsOccult(
-            @RequestParam int page,
-            @RequestParam int size
-    ) {
-        var response = this.notificationService.allNotificationsOccult(page, size);
         return ResponseEntity.ok(response);
     }
 

@@ -51,13 +51,6 @@ resilience4j:
           - org.springframework.dao.DataAccessException
           - org.springframework.dao.DataAccessResourceFailureException
 
-      retry_occult_notifications: #OK
-        max-attempts: 3
-        wait-duration: 5s
-        retry-exceptions:
-          - org.springframework.dao.DataAccessException
-          - org.springframework.dao.DataAccessResourceFailureException
-
       retry_visualisation: #OK
         max-attempts: 3
         wait-duration: 5s
@@ -84,17 +77,6 @@ resilience4j:
   circuitbreaker:
     instances:
       circuitbreaker_notifications: #Ok
-        sliding-window-size: 5
-        minimum-number-of-calls: 3
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 2
-        automatic-transition-from-open-to-half-open-enabled: true
-        record-exceptions:
-          - org.springframework.dao.DataAccessException
-          - org.springframework.dao.DataAccessResourceFailureException
-
-      circuitbreaker_occult_notifications: #OK
         sliding-window-size: 5
         minimum-number-of-calls: 3
         failure-rate-threshold: 50

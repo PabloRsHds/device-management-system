@@ -136,7 +136,7 @@ public class UserService {
         throw new ServiceUnavailableException("Database temporarily unavailable after retries");
     }
 
-    // 🔌 Método fallback do Circuit Breaker
+    // Método fallback do Circuit Breaker
     // É chamado quando o circuito está aberto (muitas falhas recentes)
     public ResponseUserForLogin getResponseUserWithEmailOrUserIdCircuitBreaker(String email, String userId, Exception e) {
 
