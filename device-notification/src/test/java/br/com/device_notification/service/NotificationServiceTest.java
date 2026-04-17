@@ -1,5 +1,6 @@
 package br.com.device_notification.service;
 
+import br.com.device_notification.enums.NotificationVisibility;
 import br.com.device_notification.infra.exceptions.NotificationNotFound;
 import br.com.device_notification.metrics.MetricsService;
 import br.com.device_notification.model.Notification;
@@ -42,37 +43,17 @@ class NotificationServiceTest {
         notification.setMessage("Mensagem teste");
 
         Page<Notification> page = new PageImpl<>(List.of(notification));
+        var show = false;
+        var visibility = NotificationVisibility.VISIBLE;
 
-        when(notificationRepository.findAllByShowNotificationTrue(any(Pageable.class)))
+        when(notificationRepository.findAllByShowNotification(show,any(Pageable.class)))
                 .thenReturn(page);
 
-        var response = notificationService.allNotifications(0, 10);
+        var response = notificationService.getAllNotifications(0, 10, visibility);
 
         assertEquals(1, response.size());
-        verify(this.notificationRepository).findAllByShowNotificationTrue(any(Pageable.class));
+        verify(this.notificationRepository).findAllByShowNotification(show ,any(Pageable.class));
     }
-    // ================================================================================================================
-
-    // ================================ ALL NOTIFICATIONS OCCULTS =====================================================
-
-    @Test
-    void shouldReturnResponseNotificationsWhenAllNotificationsOccult() {
-
-        var notification = new Notification();
-        notification.setNotificationId(1L);
-        notification.setMessage("Mensagem teste");
-
-        Page<Notification> page = new PageImpl<>(List.of(notification));
-
-        when(notificationRepository.findAllByShowNotificationFalse(any(Pageable.class)))
-                .thenReturn(page);
-
-        var response = notificationService.allNotificationsOccult(0, 10);
-
-        assertEquals(1, response.size());
-        verify(this.notificationRepository).findAllByShowNotificationFalse(any(Pageable.class));
-    }
-
     // ================================================================================================================
 
     // ================================================ VISUALIZAÇÃO ==================================================
@@ -100,7 +81,7 @@ class NotificationServiceTest {
         when(this.notificationRepository.findById(1L))
                 .thenReturn(Optional.of(new Notification()));
 
-        var response = this.notificationService.verifyIfNotificationIsEmpty(1L);
+        var response = this.notificationService.getNotificationOrThrow(1L);
 
         verify(this.notificationRepository).findById(1L);
         assertNotNull(response);
@@ -113,7 +94,7 @@ class NotificationServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(NotificationNotFound.class,
-                () -> this.notificationService.verifyIfNotificationIsEmpty(1L));
+                () -> this.notificationService.getNotificationOrThrow(1L));
 
         verify(this.notificationRepository).findById(1L);
     }

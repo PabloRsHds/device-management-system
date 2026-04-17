@@ -32,7 +32,7 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/visualisation-notification")
+    @PatchMapping("/visualisation-notifications")
     public ResponseEntity<Void> visualisation() {
         this.notificationService.visualisation();
         return ResponseEntity.ok().build();

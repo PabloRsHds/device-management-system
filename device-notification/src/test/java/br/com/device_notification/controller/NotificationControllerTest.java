@@ -1,6 +1,7 @@
 package br.com.device_notification.controller;
 
 import br.com.device_notification.dtos.ResponseNotifications;
+import br.com.device_notification.enums.NotificationVisibility;
 import br.com.device_notification.infra.exceptions.NotificationNotFound;
 import br.com.device_notification.infra.exceptions.ServiceUnavailable;
 import br.com.device_notification.repository.NotificationRepository;
@@ -12,13 +13,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,36 +51,22 @@ class NotificationControllerTest {
     // ========================================== allNotifications ===================================================
 
     @Test
-    void shouldReturnListResponseNotificationsWhenAllNotifications() throws Exception{
+    void shouldReturnListResponseNotificationsWhenGetAllNotifications() throws Exception{
 
-        when(this.notificationService.allNotifications(0, 10))
+        var visibility = NotificationVisibility.VISIBLE;
+
+        when(this.notificationService.getAllNotifications(0, 10, visibility))
                 .thenReturn(List.of(new ResponseNotifications(1L, "Mensagem 1")));
 
         mockMvc.perform(get("/api/notifications")
                         .param("page", "0")
-                        .param("size", "10"))
+                        .param("size", "10")
+                        .param("visibility", "VISIBLE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].notificationId").value(1))
                 .andExpect(jsonPath("$[0].message").value("Mensagem 1"));
 
-        assertEquals(1, this.notificationService.allNotifications(0, 10).size());
-    }
-    // ===============================================================================================================
-
-    // ========================================== allNotificationsOccult =============================================
-
-    @Test
-    void shouldReturnListResponseNotificationsWhenAllNotificationsOccult() throws Exception{
-
-        when(this.notificationService.allNotificationsOccult(0, 10))
-                .thenReturn(List.of(new ResponseNotifications(1L, "Mensagem")));
-
-        mockMvc.perform(get("/api/notifications-occult")
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].notificationId").value(1))
-                .andExpect(jsonPath("$[0].message").value("Mensagem"));
+        assertEquals(1, this.notificationService.getAllNotifications(0, 10, visibility).size());
     }
     // ===============================================================================================================
 
@@ -91,7 +75,7 @@ class NotificationControllerTest {
     @Test
     void shouldReturnVoidWhenVisualisation() throws Exception{
 
-        mockMvc.perform(put("/api/visualisation-notification"))
+        mockMvc.perform(patch("/api/visualisation-notifications"))
                 .andExpect(status().isOk());
     }
 
@@ -102,12 +86,12 @@ class NotificationControllerTest {
                 .when(this.notificationService)
                 .visualisation();
 
-        mockMvc.perform(put("/api/visualisation-notification"))
+        mockMvc.perform(patch("/api/visualisation-notifications"))
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.status").value(503))
                 .andExpect(jsonPath("$.error").value("The service is unavailable"))
                 .andExpect(jsonPath("$.message").value("Service unavailable"))
-                .andExpect(jsonPath("$.path").value("/api/visualisation-notification"));
+                .andExpect(jsonPath("$.path").value("/api/visualisation-notifications"));
     }
     // ===============================================================================================================
 
@@ -116,7 +100,7 @@ class NotificationControllerTest {
     @Test
     void shouldReturnVoidWhenOccultNotification() throws Exception{
 
-        mockMvc.perform(put("/api/occult-notification/{notificationId}","1"))
+        mockMvc.perform(patch("/api/occult-notification/{notificationId}","1"))
                 .andExpect(status().isOk());
     }
 
@@ -127,7 +111,7 @@ class NotificationControllerTest {
                 .when(this.notificationService)
                 .occultNotification(1L);
 
-        mockMvc.perform(put("/api/occult-notification/{notificationId}","1"))
+        mockMvc.perform(patch("/api/occult-notification/{notificationId}","1"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.error").value("Notification not found"))
@@ -142,7 +126,7 @@ class NotificationControllerTest {
                 .when(this.notificationService)
                 .occultNotification(1L);
 
-        mockMvc.perform(put("/api/occult-notification/{notificationId}","1"))
+        mockMvc.perform(patch("/api/occult-notification/{notificationId}","1"))
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.status").value(503))
                 .andExpect(jsonPath("$.error").value("The service is unavailable"))
