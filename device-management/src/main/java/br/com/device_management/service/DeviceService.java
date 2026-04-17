@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -229,7 +230,11 @@ public class DeviceService {
         throw new ServiceUnavailable("Database service unavailable");
     }
 
-    @CacheEvict(value = {CACHE_ALL_DEVICES, CACHE_GET_DEVICE}, allEntries = true)
+
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_DEVICE, key = "#entity.deviceModel"),
+            @CacheEvict(value = CACHE_ALL_DEVICES, allEntries = true)
+    })
     @Transactional
     public DeviceDto saveUpdate(Device entity, UpdateDeviceDto dto) {
 
@@ -300,7 +305,10 @@ public class DeviceService {
         }
     }
 
-    @CacheEvict(value = {CACHE_ALL_DEVICES, CACHE_GET_DEVICE}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_DEVICE, key = "#entity.deviceModel"),
+            @CacheEvict(value = CACHE_ALL_DEVICES, allEntries = true)
+    })
     @Transactional
     public void delete(Device entity) {
         try {

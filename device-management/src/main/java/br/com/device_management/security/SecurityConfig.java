@@ -15,7 +15,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
