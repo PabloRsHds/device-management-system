@@ -32,13 +32,13 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/visualisation-notification")
+    @PatchMapping("/visualisation-notification")
     public ResponseEntity<Void> visualisation() {
         this.notificationService.visualisation();
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/occult-notification/{notificationId}")
+    @PatchMapping("/occult-notification/{notificationId}")
     public ResponseEntity<Void> occultNotification(@PathVariable Long notificationId) {
         this.notificationService.occultNotification(notificationId);
         return ResponseEntity.ok().build();
