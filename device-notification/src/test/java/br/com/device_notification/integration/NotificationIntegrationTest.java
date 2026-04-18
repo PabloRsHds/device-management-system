@@ -11,8 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,27 +41,8 @@ public class NotificationIntegrationTest {
 
         this.mockMvc.perform(get("/api/notifications")
                 .param("page", "0")
-                .param("size", "1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].notificationId").value(notification.getNotificationId()))
-                .andExpect(jsonPath("$[0].message").value(notification.getMessage()));
-    }
-
-    // ===============================================================================================================
-
-    // ====================================== allNotificationsOccult =================================================
-
-    @Test
-    void shouldReturnListResponseNotificationsWhenAllNotificationsOccult() throws Exception{
-
-        var notification = new Notification();
-        notification.setMessage("Message");
-        notification.setShowNotification(false);
-        this.notificationRepository.save(notification);
-
-        this.mockMvc.perform(get("/api/notifications-occult")
-                        .param("page", "0")
-                        .param("size", "1"))
+                .param("size", "1")
+                .param("visibility", "VISIBLE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].notificationId").value(notification.getNotificationId()))
                 .andExpect(jsonPath("$[0].message").value(notification.getMessage()));
@@ -81,7 +61,7 @@ public class NotificationIntegrationTest {
         notification.setVisualisation(false);
         this.notificationRepository.save(notification);
 
-        this.mockMvc.perform(put("/api/visualisation-notification"))
+        this.mockMvc.perform(patch("/api/visualisation-notifications"))
                 .andExpect(status().isOk());
     }
 
@@ -97,7 +77,7 @@ public class NotificationIntegrationTest {
         notification.setShowNotification(true);
         this.notificationRepository.save(notification);
 
-        this.mockMvc.perform(put("/api/occult-notification/{notificationId}",
+        this.mockMvc.perform(patch("/api/occult-notification/{notificationId}",
                         notification.getNotificationId()))
                 .andExpect(status().isOk());
     }
@@ -105,7 +85,7 @@ public class NotificationIntegrationTest {
     @Test
     void shouldReturnThrowWhenOccultNotification() throws Exception {
 
-        mockMvc.perform(put("/api/occult-notification/{notificationId}", 999))
+        mockMvc.perform(patch("/api/occult-notification/{notificationId}", 999))
                 .andExpect(status().isConflict());
     }
 

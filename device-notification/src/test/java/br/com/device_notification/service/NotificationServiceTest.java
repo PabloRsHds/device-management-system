@@ -36,23 +36,59 @@ class NotificationServiceTest {
 
     // ======================================== All NOTIFICATIONS =====================================================
     @Test
-    void shouldReturnResponseNotificationsWhenAllNotifications() {
+    void shouldReturnResponseNotificationsWhenAllNotificationsVisible() {
 
+        // Arrange
         var notification = new Notification();
         notification.setNotificationId(1L);
         notification.setMessage("Mensagem teste");
 
         Page<Notification> page = new PageImpl<>(List.of(notification));
-        var show = false;
+
         var visibility = NotificationVisibility.VISIBLE;
 
-        when(notificationRepository.findAllByShowNotification(show,any(Pageable.class)))
+        when(notificationRepository.findAllByShowNotification(eq(true), any(Pageable.class)))
                 .thenReturn(page);
 
+        // Act
         var response = notificationService.getAllNotifications(0, 10, visibility);
 
+        // Assert
+        assertNotNull(response);
         assertEquals(1, response.size());
-        verify(this.notificationRepository).findAllByShowNotification(show ,any(Pageable.class));
+        assertEquals(1L, response.get(0).notificationId());
+        assertEquals("Mensagem teste", response.get(0).message());
+
+        verify(notificationRepository)
+                .findAllByShowNotification(eq(true), any(Pageable.class));
+    }
+
+    @Test
+    void shouldReturnHiddenNotificationsWhenVisibilityIsHidden() {
+
+        // Arrange
+        var notification = new Notification();
+        notification.setNotificationId(2L);
+        notification.setMessage("Mensagem oculta");
+
+        Page<Notification> page = new PageImpl<>(List.of(notification));
+
+        var visibility = NotificationVisibility.HIDDEN;
+
+        when(notificationRepository.findAllByShowNotification(eq(false), any(Pageable.class)))
+                .thenReturn(page);
+
+        // Act
+        var response = notificationService.getAllNotifications(0, 10, visibility);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(2L, response.get(0).notificationId());
+        assertEquals("Mensagem oculta", response.get(0).message());
+
+        verify(notificationRepository)
+                .findAllByShowNotification(eq(false), any(Pageable.class));
     }
     // ================================================================================================================
 
