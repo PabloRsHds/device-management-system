@@ -1,7 +1,7 @@
 package br.com.device_notification.service;
 
 import br.com.device_notification.dtos.ResponseNotifications;
-import br.com.device_notification.enums.NotificationVisibility;
+import br.com.device_notification.enums.Visibility;
 import br.com.device_notification.infra.exceptions.NotificationNotFound;
 import br.com.device_notification.infra.exceptions.ServiceUnavailable;
 import br.com.device_notification.metrics.MetricsService;
@@ -60,9 +60,9 @@ public class NotificationService {
     @Cacheable(value = CACHE_ALL_NOTIFICATIONS, key = "#page + '-' + #size + '?' + #visibility")
     @Retry(name = RETRY_NOTIFICATIONS, fallbackMethod = "getAllNotificationsRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_NOTIFICATIONS, fallbackMethod = "getAllNotificationsCircuitBreaker")
-    public List<ResponseNotifications> getAllNotifications(int page, int size, NotificationVisibility visibility) {
+    public List<ResponseNotifications> getAllNotifications(int page, int size, Visibility visibility) {
 
-        boolean show = visibility == NotificationVisibility.VISIBLE;
+        boolean show = visibility == Visibility.VISIBLE;
 
         log.info("Retornando todas as notificações");
         return this.notificationRepository.findAllByShowNotification(show, PageRequest.of(page, size,
@@ -74,11 +74,11 @@ public class NotificationService {
                 .toList();
     }
 
-    public List<ResponseNotifications> getAllNotificationsRetry(int page, int size, NotificationVisibility visibility, Exception ex) {
+    public List<ResponseNotifications> getAllNotificationsRetry(int page, int size, Visibility visibility, Exception ex) {
         return List.of();
     }
 
-    public List<ResponseNotifications> getAllNotificationsCircuitBreaker(int page, int size, NotificationVisibility visibility, Exception ex) {
+    public List<ResponseNotifications> getAllNotificationsCircuitBreaker(int page, int size, Visibility visibility, Exception ex) {
 
         this.metricsService.circuitbreaker("circuitbreaker_notifications");
         return List.of();

@@ -1,7 +1,7 @@
 package br.com.device_notification.controller;
 
 import br.com.device_notification.dtos.ResponseNotifications;
-import br.com.device_notification.enums.NotificationVisibility;
+import br.com.device_notification.enums.Visibility;
 import br.com.device_notification.infra.exceptions.NotificationNotFound;
 import br.com.device_notification.infra.exceptions.ServiceUnavailable;
 import br.com.device_notification.repository.NotificationRepository;
@@ -53,7 +53,7 @@ class NotificationControllerTest {
     @Test
     void shouldReturnListResponseNotificationsWhenGetAllNotifications() throws Exception{
 
-        var visibility = NotificationVisibility.VISIBLE;
+        var visibility = Visibility.VISIBLE;
 
         when(this.notificationService.getAllNotifications(0, 10, visibility))
                 .thenReturn(List.of(new ResponseNotifications(1L, "Mensagem 1")));

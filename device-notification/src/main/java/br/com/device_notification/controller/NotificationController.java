@@ -1,7 +1,7 @@
 package br.com.device_notification.controller;
 
 import br.com.device_notification.dtos.ResponseNotifications;
-import br.com.device_notification.enums.NotificationVisibility;
+import br.com.device_notification.enums.Visibility;
 import br.com.device_notification.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class NotificationController {
     public ResponseEntity<List<ResponseNotifications>> allNotifications(
             @RequestParam int page,
             @RequestParam int size,
-            @RequestParam NotificationVisibility visibility
+            @RequestParam Visibility visibility
             ) {
         var response = this.notificationService.getAllNotifications(page, size, visibility);
 

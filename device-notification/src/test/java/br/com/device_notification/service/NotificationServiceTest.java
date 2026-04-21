@@ -1,6 +1,6 @@
 package br.com.device_notification.service;
 
-import br.com.device_notification.enums.NotificationVisibility;
+import br.com.device_notification.enums.Visibility;
 import br.com.device_notification.infra.exceptions.NotificationNotFound;
 import br.com.device_notification.metrics.MetricsService;
 import br.com.device_notification.model.Notification;
@@ -45,7 +45,7 @@ class NotificationServiceTest {
 
         Page<Notification> page = new PageImpl<>(List.of(notification));
 
-        var visibility = NotificationVisibility.VISIBLE;
+        var visibility = Visibility.VISIBLE;
 
         when(notificationRepository.findAllByShowNotification(eq(true), any(Pageable.class)))
                 .thenReturn(page);
@@ -73,7 +73,7 @@ class NotificationServiceTest {
 
         Page<Notification> page = new PageImpl<>(List.of(notification));
 
-        var visibility = NotificationVisibility.HIDDEN;
+        var visibility = Visibility.HIDDEN;
 
         when(notificationRepository.findAllByShowNotification(eq(false), any(Pageable.class)))
                 .thenReturn(page);
