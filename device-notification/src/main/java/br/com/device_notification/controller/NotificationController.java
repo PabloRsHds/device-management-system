@@ -44,7 +44,7 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/count-notification")
+    @GetMapping("/count-notifications")
     public int countNotifications(){
         return this.notificationService.countNotifications();
     }

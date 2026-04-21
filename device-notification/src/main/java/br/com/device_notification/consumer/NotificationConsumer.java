@@ -3,6 +3,7 @@ package br.com.device_notification.consumer;
 import br.com.device_notification.dtos.ConsumerAnalysis;
 import br.com.device_notification.model.Notification;
 import br.com.device_notification.repository.NotificationRepository;
+import br.com.device_notification.service.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -17,28 +18,36 @@ import java.util.Objects;
 public class NotificationConsumer {
 
     private final NotificationRepository notificationRepository;
+    private final WebSocketService webSocketService;
 
     @Autowired
-    public NotificationConsumer(NotificationRepository notificationRepository) {
+    public NotificationConsumer(NotificationRepository notificationRepository, WebSocketService webSocketService) {
         this.notificationRepository = notificationRepository;
+        this.webSocketService = webSocketService;
     }
 
     @KafkaListener(topics = "analysis-for-notification-topic",
             groupId = "analysis-for-notification-groupId",
             containerFactory = "kafkaListenerAnalysisFactory")
-    public void createNotificationApproved(ConsumerAnalysis event, Acknowledgment ack){
+    public void createNotification(ConsumerAnalysis event, Acknowledgment ack){
 
-        var date = LocalDateTime.now().atZone(ZoneId.of("America/Sao_Paulo")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        try {
+            var date = LocalDateTime.now().atZone(ZoneId.of("America/Sao_Paulo")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 
-        var notification = new Notification();
-        notification.setDeviceModel(event.deviceModel());
-        if (Objects.equals(event.created(), true)) {
-            notification.setMessage("This device has been sent for review\n"+date);
-        } else {
-            notification.setMessage("The device with model: "+event.deviceModel()+" has been updated\n"+date);
+            var notification = new Notification();
+            notification.setDeviceModel(event.deviceModel());
+            if (Objects.equals(event.created(), true)) {
+                notification.setMessage("This device has been sent for review\n"+date);
+            } else {
+                notification.setMessage("The device with model: "+event.deviceModel()+" has been updated\n"+date);
+            }
+            notification.setCreatedAt(date);
+            this.notificationRepository.save(notification);
+
+            var count = this.notificationRepository.countByVisualisationFalse();
+            this.webSocketService.notifyNewNotification(count);
+        } finally {
+            ack.acknowledge();
         }
-        notification.setCreatedAt(date);
-        this.notificationRepository.save(notification);
-        ack.acknowledge();
     }
 }
