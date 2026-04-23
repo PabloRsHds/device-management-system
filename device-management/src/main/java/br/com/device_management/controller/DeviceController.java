@@ -6,6 +6,7 @@ import br.com.device_management.dtos.DeviceDetailsDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.service.DeviceService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class DeviceController {
     }
 
     @GetMapping("/all-devices")
-    public ResponseEntity<List<ResponseDeviceDto>> allDevices(@RequestParam int page,
+    public ResponseEntity<Page<ResponseDeviceDto>> allDevices(@RequestParam int page,
                                                               @RequestParam int size){
         var response = this.deviceService.getAllDevices(page, size);
         return ResponseEntity.ok().body(response);

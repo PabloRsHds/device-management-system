@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -351,14 +352,13 @@ public class DeviceService {
     @Cacheable(value = CACHE_ALL_DEVICES, key = "#page + '-' + #size", unless = "#result.isEmpty()")
     @Retry(name = RETRY_ALL_DEVICES, fallbackMethod = "getAllDevicesRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_ALL_DEVICES, fallbackMethod = "getAllDevicesCircuitBreaker")
-    public List<ResponseDeviceDto> getAllDevices(int page, int size) {
+    public Page<ResponseDeviceDto> getAllDevices(int page, int size) {
 
         var sampleTimer = this.timer.startTimer();
 
         try {
 
             return this.deviceRepository.findAll(PageRequest.of(page, size))
-                    .stream()
                     .map(device -> new ResponseDeviceDto(
                             device.getName(),
                             device.getType(),
@@ -369,8 +369,7 @@ public class DeviceService {
                             device.getUnit(),
                             device.getMinLimit(),
                             device.getMaxLimit()
-                    ))
-                    .toList();
+                    ));
 
         } finally {
             this.timer.stopGetDevicesTimer(sampleTimer);

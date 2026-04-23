@@ -32,7 +32,7 @@ public class SensorController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/find-all-sensors-activated")
+    @GetMapping("/get-all-sensors-activated")
     public ResponseEntity<List<ResponseSensorDto>> findAllSensorsActivated(@RequestParam int page, @RequestParam int size) {
         var response = this.sensorService.getAllSensorsActivated(page, size);
         return ResponseEntity.ok(response);
