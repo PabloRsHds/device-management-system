@@ -13,12 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -60,28 +59,26 @@ public class NotificationService {
     @Cacheable(value = CACHE_ALL_NOTIFICATIONS, key = "#page + '-' + #size + '?' + #visibility")
     @Retry(name = RETRY_NOTIFICATIONS, fallbackMethod = "getAllNotificationsRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_NOTIFICATIONS, fallbackMethod = "getAllNotificationsCircuitBreaker")
-    public List<ResponseNotifications> getAllNotifications(int page, int size, Visibility visibility) {
+    public Page<ResponseNotifications> getAllNotifications(int page, int size, Visibility visibility) {
 
         boolean show = visibility == Visibility.VISIBLE;
 
         log.info("Retornando todas as notificações");
         return this.notificationRepository.findAllByShowNotification(show, PageRequest.of(page, size,
                         Sort.by(Sort.Direction.DESC, "createdAt")))
-                .stream()
                 .map(notification -> new ResponseNotifications(
                         notification.getNotificationId(),
-                        notification.getMessage()))
-                .toList();
+                        notification.getMessage()));
     }
 
-    public List<ResponseNotifications> getAllNotificationsRetry(int page, int size, Visibility visibility, Exception ex) {
-        return List.of();
+    public Page<ResponseNotifications> getAllNotificationsRetry(int page, int size, Visibility visibility, Exception ex) {
+        return Page.empty(PageRequest.of(page, size));
     }
 
-    public List<ResponseNotifications> getAllNotificationsCircuitBreaker(int page, int size, Visibility visibility, Exception ex) {
+    public Page<ResponseNotifications> getAllNotificationsCircuitBreaker(int page, int size, Visibility visibility, Exception ex) {
 
         this.metricsService.circuitbreaker("circuitbreaker_notifications");
-        return List.of();
+        return Page.empty(PageRequest.of(page, size));
     }
 
     // ================================================================================================================
