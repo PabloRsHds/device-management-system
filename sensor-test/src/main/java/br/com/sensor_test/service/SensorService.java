@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -232,7 +233,7 @@ public class SensorService {
     @Cacheable(value = CACHE_GET_ALL_SENSORS, key = "#page+'-'+#size", unless = "#result.isEmpty()")
     @Retry(name = RETRY_ALL_SENSORS, fallbackMethod = "getAllSensorsActivatedRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_ALL_SENSORS, fallbackMethod = "getAllSensorsActivatedCircuitBreaker")
-    public List<ResponseSensorDto> getAllSensorsActivated(int page, int size) {
+    public Page<ResponseSensorDto> getAllSensorsActivated(int page, int size) {
 
         log.info("Iniciando o timer do get all sensors");
         var sampleTimer = this.metricsService.startTimer();
@@ -241,16 +242,13 @@ public class SensorService {
             log.info("Procurando registros no banco de dados, e transformando eles em um dto");
             return this.sensorRepository
                     .findAllSensors(PageRequest.of(page, size))
-                    .stream()
-                    .filter(device -> Status.ACTIVATED.equals(device.getStatus()))
                     .map(device -> new ResponseSensorDto(
                             device.getName(),
                             device.getType(),
                             device.getDeviceModel(),
                             device.getManufacturer(),
                             device.getStatus()
-                    ))
-                    .toList();
+                    ));
 
         } finally {
             log.info("Parando o timer do get all sensors");
@@ -258,13 +256,13 @@ public class SensorService {
         }
     }
 
-    public List<ResponseSensorDto> getAllSensorsActivatedRetry(int page, int size, Exception ex) {
-        return List.of();
+    public Page<ResponseSensorDto> getAllSensorsActivatedRetry(int page, int size, Exception ex) {
+        return Page.empty(PageRequest.of(page, size));
     }
 
-    public List<ResponseSensorDto> getAllSensorsActivatedCircuitBreaker(int page, int size, Exception ex) {
+    public Page<ResponseSensorDto> getAllSensorsActivatedCircuitBreaker(int page, int size, Exception ex) {
         log.error("Fallback acionado - banco indisponível", ex);
-        return List.of();
+        return Page.empty(PageRequest.of(page, size));
     }
 
     // ===============================================================================================================

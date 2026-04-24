@@ -4,6 +4,7 @@ import br.com.sensor_test.dtos.UpdateSensor;
 import br.com.sensor_test.dtos.sensor.ResponseSensorDto;
 import br.com.sensor_test.service.SensorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class SensorController {
     }
 
     @GetMapping("/get-all-sensors-activated")
-    public ResponseEntity<List<ResponseSensorDto>> findAllSensorsActivated(@RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<Page<ResponseSensorDto>> findAllSensorsActivated(@RequestParam int page, @RequestParam int size) {
         var response = this.sensorService.getAllSensorsActivated(page, size);
         return ResponseEntity.ok(response);
     }
