@@ -376,14 +376,14 @@ public class DeviceService {
         }
     }
 
-    public List<ResponseDeviceDto> getAllDevicesRetry(int page, int size, Exception ex) {
+    public Page<ResponseDeviceDto> getAllDevicesRetry(int page, int size, Exception ex) {
         log.error("O serviço do banco de dados está fora do ar, com isso o retry retornará um throw: {}", ex.getMessage());
-        return List.of();
+        return Page.empty(PageRequest.of(page, size));
     }
 
-    public List<ResponseDeviceDto> getAllDevicesCircuitBreaker(int page, int size, Exception ex) {
+    public Page<ResponseDeviceDto> getAllDevicesCircuitBreaker(int page, int size, Exception ex) {
         log.error("Circuit breaker aberto - Banco de dados indisponível para retornar todos os dispositivos.");
-        return List.of();
+        return Page.empty(PageRequest.of(page, size));
     }
 
     // ================================================================================================================
