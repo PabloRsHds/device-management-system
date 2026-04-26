@@ -62,7 +62,7 @@ class LoginIntegrationTest {
     @Test
     void shouldLoginSuccessfully() throws Exception {
 
-        when(this.userClient.getResponseUserWithEmailOrUserId("teste@gmail.com",null))
+        when(this.userClient.getUserByEmail("teste@gmail.com"))
                 .thenReturn(new ResponseUserForLogin("123", new BCryptPasswordEncoder().encode("99218841Pp@"), "USER"));
 
         mockMvc.perform(post("/api/login")
@@ -77,13 +77,13 @@ class LoginIntegrationTest {
                 .andExpect(jsonPath("$.accessToken").exists())
                 .andExpect(jsonPath("$.refreshToken").exists());
 
-        verify(this.userClient).getResponseUserWithEmailOrUserId("teste@gmail.com", null);
+        verify(this.userClient).getUserByEmail("teste@gmail.com");
     }
 
     @Test
     void shouldLoginFailed() throws Exception {
 
-        when(this.userClient.getResponseUserWithEmailOrUserId("teste@gmail.com", null))
+        when(this.userClient.getUserByEmail("teste@gmail.com"))
                 .thenReturn(null);
 
         mockMvc.perform(post("/api/login")
@@ -99,7 +99,7 @@ class LoginIntegrationTest {
                 .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
 
-        verify(this.userClient).getResponseUserWithEmailOrUserId("teste@gmail.com", null);
+        verify(this.userClient).getUserByEmail("teste@gmail.com");
     }
 
     @Test
@@ -107,7 +107,7 @@ class LoginIntegrationTest {
 
         var encodePassword = new BCryptPasswordEncoder().encode("99218841Pp");
 
-        when(this.userClient.getResponseUserWithEmailOrUserId("teste@gmail.com",null))
+        when(this.userClient.getUserByEmail("teste@gmail.com"))
                 .thenReturn(new ResponseUserForLogin("123", encodePassword, "USER"));
 
         mockMvc.perform(post("/api/login")
@@ -123,13 +123,13 @@ class LoginIntegrationTest {
                 .andExpect(jsonPath("$.error").value("Invalid or expired credentials"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
 
-        verify(this.userClient).getResponseUserWithEmailOrUserId("teste@gmail.com", null);
+        verify(this.userClient).getUserByEmail("teste@gmail.com");
     }
 
     @Test
     void shouldReturn503WhenExternalServiceFails() throws Exception {
 
-        when(this.userClient.getResponseUserWithEmailOrUserId(any(), any()))
+        when(this.userClient.getUserByEmail(any()))
                 .thenThrow(new RuntimeException("Error"));
 
         mockMvc.perform(post("/api/login")
@@ -145,7 +145,7 @@ class LoginIntegrationTest {
                 .andExpect(jsonPath("$.error").value("Service unavailable"))
                 .andExpect(jsonPath("$.path").value("/api/login"));
 
-        verify(this.userClient).getResponseUserWithEmailOrUserId(any(), any());
+        verify(this.userClient).getUserByEmail(any());
     }
 
     // REFRESH TOKEN
@@ -157,7 +157,7 @@ class LoginIntegrationTest {
         var tokens = this.loginService.generateTokens("123", "USER");
 
         // Mockei o userClient para retornar um usuário válido para a criação do refresh token.
-        when(this.userClient.getResponseUserWithEmailOrUserId(null, "123"))
+        when(this.userClient.getUserByUserId("123"))
                 .thenReturn(new ResponseUserForLogin("123", "99218841Pp@", "USER"));
 
         mockMvc.perform(post("/api/refresh-tokens")
@@ -175,7 +175,7 @@ class LoginIntegrationTest {
                 .andExpect(jsonPath("$.accessToken").exists())
                 .andExpect(jsonPath("$.refreshToken").exists());
 
-        verify(this.userClient).getResponseUserWithEmailOrUserId(null, "123");
+        verify(this.userClient).getUserByUserId("123");
     }
 
     @Test
