@@ -283,6 +283,7 @@ public class AnalysisService {
 
     // ================================================ UPDATE ========================================================
 
+    @CacheEvict(value = CACHE_DEVICE_MODEL, key = "#deviceModel")
     public ResponseDeviceAnalysisDto updateAnalysis(String deviceModel, RequestUpdateAnalysis request) {
 
         var entity = this.getDeviceWithModel(deviceModel);
@@ -290,7 +291,6 @@ public class AnalysisService {
         return this.update(entity, request);
     }
 
-    @CacheEvict(value = CACHE_DEVICE_MODEL, key = "#entity.deviceModel")
     @Transactional
     public ResponseDeviceAnalysisDto update(Analysis entity, RequestUpdateAnalysis request) {
 
@@ -337,14 +337,13 @@ public class AnalysisService {
 
     // ================================================ DELETE =======================================================
 
-
+    @CacheEvict(value = CACHE_DEVICE_MODEL, key = "#deviceModel")
     public ResponseDeviceAnalysisDto deleteAnalysis(String deviceModel) {
 
         var entity = this.getDeviceWithModel(deviceModel);
         return this.delete(entity);
     }
 
-    @CacheEvict(value = CACHE_DEVICE_MODEL, key = "#entity.deviceModel")
     @Transactional
     public ResponseDeviceAnalysisDto delete(Analysis entity) {
 
