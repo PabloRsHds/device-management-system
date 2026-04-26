@@ -28,8 +28,8 @@ public class KafkaConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topics.sensor-test}",
-            groupId = "${kafka.group-id.sensor-test}",
+            topics = "${spring.kafka.topics.sensor-test}",
+            groupId = "${spring.kafka.group-id.sensor-test}",
             containerFactory = "kafkaListenerSensorTestFactory")
     @CircuitBreaker(name = CIRCUIT_BREAKER_KAFKA_CONSUMER, fallbackMethod = "consumerSensorTestCircuitBreaker")
     public void consumerSensorTest(ConsumerSensorTest consumer, Acknowledgment ack) {

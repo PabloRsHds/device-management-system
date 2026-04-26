@@ -26,8 +26,8 @@ public class NotificationConsumer {
         this.webSocketService = webSocketService;
     }
 
-    @KafkaListener(topics = "analysis-for-notification-topic",
-            groupId = "analysis-for-notification-groupId",
+    @KafkaListener(topics = "${spring.kafka.topics.create-notification}",
+            groupId = "${spring.kafka.group-id.create-notification}",
             containerFactory = "kafkaListenerAnalysisFactory")
     public void createNotification(ConsumerAnalysis event, Acknowledgment ack){
 
