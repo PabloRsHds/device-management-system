@@ -12,7 +12,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -28,7 +27,7 @@ class UserIntegrationTest {
     private UserRepository userRepository;
 
     @Test
-    void shouldReturnUserWhenExistsInDatabase() throws Exception {
+    void shouldReturnUserWhenEmailExistsInDatabase() throws Exception {
 
         var user = new User();
         user.setEmail("teste@gmail.com");
@@ -38,19 +37,40 @@ class UserIntegrationTest {
 
         this.userRepository.save(user);
 
-        this.mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
-                        .param("email", "teste@gmail.com")
-                        .param("userId", "123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").exists());
+        this.mockMvc.perform(get("/microservice/verify-by-email")
+                        .param("email", "teste@gmail.com"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void shouldReturnNullWhenUserNotExistsInDatabase() throws Exception {
+    void shouldReturnNullWhenEmailNotExistsInDatabase() throws Exception {
 
-        this.mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
-                        .param("email", "teste@gmail.com")
-                        .param("userId", "123"))
+        this.mockMvc.perform(get("/microservice/verify-by-email")
+                        .param("email", "teste@gmail.com"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnUserWhenUserIdExistsInDatabase() throws Exception {
+
+        var user = new User();
+        user.setEmail("teste@gmail.com");
+        user.setName("Rodrigo");
+        user.setPassword("123");
+        user.setRole(Role.USER);
+
+        this.userRepository.save(user);
+
+        this.mockMvc.perform(get("/microservice/verify-by-userId")
+                        .param("userId", user.getUserId()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnNullWhenUserIdNotExistsInDatabase() throws Exception {
+
+        this.mockMvc.perform(get("/microservice/verify-by-userId")
+                        .param("userId", "1"))
                 .andExpect(status().isOk());
     }
 }
