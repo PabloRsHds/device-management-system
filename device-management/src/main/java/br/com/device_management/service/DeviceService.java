@@ -1,9 +1,9 @@
 package br.com.device_management.service;
 
+import br.com.device_management.dtos.DeviceDetailsDto;
 import br.com.device_management.dtos.DeviceManagementEventForSensor;
 import br.com.device_management.dtos.ResponseDeviceDto;
 import br.com.device_management.dtos.UpdateDeviceDto;
-import br.com.device_management.dtos.DeviceDetailsDto;
 import br.com.device_management.dtos.register.DeviceDto;
 import br.com.device_management.infra.exceptions.DeviceIsEmpty;
 import br.com.device_management.infra.exceptions.DeviceIsPresent;
@@ -24,10 +24,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
