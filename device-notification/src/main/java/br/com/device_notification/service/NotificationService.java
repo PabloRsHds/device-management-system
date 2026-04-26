@@ -106,6 +106,7 @@ public class NotificationService {
 
     // ======================================= OCULTAR NOTIFICAÇÕES ==================================================
 
+    @CacheEvict(value = CACHE_ALL_NOTIFICATIONS, allEntries = true)
     public void occultNotification(Long notificationId) {
         var notification = this.getNotificationOrThrow(notificationId);
         this.updateShowNotification(notification);
@@ -126,7 +127,6 @@ public class NotificationService {
         return notification.get();
     }
 
-    @CacheEvict(value = CACHE_ALL_NOTIFICATIONS, allEntries = true)
     @Transactional
     public void updateShowNotification(Notification notification) {
 
