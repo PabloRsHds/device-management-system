@@ -35,7 +35,7 @@ class ServiceForLoginTest {
     private UserMetrics userMetrics;
 
     @Test
-    void shouldReturn200WhenUserExists() throws Exception {
+    void shouldReturn200WhenEmailExistsInDatabase() throws Exception {
 
         var response = new ResponseUserForLogin(
                 "123",
@@ -43,48 +43,100 @@ class ServiceForLoginTest {
                 "USER"
         );
 
-        when(this.userService.getResponseUserWithEmailOrUserId(
-                "teste@gmail.com",
+        when(this.userService.getUserByEmail(
+                "teste@gmail.com"
+        )).thenReturn(response);
+
+        mockMvc.perform(get("/microservice/verify-by-email")
+                        .param("email", "teste@gmail.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value("123"))
+                .andExpect(jsonPath("$.password").value("123456789Rr@"))
+                .andExpect(jsonPath("$.role").value("USER"));
+
+        verify(this.userService).getUserByEmail("teste@gmail.com");
+    }
+
+    @Test
+    void shouldReturnThrowWhenRequestParameterEmail() throws Exception{
+
+        mockMvc.perform(get("/microservice/verify-by-email"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn200WhenUserIdExistsInDatabase() throws Exception {
+
+        var response = new ResponseUserForLogin(
+                "123",
+                "123456789Rr@",
+                "USER"
+        );
+
+        when(this.userService.getUserByUserId(
                 "123"
         )).thenReturn(response);
 
-        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
-                        .param("email", "teste@gmail.com")
+        mockMvc.perform(get("/microservice/verify-by-userId")
                         .param("userId", "123"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value("123"))
                 .andExpect(jsonPath("$.password").value("123456789Rr@"))
                 .andExpect(jsonPath("$.role").value("USER"));
 
-        verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
+        verify(this.userService).getUserByUserId("123");
     }
 
     @Test
     void shouldReturnThrowWhenRequestParameterUserId() throws Exception{
 
-        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
+        mockMvc.perform(get("/microservice/verify-by-userId"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn503WhenGetUserByEmail() throws Exception {
+
+        when(this.userService.getUserByEmail(
+                "teste@gmail.com"
+        )).thenThrow(new ServiceUnavailableException("Service unavailable, try later again"));
+
+        mockMvc.perform(get("/microservice/verify-by-email")
                         .param("email", "teste@gmail.com"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.timesTamp").exists())
+                .andExpect(jsonPath("$.status").value(503))
+                .andExpect(jsonPath("$.error").value("Service unavailable"))
+                .andExpect(jsonPath("$.source").value("DEVICE-USER"))
+                .andExpect(jsonPath("$.target").value("DATABASE"))
+                .andExpect(jsonPath("$.service").value("device-user"))
+                .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
+                .andExpect(jsonPath("$.path").value("/microservice/verify-by-email"));
+
+        verify(this.userService).getUserByEmail("teste@gmail.com");
     }
 
     @Test
-    void shouldReturnThrowWhenRequestParameterEmail() throws Exception{
+    void shouldReturnNullWhenEmailNotExist() throws Exception{
 
-        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
-                        .param("userId", "123"))
-                .andExpect(status().isBadRequest());
+        when(this.userService.getUserByEmail("teste@gmail.com"))
+                .thenReturn(null);
+
+        mockMvc.perform(get("/microservice/verify-by-email")
+                .param("email", "teste@gmail.com"))
+                .andExpect(status().isOk());
+
+        verify(this.userService).getUserByEmail("teste@gmail.com");
     }
 
     @Test
-    void shouldReturn503WhenGetResponseUserWithEmailOrUserId() throws Exception {
+    void shouldReturn503WhenGetUserByUserId() throws Exception {
 
-        when(this.userService.getResponseUserWithEmailOrUserId(
-                "teste@gmail.com",
+        when(this.userService.getUserByUserId(
                 "123"
         )).thenThrow(new ServiceUnavailableException("Service unavailable, try later again"));
 
-        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
-                        .param("email", "teste@gmail.com")
+        mockMvc.perform(get("/microservice/verify-by-userId")
                         .param("userId", "123"))
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.timesTamp").exists())
@@ -94,23 +146,21 @@ class ServiceForLoginTest {
                 .andExpect(jsonPath("$.target").value("DATABASE"))
                 .andExpect(jsonPath("$.service").value("device-user"))
                 .andExpect(jsonPath("$.message").value("Service unavailable, try later again"))
-                .andExpect(jsonPath("$.path").value("/microservice/verify-if-email-already-cadastred"));
+                .andExpect(jsonPath("$.path").value("/microservice/verify-by-userId"));
 
-        verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
+        verify(this.userService).getUserByUserId("123");
     }
 
     @Test
-    void shouldReturnNullWhenUserNotExist() throws Exception{
+    void shouldReturnNullWhenUserIdNotExist() throws Exception{
 
-        when(this.userService.getResponseUserWithEmailOrUserId(
-                "teste@gmail.com",
-                "123")).thenReturn(null);
+        when(this.userService.getUserByUserId("123"))
+                .thenReturn(null);
 
-        mockMvc.perform(get("/microservice/verify-if-email-already-cadastred")
-                .param("email", "teste@gmail.com")
-                .param("userId", "123"))
+        mockMvc.perform(get("/microservice/verify-by-userId")
+                        .param("userId", "123"))
                 .andExpect(status().isOk());
 
-        verify(this.userService).getResponseUserWithEmailOrUserId("teste@gmail.com", "123");
+        verify(this.userService).getUserByUserId("123");
     }
 }
