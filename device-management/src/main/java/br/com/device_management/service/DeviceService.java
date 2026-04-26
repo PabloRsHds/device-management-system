@@ -177,6 +177,10 @@ public class DeviceService {
 
     // =========================================== UPDATE =============================================================
 
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_DEVICE, key = "#deviceModel"),
+            @CacheEvict(value = CACHE_ALL_DEVICES, allEntries = true)
+    })
     public ResponseDeviceDto updateDevice(String deviceModel,UpdateDeviceDto request) {
 
         var sampleTimer = this.timer.startTimer();
@@ -231,11 +235,6 @@ public class DeviceService {
         throw new ServiceUnavailable("Database service unavailable");
     }
 
-
-    @Caching(evict = {
-            @CacheEvict(value = CACHE_GET_DEVICE, key = "#entity.deviceModel"),
-            @CacheEvict(value = CACHE_ALL_DEVICES, allEntries = true)
-    })
     @Transactional
     public DeviceDto saveUpdate(Device entity, UpdateDeviceDto dto) {
 
@@ -275,6 +274,10 @@ public class DeviceService {
 
     // ============================================ DELETE ============================================================
 
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_DEVICE, key = "#deviceModel"),
+            @CacheEvict(value = CACHE_ALL_DEVICES, allEntries = true)
+    })
     public ResponseDeviceDto deleteDevice(String deviceModel) {
 
         log.info("iniciando o timer");
@@ -306,10 +309,7 @@ public class DeviceService {
         }
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = CACHE_GET_DEVICE, key = "#entity.deviceModel"),
-            @CacheEvict(value = CACHE_ALL_DEVICES, allEntries = true)
-    })
+
     @Transactional
     public void delete(Device entity) {
         try {
