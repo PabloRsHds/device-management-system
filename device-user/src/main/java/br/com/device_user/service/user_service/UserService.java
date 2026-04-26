@@ -27,98 +27,50 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Slf4j // Habilita logs com "log.info", "log.warn", etc
-@Service // Marca como Service (camada de regra de negócio)
+@Slf4j
+@Service
 public class UserService {
 
-    // Circuit breaker
     private static final String CIRCUIT_BREAKER_DATABASE = "circuitbreaker_database";
-    // Retry
     private static final String RETRY_DATABASE = "retry_database";
 
-    // Repositório para buscar usuários no banco
     private final UserRepository userRepository;
-
-    // Classe responsável por registrar métricas
     private final UserMetrics userMetrics;
 
-    // Injeção de dependências via construtor
     public UserService(UserRepository userRepository,
                        UserMetrics userMetrics) {
         this.userRepository = userRepository;
         this.userMetrics = userMetrics;
     }
 
-    /*
-        Método responsável por buscar o usuário pelo email ou pelo userId.
-        Esse método provavelmente é chamado por outro microserviço (ex: login via Feign Client).
-    */
+    // ================================
+    // BUSCAR POR EMAIL
+    // ================================
 
-    // Retry: tenta novamente em caso de falha (ex: erro de banco)
-    @Retry(name = RETRY_DATABASE, fallbackMethod = "getResponseUserWithEmailOrUserIdRetry")
-    // Circuit Breaker: abre o circuito se houver muitas falhas
-    @CircuitBreaker(name = CIRCUIT_BREAKER_DATABASE, fallbackMethod = "getResponseUserWithEmailOrUserIdCircuitBreaker")
-    public ResponseUserForLogin getResponseUserWithEmailOrUserId(String email, String userId) {
+    @Retry(name = RETRY_DATABASE, fallbackMethod = "getUserByEmailRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_DATABASE, fallbackMethod = "getUserByEmailCircuitBreaker")
+    public ResponseUserForLogin getUserByEmail(String email) {
 
-        // Inicia um timer para métricas de performance
         var sampleTimer = this.userMetrics.startTimer();
 
-        // Busca usuário pelo email
-        Optional<User> entity_email = this.userRepository.findByEmail(email);
+        Optional<User> entity = this.userRepository.findByEmail(email);
 
-        // Se encontrou pelo email
-        if (entity_email.isPresent()) {
+        if (entity.isEmpty()) {
+            log.info("Usuário não encontrado pelo email={}", email);
 
-            log.info("Usuário encontrado pelo e-mail!");
-
-            var user = entity_email.get();
-
-            // Marca métrica como usuário encontrado
-            this.userMetrics.recordUserIsPresent("true");
-
-            // Finaliza timer de sucesso
-            this.userMetrics.stopUserResponseSuccessTimer(sampleTimer);
-
-            // Retorna DTO com dados necessários para login
-            return new ResponseUserForLogin(
-                    user.getUserId(),
-                    user.getPassword(),
-                    user.getRole().toString()
-            );
-        }
-
-        // Caso não encontre pelo email, tenta pelo userId
-        Optional<User> entity_userId = this.userRepository.findByUserId(userId);
-
-        // Se NÃO encontrou nem pelo userId
-        if (entity_userId.isEmpty()) {
-
-            log.info("Usuário não encontrado | email={} | userId={}", email, userId);
-
-            // Marca métrica como não encontrado
             this.userMetrics.recordUserIsPresent("false");
-
-            log.debug("Parando o timer porque o usuário não foi encontrado!");
-
-            // Finaliza timer de falha
             this.userMetrics.stopUserResponseFailedTimer(sampleTimer);
 
-            // Retorna null (outro microserviço trata isso)
             return null;
         }
 
-        // Se encontrou pelo userId
-        log.info("Usuário encontrado pelo Id!");
+        var user = entity.get();
 
-        var user = entity_userId.get();
+        log.info("Usuário encontrado pelo e-mail!");
 
-        // Marca métrica como encontrado
         this.userMetrics.recordUserIsPresent("true");
-
-        // Finaliza timer de sucesso
         this.userMetrics.stopUserResponseSuccessTimer(sampleTimer);
 
-        // Retorna DTO com dados do usuário
         return new ResponseUserForLogin(
                 user.getUserId(),
                 user.getPassword(),
@@ -126,23 +78,66 @@ public class UserService {
         );
     }
 
-    // Método fallback do Retry
-    // É chamado quando todas as tentativas de retry falham
-    public ResponseUserForLogin getResponseUserWithEmailOrUserIdRetry(String email, String userId, Exception e) {
+    // ================================
+    // BUSCAR POR USER ID
+    // ================================
 
-        log.warn("Database retry exhausted after multiple attempts for email: {}", email, e);
+    @Retry(name = RETRY_DATABASE, fallbackMethod = "getUserByUserIdRetry")
+    @CircuitBreaker(name = CIRCUIT_BREAKER_DATABASE, fallbackMethod = "getUserByUserIdCircuitBreaker")
+    public ResponseUserForLogin getUserByUserId(String userId) {
 
-        // Lança exceção informando indisponibilidade temporária
-        throw new ServiceUnavailableException("Database temporarily unavailable after retries");
+        var sampleTimer = this.userMetrics.startTimer();
+
+        Optional<User> entity = this.userRepository.findByUserId(userId);
+
+        if (entity.isEmpty()) {
+            log.info("Usuário não encontrado pelo userId={}", userId);
+
+            this.userMetrics.recordUserIsPresent("false");
+            this.userMetrics.stopUserResponseFailedTimer(sampleTimer);
+
+            return null;
+        }
+
+        var user = entity.get();
+
+        log.info("Usuário encontrado pelo Id!");
+
+        this.userMetrics.recordUserIsPresent("true");
+        this.userMetrics.stopUserResponseSuccessTimer(sampleTimer);
+
+        return new ResponseUserForLogin(
+                user.getUserId(),
+                user.getPassword(),
+                user.getRole().toString()
+        );
     }
 
-    // Método fallback do Circuit Breaker
-    // É chamado quando o circuito está aberto (muitas falhas recentes)
-    public ResponseUserForLogin getResponseUserWithEmailOrUserIdCircuitBreaker(String email, String userId, Exception e) {
+    // ================================
+    // FALLBACKS EMAIL
+    // ================================
 
-        log.warn("Database offline, using fallback for email: {}", email);
+    public ResponseUserForLogin getUserByEmailRetry(String email, Exception e) {
+        log.warn("Retry falhou para email={}", email, e);
+        throw new ServiceUnavailableException("Database unavailable (retry)");
+    }
 
-        // Lança exceção informando que o serviço está indisponível
-        throw new ServiceUnavailableException("Database service temporarily unavailable - Circuit Breaker is OPEN");
+    public ResponseUserForLogin getUserByEmailCircuitBreaker(String email, Exception e) {
+        log.warn("Circuit breaker aberto para email={}", email);
+        throw new ServiceUnavailableException("Circuit breaker OPEN");
+    }
+
+    // ================================
+    // FALLBACKS USER ID
+    // ================================
+
+    public ResponseUserForLogin getUserByUserIdRetry(String userId, Exception e) {
+        log.warn("Retry falhou para userId={}", userId, e);
+        throw new ServiceUnavailableException("Database unavailable (retry)");
+    }
+
+    public ResponseUserForLogin getUserByUserIdCircuitBreaker(String userId, Exception e) {
+        log.warn("Circuit breaker aberto para userId={}", userId);
+        throw new ServiceUnavailableException("Circuit breaker OPEN");
     }
 }
