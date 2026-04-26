@@ -115,6 +115,10 @@ public class SensorService {
 
     // =============================================  UPDATE =========================================================
 
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_SENSOR, key = "#deviceModel"),
+            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
+    })
     public ResponseSensorDto updateSensor(String deviceModel, UpdateSensor request) {
 
         var sampleTimer = this.metricsService.startTimer();
@@ -156,10 +160,6 @@ public class SensorService {
         throw new ServiceUnavailableException("Database service is not available");
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = CACHE_GET_SENSOR, key = "#entity.deviceModel"),
-            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
-    })
     @Transactional
     public ResponseSensorDto update(Sensor entity, UpdateSensor request) {
 
@@ -192,6 +192,10 @@ public class SensorService {
 
     // ========================================== DELETE =============================================================
 
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_SENSOR, key = "#deviceModel"),
+            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
+    })
     public ResponseSensorDto deleteSensor(String deviceModel) {
 
         var sampleTimer = this.metricsService.startTimer();
@@ -213,10 +217,6 @@ public class SensorService {
         }
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = CACHE_GET_SENSOR, key = "#entity.deviceModel"),
-            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
-    })
     @Transactional
     public void delete(Sensor entity) {
 
@@ -268,16 +268,16 @@ public class SensorService {
 
     // ===================================== ALTERA O STATUS DO SENSOR ===============================================
 
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_GET_SENSOR, key = "#deviceModel"),
+            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
+    })
     public ResponseSensorDto changeStatus(String deviceModel) {
 
         var entity = this.getSensorOrThrow(deviceModel);
         return this.change(entity);
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = CACHE_GET_SENSOR, key = "#entity.deviceModel"),
-            @CacheEvict(value = CACHE_GET_ALL_SENSORS, allEntries = true)
-    })
     @Transactional
     public ResponseSensorDto change(Sensor entity) {
 
