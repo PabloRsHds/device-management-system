@@ -68,14 +68,14 @@ public class LoginService {
 
     public ResponseUserForLogin verifyUser(String email, String password, Timer.Sample timeSample) {
         log.debug("Verificando se o e-mail está cadastrado no banco de dados: {}", email);
-        var user = this.getUser(email, null);
+        var user = this.getUserByEmail(email);
 
         if (user == null) {
 
             log.info("Usuário não encontrado no banco de dados!");
             this.loginMetrics.userNotFound();
             this.loginMetrics.stopFailedLoginTimer(timeSample);
-            throw new InvalidCredentialsException("Email or Password is incorrect");
+            throw new InvalidCredentialsException("Nenhuma conta encontrada. Verifique seu email de usuário.");
         }
 
         if (!this.passwordEncoder.matches(password, user.password())) {
@@ -90,7 +90,7 @@ public class LoginService {
         return user;
     }
 
-    // Método de geração de tokens e refreshTokens
+    // Metodo de geração de tokens e refreshTokens
     public ResponseTokens generateTokens(String userId, String role) {
 
         log.debug("Gerando os tokens para o usuário: {}", userId);
@@ -127,18 +127,27 @@ public class LoginService {
         return new ResponseTokens(accessToken, accessRefreshToken);
     }
 
-    // Circuit breaker para o microservice de usuário
-    @CircuitBreaker(name = CIRCUIT_BREAKER_FEIGN, fallbackMethod = "getUserCircuitBreaker")
-    public ResponseUserForLogin getUser(String email, String userId ) {
+    // Circuit breaker para o serviço feign onde retorno o usuário pelo email
+    @CircuitBreaker(name = CIRCUIT_BREAKER_FEIGN, fallbackMethod = "getUserByEmailCircuitBreaker")
+    public ResponseUserForLogin getUserByEmail(String email) {
 
-        if (email != null && !email.isBlank()) {
-            return this.userClient.getResponseUserWithEmailOrUserId(email, null);
-        }
-
-        return this.userClient.getResponseUserWithEmailOrUserId(null, userId);
+        return this.userClient.getUserByEmail(email);
     }
 
-    public ResponseUserForLogin getUserCircuitBreaker(String email, String userId, Exception ex) {
+    public ResponseUserForLogin getUserByEmailCircuitBreaker(String email, Exception ex) {
+        log.error("Service Unavailable, try again later.", ex);
+        throw new ServiceUnavailableException("Service Unavailable, try again later.");
+    }
+    // =========================
+
+    // Circuit breaker para o serviço feign onde retorno o usuário pelo id
+    @CircuitBreaker(name = CIRCUIT_BREAKER_FEIGN, fallbackMethod = "getAUserByUserIdCircuitBreaker")
+    public ResponseUserForLogin getAUserByUserId(String userId ) {
+
+        return this.userClient.getUserByUserId(userId);
+    }
+
+    public ResponseUserForLogin getAUserByUserIdCircuitBreaker(String userId, Exception ex) {
         log.error("Service Unavailable, try again later.", ex);
         throw new ServiceUnavailableException("Service Unavailable, try again later.");
     }
@@ -175,7 +184,15 @@ public class LoginService {
         }
 
         // 3. Busca usuário confiável
-        var user = this.getUser(null, refreshToken.getSubject());
+        var user = this.getAUserByUserId(refreshToken.getSubject());
+
+        if (user == null) {
+            this.loginMetrics.failedRefreshTokens();
+            this.loginMetrics.stopFailedRefreshTokensTimer(timeSample);
+            log.warn("Usuário não encontrado");
+            throw new InvalidCredentialsException("Usuário não encontrado!");
+        }
+
         var tokens = this.generateTokens(user.userId(), user.role());
 
         this.loginMetrics.refreshTokenSuccess();
