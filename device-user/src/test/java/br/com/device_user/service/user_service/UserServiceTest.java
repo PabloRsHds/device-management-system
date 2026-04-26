@@ -35,10 +35,9 @@ class UserServiceTest {
     void shouldReturnUserWhenFoundByEmail() {
 
         var email = "teste@gmail.com";
-        var userId = "123";
 
         var user = new User();
-        user.setUserId(userId);
+        user.setUserId("1");
         user.setName("Pablo");
         user.setEmail(email);
         user.setPassword("123456789Rr@");
@@ -50,15 +49,13 @@ class UserServiceTest {
         Timer.Sample sample = mock(Timer.Sample.class);
         when(this.userMetrics.startTimer()).thenReturn(sample);
 
-        var response = this.userService.getResponseUserWithEmailOrUserId(email, userId);
+        var response = this.userService.getUserByEmail(email);
 
         assertNotNull(response);
-        assertEquals(userId, response.userId());
         assertEquals("123456789Rr@", response.password());
         assertEquals("USER", response.role());
 
         verify(this.userRepository).findByEmail(email);
-        verify(this.userRepository, never()).findByUserId(userId);
         verify(this.userMetrics).recordUserIsPresent("true");
         verify(this.userMetrics).stopUserResponseSuccessTimer(sample);
     }
@@ -66,13 +63,12 @@ class UserServiceTest {
     @Test
     void shouldReturnUserWhenFoundByUserId() {
 
-        var email = "teste@gmail.com";
-        var userId = "123";
+        var userId = "1";
 
         var user = new User();
         user.setUserId(userId);
         user.setName("Rodrigo");
-        user.setEmail(email);
+        user.setEmail("teste@gmail.com");
         user.setPassword("123456789Rr@");
         user.setRole(Role.USER);
         user.setCreatedAt(Instant.now().toString());
@@ -82,28 +78,45 @@ class UserServiceTest {
         Timer.Sample sample = mock(Timer.Sample.class);
         when(this.userMetrics.startTimer()).thenReturn(sample);
 
-        var response = this.userService.getResponseUserWithEmailOrUserId(email, userId);
+        var response = this.userService.getUserByUserId(userId);
 
         assertNotNull(response);
         assertEquals(userId, response.userId());
         assertEquals(user.getPassword(), response.password());
         assertEquals(user.getRole().toString(), response.role());
 
-        verify(this.userRepository).findByEmail(email);
         verify(this.userRepository).findByUserId(userId);
         verify(this.userMetrics).recordUserIsPresent("true");
         verify(this.userMetrics).stopUserResponseSuccessTimer(sample);
     }
 
     @Test
-    void shouldReturnNullWhenUserNotFound() {
+    void shouldReturnNullWhenUserByEmailNotFound() {
 
-        // Arrange
         var email = "notfound@gmail.com";
-        var userId = "1235";
 
         when(this.userRepository.findByEmail(email))
                 .thenReturn(Optional.empty());
+
+        Timer.Sample sample = mock(Timer.Sample.class);
+        when(this.userMetrics.startTimer()).thenReturn(sample);
+
+        // Act
+        var response = this.userService.getUserByEmail(email);
+
+        // Assert
+        assertNull(response);
+
+        // Verify
+        verify(this.userRepository).findByEmail(email);
+        verify(this.userMetrics).recordUserIsPresent("false");
+        verify(this.userMetrics).stopUserResponseFailedTimer(sample);
+    }
+
+    @Test
+    void shouldReturnNullWhenUserByUserIdNotFound() {
+
+        var userId = "123";
 
         when(this.userRepository.findByUserId(userId))
                 .thenReturn(Optional.empty());
@@ -112,27 +125,26 @@ class UserServiceTest {
         when(this.userMetrics.startTimer()).thenReturn(sample);
 
         // Act
-        var response = this.userService.getResponseUserWithEmailOrUserId(email, userId);
+        var response = this.userService.getUserByUserId(userId);
 
         // Assert
         assertNull(response);
 
         // Verify
-        verify(this.userRepository).findByEmail(email);
         verify(this.userRepository).findByUserId(userId);
         verify(this.userMetrics).recordUserIsPresent("false");
         verify(this.userMetrics).stopUserResponseFailedTimer(sample);
     }
 
     @Test
-    void shouldThrowServiceUnavailableWhenRetryFallbackIsCalled(){
+    void shouldThrowServiceUnavailableWhenGetUserByEmailRetry(){
 
         var email = "test@gmail.com";
-        var userId = "123";
 
         assertThrows(ServiceUnavailableException.class, () ->
-                userService.getResponseUserWithEmailOrUserIdRetry(email, userId,
-                        new DataAccessException("Database temporarily unavailable after retries") {})
+                userService.getUserByEmailRetry(email,
+                        new DataAccessException("Database temporarily unavailable after retries") {}
+                )
         );
 
         verifyNoInteractions(this.userMetrics);
@@ -140,13 +152,40 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldThrowServiceUnavailableWhenCircuitBreakerIsCalled() {
+    void shouldThrowServiceUnavailableWhenGetUserByEmailCircuitBreaker() {
 
         var email = "test@gmail.com";
-        var userId = "123";
 
         assertThrows(ServiceUnavailableException.class, () ->
-                userService.getResponseUserWithEmailOrUserIdCircuitBreaker(email, userId,
+                userService.getUserByEmailCircuitBreaker(email,
+                        new DataAccessException("Database service temporarily unavailable - Circuit Breaker is OPEN") {}));
+
+        verifyNoInteractions(this.userMetrics);
+        verifyNoInteractions(this.userRepository);
+    }
+
+    @Test
+    void shouldThrowServiceUnavailableWhenGetUserByUserIdRetry(){
+
+        var userId = "1";
+
+        assertThrows(ServiceUnavailableException.class, () ->
+                userService.getUserByUserIdRetry(userId,
+                        new DataAccessException("Database temporarily unavailable after retries") {}
+                )
+        );
+
+        verifyNoInteractions(this.userMetrics);
+        verifyNoInteractions(this.userRepository);
+    }
+
+    @Test
+    void shouldThrowServiceUnavailableWhenGetUserByUserIdCircuitBreaker() {
+
+        var userId = "1";
+
+        assertThrows(ServiceUnavailableException.class, () ->
+                userService.getUserByUserIdCircuitBreaker(userId,
                         new DataAccessException("Database service temporarily unavailable - Circuit Breaker is OPEN") {}));
 
         verifyNoInteractions(this.userMetrics);
