@@ -12,6 +12,9 @@ public interface UserClient {
       * Eu faço uma verificação passando o e-mail do usuário, caso ele esteja registrado ele me retorna os dados
       * do usuário, como userId, password(para fazer a verificação do password), e a role do usuário.
       */
-    @GetMapping("/microservice/verify-if-email-already-cadastred")
-    ResponseUserForLogin getResponseUserWithEmailOrUserId(@RequestParam String email, @RequestParam String userId);
+    @GetMapping("/microservice/verify-by-email")
+    ResponseUserForLogin getUserByEmail(@RequestParam String email);
+
+    @GetMapping("/microservice/verify-by-userId")
+    ResponseUserForLogin getUserByUserId(@RequestParam String userId);
 }
