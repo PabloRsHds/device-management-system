@@ -47,13 +47,13 @@ public class ServiceForLogin {
         2. Chama o UserService
         3. Retorna os dados do usuário (DTO)
     */
-    @GetMapping("/verify-if-email-already-cadastred")
-    public ResponseUserForLogin getUserForLoginWithEmailOrUserId(
-            @RequestParam String email,   // Email recebido na requisição
-            @RequestParam String userId   // UserId recebido na requisição
-    ) {
+    @GetMapping("/verify-by-email")
+    public ResponseUserForLogin getUserByEmail(@RequestParam String email) {
+        return userService.getUserByEmail(email);
+    }
 
-        // Delega a lógica para o service
-        return this.userService.getResponseUserWithEmailOrUserId(email, userId);
+    @GetMapping("/verify-by-userId")
+    public ResponseUserForLogin getUserByUserId(@RequestParam String userId) {
+        return userService.getUserByUserId(userId);
     }
 }
