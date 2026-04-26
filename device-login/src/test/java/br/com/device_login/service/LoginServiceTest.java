@@ -19,7 +19,6 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(MockitoExtension.class)
 class LoginServiceTest {
 
@@ -42,19 +41,19 @@ class LoginServiceTest {
     private LoginService loginService;
 
     @Test
-    void shouldThrowExceptionWhenUserNotFound() {
+    void shouldThrowExceptionWhenUserNotFoundByEmail() {
 
         var email = "test@gmail.com";
         var password = "3211123123";
         var sample = mock(Timer.Sample.class);
 
-        when(this.userClient.getResponseUserWithEmailOrUserId(email, null))
+        when(this.userClient.getUserByEmail(email))
                 .thenReturn(null);
 
         assertThrows(InvalidCredentialsException.class,
                 () -> this.loginService.verifyUser(email, password, sample));
 
-        verify(this.userClient).getResponseUserWithEmailOrUserId(email, null);
+        verify(this.userClient).getUserByEmail(email);
         verify(this.loginMetrics).userNotFound();
         verify(this.loginMetrics).stopFailedLoginTimer(sample);
 
@@ -77,13 +76,13 @@ class LoginServiceTest {
 
         var response = new ResponseUserForLogin(userId, encodePassword, role);
 
-        when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(response);
+        when(this.userClient.getUserByEmail(email)).thenReturn(response);
         when(this.passwordEncoder.matches(rawPassword, encodePassword)).thenReturn(false);
 
         assertThrows(InvalidCredentialsException.class,
                 () -> this.loginService.verifyUser(email, rawPassword, sample));
 
-        verify(this.userClient).getResponseUserWithEmailOrUserId(email, null);
+        verify(this.userClient).getUserByEmail(email);
         verify(this.passwordEncoder).matches(rawPassword, encodePassword);
         verify(this.loginMetrics).invalidCredentials();
         verify(this.loginMetrics).stopFailedLoginTimer(sample);
@@ -105,7 +104,7 @@ class LoginServiceTest {
         var sample = mock(Timer.Sample.class);
         var response = new ResponseUserForLogin(userId, encodePassword, role);
 
-        when(this.userClient.getResponseUserWithEmailOrUserId(email, null)).thenReturn(response);
+        when(this.userClient.getUserByEmail(email)).thenReturn(response);
         when(this.passwordEncoder.matches(rawPassword, encodePassword)).thenReturn(true);
 
         var success = this.loginService.verifyUser(email, rawPassword, sample);
@@ -115,7 +114,7 @@ class LoginServiceTest {
         assertEquals(encodePassword, success.password());
         assertEquals(role, success.role());
 
-        verify(this.userClient).getResponseUserWithEmailOrUserId(email, null);
+        verify(this.userClient).getUserByEmail(email);
         verify(this.passwordEncoder).matches(rawPassword, encodePassword);
 
         verifyNoInteractions(this.loginMetrics);
@@ -195,6 +194,37 @@ class LoginServiceTest {
         verifyNoInteractions(this.passwordEncoder);
         verifyNoInteractions(this.userClient);
         verifyNoInteractions(this.jwtEncoder);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserNotFound() {
+
+        // Arrange
+        var userId = "123";
+
+        var request = new RequestTokensDto("access-token", "refresh-token");
+
+        var accessJwt = mock(Jwt.class);
+        var refreshJwt = mock(Jwt.class);
+
+        // Decoder retorna os JWTs
+        when(jwtDecoder.decode("access-token")).thenReturn(accessJwt);
+        when(jwtDecoder.decode("refresh-token")).thenReturn(refreshJwt);
+
+        // Tokens válidos (não expirados)
+        when(refreshJwt.getExpiresAt()).thenReturn(Instant.now().plusSeconds(60));
+
+        // Subjects iguais
+        when(refreshJwt.getSubject()).thenReturn(userId);
+        when(accessJwt.getSubject()).thenReturn(userId);
+
+        // Usuário NÃO encontrado
+        when(userClient.getUserByUserId(userId)).thenReturn(null);
+
+        // Act + Assert
+        assertThrows(InvalidCredentialsException.class, () -> {
+            this.loginService.refreshTokens(request);
+        });
     }
 
     @Test
