@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -175,7 +177,7 @@ class SensorControllerTest {
     void shouldReturnListResponseSensorDtoWhenFindAllSensorsActivated() throws Exception {
 
         when(this.sensorService.getAllSensorsActivated(0, 1))
-                .thenReturn(List.of());
+                .thenReturn(Page.empty(PageRequest.of(0, 1)));
 
         this.mockMvc.perform(get("/api/find-all-sensors-activated")
                         .param("page","0")

@@ -231,6 +231,7 @@ public class AnalysisService {
 
     // ====================================== FIND DEVICE FOR ANALYSIS ==============================================
 
+    @Cacheable(value = CACHE_DEVICE_MODEL , key = "#deviceModel")
     public ResponseDeviceAnalysisDto getDeviceForAnalysis(String deviceModel) {
 
         var entity = this.getDeviceWithModel(deviceModel);
@@ -251,7 +252,6 @@ public class AnalysisService {
                 entity.getAnalysisFailed());
     }
 
-    @Cacheable(value = CACHE_DEVICE_MODEL , key = "#deviceModel")
     @Retry(name = RETRY_GET_DEVICE, fallbackMethod = "getDeviceWithModelRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_GET_DEVICE, fallbackMethod = "getDeviceWithModelCircuitBreaker")
     public Analysis getDeviceWithModel(String deviceModel) {

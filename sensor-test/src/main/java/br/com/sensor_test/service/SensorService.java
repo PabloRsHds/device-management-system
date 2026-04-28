@@ -240,7 +240,7 @@ public class SensorService {
         try {
             log.info("Procurando registros no banco de dados, e transformando eles em um dto");
             return this.sensorRepository
-                    .findAllSensors(PageRequest.of(page, size))
+                    .findAllByStatus(Status.ACTIVATED,PageRequest.of(page, size))
                     .map(device -> new ResponseSensorDto(
                             device.getName(),
                             device.getType(),
