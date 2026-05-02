@@ -349,7 +349,7 @@ public class DeviceService {
 
     // ================================= Retorna todos os dispositivos ================================================
 
-    @Cacheable(value = CACHE_ALL_DEVICES, key = "#page + '-' + #size", unless = "#result.isEmpty()")
+    @Cacheable(value = CACHE_ALL_DEVICES, key = "#page + '-' + #size")
     @Retry(name = RETRY_ALL_DEVICES, fallbackMethod = "getAllDevicesRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_ALL_DEVICES, fallbackMethod = "getAllDevicesCircuitBreaker")
     public Page<ResponseDeviceDto> getAllDevices(int page, int size) {
