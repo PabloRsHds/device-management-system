@@ -69,6 +69,7 @@ public class DeviceService {
 
     // ========================================== REGISTER DEVICE ====================================================
 
+    @CacheEvict(value = CACHE_ALL_DEVICES, allEntries = true)
     public ResponseDeviceDto registerDevice(DeviceDto request) {
 
         var sampleTimer = this.timer.startTimer();

@@ -75,7 +75,7 @@ public class LoginService {
             log.info("Usuário não encontrado no banco de dados!");
             this.loginMetrics.userNotFound();
             this.loginMetrics.stopFailedLoginTimer(timeSample);
-            throw new InvalidCredentialsException("Nenhuma conta encontrada. Verifique seu email de usuário.");
+            throw new InvalidCredentialsException("No accounts found. Check your user email.");
         }
 
         if (!this.passwordEncoder.matches(password, user.password())) {
@@ -120,7 +120,7 @@ public class LoginService {
 
         if (accessToken == null || accessRefreshToken == null) {
             log.info("Não foi possível gerar os tokens, devido a um erro inesperado");
-            throw new JwtEncodingException("Não foi possível gerar os tokens");
+            throw new JwtEncodingException("Unable to generate tokens");
         }
 
         log.info("Tokens gerados com sucesso!");
@@ -190,7 +190,7 @@ public class LoginService {
             this.loginMetrics.failedRefreshTokens();
             this.loginMetrics.stopFailedRefreshTokensTimer(timeSample);
             log.warn("Usuário não encontrado");
-            throw new InvalidCredentialsException("Usuário não encontrado!");
+            throw new InvalidCredentialsException("User not found!");
         }
 
         var tokens = this.generateTokens(user.userId(), user.role());
