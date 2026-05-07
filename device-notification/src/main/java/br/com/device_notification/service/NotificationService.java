@@ -86,6 +86,7 @@ public class NotificationService {
 
     // ================================================ VISUALIZAÇÃO ==================================================
 
+    @CacheEvict(value = CACHE_ALL_NOTIFICATIONS, allEntries = true)
     @Retry(name = RETRY_VISUALISATION, fallbackMethod = "visualisationRetry")
     @CircuitBreaker(name = CIRCUIT_BREAKER_VISUALISATION, fallbackMethod = "visualisationCircuitBreaker")
     public void visualisation() {
